@@ -15,7 +15,7 @@ const (
 
 type Urls struct {
 	Key string
-	Url string
+	URL string
 }
 
 var Link = Urls{}
@@ -30,7 +30,7 @@ func Handlers(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), 500)
 			return
 		}
-		Link.Url = string(b)
+		Link.URL = string(b)
 		ct := r.Header.Get("Content-Type")
 		w.Header().Set("Content-Type", ct)
 		w.WriteHeader(http.StatusCreated)
@@ -43,9 +43,9 @@ func Handlers(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.Header().Add("Location", Link.Url)
+		w.Header().Add("Location", Link.URL)
 		w.WriteHeader(http.StatusTemporaryRedirect)
-		w.Write([]byte(Link.Url))
+		w.Write([]byte(Link.URL))
 
 	default:
 		http.Error(w, "Only POST|GET requests are allowed!", http.StatusMethodNotAllowed)
