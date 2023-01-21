@@ -31,7 +31,7 @@ func NewHandler(repository Repository) handlers.Handler {
 // Register обязательно реализуем этот интерфейсный метод в структуре handler
 func (h *handler) Register(router *chi.Mux) {
 	// добавить длинный url и получить в ответ короткий
-	router.Post(searchURL, shorturlerror.Middleware(h.AddUrl))
+	router.Post(searchURL, shorturlerror.Middleware(h.AddURL))
 	// получить ресурс по короткому url
 	router.Get(searchURL, shorturlerror.Middleware(h.GetShortURL))
 }
@@ -55,8 +55,8 @@ func (h *handler) GetShortURL(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-// AddUrl добавить url в db (ну типа db)
-func (h *handler) AddUrl(w http.ResponseWriter, r *http.Request) error {
+// AddURL добавить url в db (ну типа db)
+func (h *handler) AddURL(w http.ResponseWriter, r *http.Request) error {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
