@@ -27,8 +27,8 @@ func (d *repository) FindOne(ctx context.Context, id string) (s string, err erro
 	if d.url[id] == "" {
 		return "", fmt.Errorf("not found")
 	}
-	longUrl := d.url[id]
-	return longUrl, nil
+
+	return d.url[id], nil
 }
 func NewRepository() shorturl.Repository {
 	r := &repository{}
