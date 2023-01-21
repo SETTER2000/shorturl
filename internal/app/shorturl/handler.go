@@ -37,7 +37,7 @@ func (h *handler) Register(router *chi.Mux) {
 }
 
 func (h *handler) GetShortUrl(w http.ResponseWriter, r *http.Request) error {
-	key := r.URL.Query().Get("q")
+	key := r.URL.Query().Get("query")
 	//key := chi.URLParam(r, "q")
 	//key = strings.Split(key, "=")[1]
 	//key := r.URL.RequestURI()
@@ -51,7 +51,7 @@ func (h *handler) GetShortUrl(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Header().Add("Location", shorturl)
 	w.WriteHeader(http.StatusTemporaryRedirect)
-	w.Write([]byte(shorturl))
+	//w.Write([]byte(shorturl))
 	return nil
 }
 
@@ -65,13 +65,14 @@ func (h *handler) AddUrl(w http.ResponseWriter, r *http.Request) error {
 	var url ShortUrl
 	url.Url = string(body)
 	url.Key = genStr()
-	key, err := h.repository.Create(context.TODO(), url)
+	shorturl, err := h.repository.Create(context.TODO(), url)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil
 	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(fmt.Sprintf("%s\n", key)))
+	w.Write([]byte(fmt.Sprintf("http://localhost:8080?query=" + shorturl)))
 	return nil
 }
 func genStr() string {
@@ -79,7 +80,7 @@ func genStr() string {
 	rand.Seed(time.Now().UnixNano())
 	digits := "0123456789"
 	//specials := "~=+%^*/()[]{}/!@#$?|"
-	specials := "~-_"
+	specials := "_"
 	all := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + digits + specials
 	length := 8
 	buf := make([]byte, length)

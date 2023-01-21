@@ -18,7 +18,7 @@ func (d *repository) Create(ctx context.Context, shorturl shorturl.ShortUrl) (st
 	//fmt.Printf("Размер хранилища: %v\n", len(d.url))
 	//fmt.Printf("Ключ хранилища: %s\n", shorturl.Key)
 	//fmt.Printf("Сейчас в хранилище: %s\n", d.url[shorturl.Key])
-	return "http://localhost:8080?q=" + shorturl.Key, nil
+	return shorturl.Key, nil
 }
 func (d *repository) FindOne(ctx context.Context, id string) (s string, err error) {
 	if id == "" {

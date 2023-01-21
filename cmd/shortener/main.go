@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/SETTER2000/shorturl/internal/app/config"
+	"github.com/SETTER2000/shorturl/internal/app/handlers"
 	"github.com/SETTER2000/shorturl/internal/app/shorturl"
 	"github.com/SETTER2000/shorturl/internal/app/shorturl/db"
 	"github.com/go-chi/chi/v5"
@@ -18,7 +19,7 @@ func main() {
 	shorturlHandler := shorturl.NewHandler(repository)
 	shorturlHandler.Register(router)
 	cfg := config.GetConfig()
-
+	router.HandleFunc("/status", handlers.StatusHandler)
 	// start server
 	start(router, cfg)
 }
