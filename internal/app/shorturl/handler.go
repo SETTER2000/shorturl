@@ -33,10 +33,10 @@ func (h *handler) Register(router *chi.Mux) {
 	// добавить длинный url и получить в ответ короткий
 	router.Post(searchURL, shorturlerror.Middleware(h.AddUrl))
 	// получить ресурс по короткому url
-	router.Get(searchURL, shorturlerror.Middleware(h.GetShortUrl))
+	router.Get(searchURL, shorturlerror.Middleware(h.GetShortURL))
 }
 
-func (h *handler) GetShortUrl(w http.ResponseWriter, r *http.Request) error {
+func (h *handler) GetShortURL(w http.ResponseWriter, r *http.Request) error {
 	key := r.URL.Query().Get("query")
 	//key := chi.URLParam(r, "q")
 	//key = strings.Split(key, "=")[1]
@@ -62,7 +62,7 @@ func (h *handler) AddUrl(w http.ResponseWriter, r *http.Request) error {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return nil
 	}
-	var url ShortUrl
+	var url ShortURL
 	url.URL = string(body)
 	url.Key = genStr()
 	shorturl, err := h.repository.Create(context.TODO(), url)

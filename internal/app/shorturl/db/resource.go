@@ -10,7 +10,7 @@ type repository struct {
 	url map[string]string
 }
 
-func (d *repository) Create(ctx context.Context, shorturl shorturl.ShortUrl) (string, error) {
+func (d *repository) Create(ctx context.Context, shorturl shorturl.ShortURL) (string, error) {
 	if shorturl.Key == "" {
 		return "", fmt.Errorf("short url creation error, key is empty")
 	}
