@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -44,6 +45,8 @@ func Handlers(w http.ResponseWriter, r *http.Request) {
 
 	case "GET":
 		QueryKey := r.URL.Query().Get("query")
+		fmt.Println(QueryKey)
+		fmt.Println(r.URL.Query())
 		if QueryKey == "" {
 			http.Error(w, "The query parameter is missing", http.StatusBadRequest)
 			return

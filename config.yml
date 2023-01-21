@@ -1,0 +1,6 @@
+---
+is_debug: true
+listen:
+  type: port
+  port: 8080
+  
