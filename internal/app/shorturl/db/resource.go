@@ -14,7 +14,7 @@ func (d *repository) Create(ctx context.Context, shorturl shorturl.ShortUrl) (st
 	if shorturl.Key == "" {
 		return "", fmt.Errorf("short url creation error, key is empty")
 	}
-	d.url[shorturl.Key] = shorturl.Url
+	d.url[shorturl.Key] = shorturl.URL
 	//fmt.Printf("Размер хранилища: %v\n", len(d.url))
 	//fmt.Printf("Ключ хранилища: %s\n", shorturl.Key)
 	//fmt.Printf("Сейчас в хранилище: %s\n", d.url[shorturl.Key])

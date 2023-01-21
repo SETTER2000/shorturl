@@ -63,7 +63,7 @@ func (h *handler) AddUrl(w http.ResponseWriter, r *http.Request) error {
 		return nil
 	}
 	var url ShortUrl
-	url.Url = string(body)
+	url.URL = string(body)
 	url.Key = genStr()
 	shorturl, err := h.repository.Create(context.TODO(), url)
 	if err != nil {
