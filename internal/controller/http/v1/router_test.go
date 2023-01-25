@@ -91,14 +91,14 @@ func TestShortURL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			//request := httptest.NewRequest(http.MethodPost, "/", nil)
 			request := httptest.NewRequest(http.MethodGet, "/", nil)
-
-			// создаём новый Recorder
 			w := httptest.NewRecorder()
-			// определяем хендлер
 			h := http.HandlerFunc(ShortURL)
-			// запускаем сервер
 			h.ServeHTTP(w, request)
 			res := w.Result()
+			// запускаем сервер
+			// определяем хендлер
+			// создаём новый Recorder
+			defer res.Body.Close()
 
 			// TODO status code 307 не знаю как проверить
 			// проверяем код ответа
@@ -107,7 +107,7 @@ func TestShortURL(t *testing.T) {
 			}
 
 			// получаем и проверяем тело запроса
-			//defer res.Body.Close()
+
 			//resBody, err := io.ReadAll(res.Body)
 			//if err != nil {
 			//	t.Fatal(err)
