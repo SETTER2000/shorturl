@@ -25,10 +25,19 @@ func NewRouter(r *chi.Mux) {
 	r.Use(middleware.URLFormat)
 	r.Use(render.SetContentType(render.ContentTypePlainText))
 
+	r.Get("/status", StatusHandler)
+
 	r.Route("/", func(r chi.Router) {
 		r.Post("/", LongURL) // POST /
 		r.Get("/{key}", ShortURL)
 	})
+}
+
+func StatusHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	// намеренно сделана ошибка в JSON
+	w.Write([]byte(`{"status":"ok"}`))
 }
 
 type Link struct {
@@ -53,23 +62,10 @@ func LongURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusCreated)
 	// TODO не знаю как сюда прокинуть конфиг, чтоб убрать весь hardcode
 	w.Write([]byte(fmt.Sprintf("http://localhost:8080/" + shorturl)))
-}
-
-func dbNewLink(link *Link) (string, error) {
-	link.Slug = scripts.UniqueString()
-	db[link.Slug] = link.URL
-	return fmt.Sprintf(link.Slug), nil
-}
-
-func urlListFunc() []string {
-	var list []string
-	for _, c := range db {
-		list = append(list, c)
-	}
-	return list
 }
 
 func ShortURL(w http.ResponseWriter, r *http.Request) {
@@ -79,10 +75,24 @@ func ShortURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Add("Location", urlFunc(shorturl))
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }
+
+func dbNewLink(link *Link) (string, error) {
+	link.Slug = scripts.UniqueString()
+	db[link.Slug] = link.URL
+	return fmt.Sprintf(link.Slug), nil
+}
+
+//func urlListFunc() []string {
+//	var list []string
+//	for _, c := range db {
+//		list = append(list, c)
+//	}
+//	return list
+//}
 
 // urlFunc — вспомогательная функция для вывода определённого URL.
 func urlFunc(id string) string {
