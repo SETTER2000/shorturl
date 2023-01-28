@@ -2,6 +2,12 @@ package app
 
 import (
 	"fmt"
+	"math/rand"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/SETTER2000/shorturl/config"
 	v1 "github.com/SETTER2000/shorturl/internal/controller/http/v1"
 	"github.com/SETTER2000/shorturl/internal/server"
@@ -9,11 +15,6 @@ import (
 	"github.com/SETTER2000/shorturl/internal/usecase/repo"
 	"github.com/SETTER2000/shorturl/pkg/log/logger"
 	"github.com/go-chi/chi/v5"
-	"math/rand"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 func Run(cfg *config.Config) {
