@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	v1 "github.com/SETTER2000/shorturl/internal/controller/http/v1"
-	"github.com/SETTER2000/shorturl/internal/httpserver"
+	"github.com/SETTER2000/shorturl/internal/server"
+	"github.com/SETTER2000/shorturl/internal/usecase"
+	"github.com/SETTER2000/shorturl/internal/usecase/repo"
 	"github.com/SETTER2000/shorturl/pkg/log/logger"
 	"github.com/go-chi/chi/v5"
 	"math/rand"
@@ -19,13 +21,19 @@ func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
 	// seed
 	rand.Seed(time.Now().UnixNano())
+
 	// Use case
-	//...
+	shorturlUseCase := usecase.New(
+		repo.NewInMemory(),
+		//webapi.New(),
+	)
 
 	// HTTP Server
 	handler := chi.NewRouter()
-	v1.NewRouter(handler)
-	httpServer := httpserver.New(handler, httpserver.Port(cfg.HTTP.Port))
+	v1.NewRouter(handler, l, shorturlUseCase)
+	httpServer := server.New(handler, server.Port(cfg.HTTP.Port))
+
+	// waiting signal
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
