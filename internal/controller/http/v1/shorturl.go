@@ -113,7 +113,10 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 
 	result.URL = fmt.Sprintf("http://localhost:8080/api/%s", shorturl)
 	obj, err := json.Marshal(result)
-
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
 	res.Write(obj)
