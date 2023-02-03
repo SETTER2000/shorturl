@@ -21,5 +21,4 @@ vendor/
 # IDEs directories
 .idea
 .vscode
-cmd/shortener/shortener
 shortener
