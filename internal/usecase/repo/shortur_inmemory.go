@@ -42,3 +42,14 @@ func (s *InMemory) Put(key string, value string) error {
 	s.m[key] = value
 	return nil
 }
+
+func (s *InMemory) Post(key string, value string) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	if _, ok := s.m[key]; ok {
+		return ErrAlreadyExists
+	}
+	s.m[key] = value
+	return nil
+}

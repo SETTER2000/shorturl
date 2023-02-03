@@ -10,6 +10,7 @@ type (
 	// Shorturl -.
 	Shorturl interface {
 		LongLink(entity.Shorturl) (string, error)
+		Shorten(entity.Shorturl) (string, error)
 		ShortLink(w http.ResponseWriter, r *http.Request) (string, error)
 	}
 
@@ -17,5 +18,6 @@ type (
 	ShorturlRepo interface {
 		Get(key string) (string, error)
 		Put(key, value string) error
+		Post(key, value string) error
 	}
 )

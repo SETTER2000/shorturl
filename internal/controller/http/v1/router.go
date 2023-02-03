@@ -28,11 +28,12 @@ func NewRouter(handler *chi.Mux, l logger.Interface, s usecase.Shorturl) {
 	// Swagger
 
 	handler.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), //The url pointing to API definition
+		httpSwagger.URL("http://localhost:8080/api/swagger/doc.json"),
+		//The url pointing to API definition
 	))
 
 	// Routers
-	h := handler.Route("/", func(r chi.Router) {
+	h := handler.Route("/api", func(r chi.Router) {
 		r.Routes()
 	})
 	{
