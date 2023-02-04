@@ -2,7 +2,6 @@ package v1
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/internal/usecase"
@@ -109,8 +108,7 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	result := fmt.Sprintf(scripts.GetHost(r.cfg, shorturl))
-	obj, err := json.Marshal(shorturlResponse{result})
+	obj, err := json.Marshal(shorturlResponse{scripts.GetHost(r.cfg, shorturl)})
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
