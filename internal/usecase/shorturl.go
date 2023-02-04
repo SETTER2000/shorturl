@@ -44,7 +44,7 @@ func (uc *ShorturlUseCase) ShortLink(w http.ResponseWriter, r *http.Request) (st
 // LongLink принимает длинный URL и возвращает короткий (PUT /api)
 func (uc *ShorturlUseCase) LongLink(sh entity.Shorturl) (string, error) {
 	key := scripts.UniqueString()
-	log.Printf("FOOO post /::: %s", sh.URL)
+	log.Printf("LongLink post / %s", sh.URL)
 	err := uc.repo.Put(key, sh.URL)
 	if err == nil {
 		return key, nil
@@ -56,7 +56,7 @@ func (uc *ShorturlUseCase) LongLink(sh entity.Shorturl) (string, error) {
 // Shorten принимает длинный URL и возвращает короткий (POST /api/shorten)
 func (uc *ShorturlUseCase) Shorten(sh entity.Shorturl) (string, error) {
 	key := scripts.UniqueString()
-	err := uc.repo.Put(key, sh.URL)
+	err := uc.repo.Post(key, sh.URL)
 	if err == nil {
 		return key, nil
 	}

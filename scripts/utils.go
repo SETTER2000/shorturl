@@ -2,6 +2,7 @@ package scripts
 
 import (
 	"fmt"
+	"github.com/SETTER2000/shorturl/config"
 	"hash/fnv"
 	"math/rand"
 	"time"
@@ -32,4 +33,8 @@ func GenerateString(n int) string {
 }
 func UniqueString() string {
 	return fmt.Sprintf("%v%s", time.Now().UnixNano(), GenerateString(3))
+}
+
+func GetHost(cfg config.HTTP, shorturl string) string {
+	return fmt.Sprintf("%s:%s/%s", cfg.Domain, cfg.Port, shorturl)
 }

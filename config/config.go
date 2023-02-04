@@ -16,7 +16,8 @@ type (
 		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
 	}
 	HTTP struct {
-		Port string `env-required:"true" yaml:"port" env:"HTTP_PORT"`
+		Port   string `env-required:"true" yaml:"port" env:"HTTP_PORT"`
+		Domain string `env-required:"true" yaml:"domain" env:"HTTP_DOMAIN"`
 	}
 	Log struct {
 		Level string `env-required:"true" yaml:"log_level"  env:"LOG_LEVEL"`
@@ -29,7 +30,7 @@ var instance *Config
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
 
-	err := cleanenv.ReadConfig("../../config/config.yml", cfg)
+	err := cleanenv.ReadConfig("./config/config.yml", cfg)
 	if err != nil {
 		return nil, fmt.Errorf("config error: %w", err)
 	}

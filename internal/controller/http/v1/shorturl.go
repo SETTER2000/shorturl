@@ -3,26 +3,27 @@ package v1
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/internal/usecase"
 	"github.com/SETTER2000/shorturl/pkg/log/logger"
+	"github.com/SETTER2000/shorturl/scripts"
 	"github.com/go-chi/chi/v5"
 	"io"
 	"net/http"
 )
 
 type shorturlRoutes struct {
-	s usecase.Shorturl
-	l logger.Interface
+	s   usecase.Shorturl
+	l   logger.Interface
+	cfg config.HTTP
 }
 
-func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interface) {
-	sr := &shorturlRoutes{s, l}
+func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interface, cfg config.HTTP) {
+	sr := &shorturlRoutes{s, l, cfg}
 
 	handler.Group(func(r chi.Router) {
-		r.Get("/{key}", sr.shortLink)     // GET /{key}
 		r.Post("/{some_url}", sr.shorten) // POST /
-		r.Post("/", sr.longLink)          // POST /
 	})
 }
 
@@ -75,10 +76,10 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 
 	res.Header().Set("Content-Type", "text/plain")
 	res.WriteHeader(http.StatusCreated)
-	res.Write([]byte(fmt.Sprintf("http://localhost:8080/api/" + shorturl)))
+	res.Write([]byte(scripts.GetHost(r.cfg, shorturl)))
 }
 
-type Result struct {
+type shorturlResponse struct {
 	URL string `json:"result"`
 }
 
@@ -93,7 +94,6 @@ type Result struct {
 // @Router      /{shorten} [post]
 func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	data := entity.Shorturl{}
-	result := Result{}
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
@@ -103,16 +103,14 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
 	}
-
-	//data.URL = string(body)
 	shorturl, err := r.s.Shorten(data)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	result.URL = fmt.Sprintf("http://localhost:8080/api/%s", shorturl)
-	obj, err := json.Marshal(result)
+	result := fmt.Sprintf(scripts.GetHost(r.cfg, shorturl))
+	obj, err := json.Marshal(shorturlResponse{result})
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return

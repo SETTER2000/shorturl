@@ -2,6 +2,7 @@
 package v1
 
 import (
+	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/usecase"
 	"github.com/SETTER2000/shorturl/pkg/log/logger"
 	"github.com/go-chi/chi/v5"
@@ -18,7 +19,7 @@ import (
 // @version     0.1.0
 // @host        localhost:8080
 // @BasePath    /
-func NewRouter(handler *chi.Mux, l logger.Interface, s usecase.Shorturl) {
+func NewRouter(handler *chi.Mux, l logger.Interface, s usecase.Shorturl, cfg config.HTTP) {
 	handler.Use(middleware.RequestID)
 	handler.Use(middleware.Logger)
 	handler.Use(middleware.Recoverer)
@@ -28,15 +29,19 @@ func NewRouter(handler *chi.Mux, l logger.Interface, s usecase.Shorturl) {
 	// Swagger
 
 	handler.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8080/api/swagger/doc.json"),
+		httpSwagger.URL("/swagger/doc.json"),
 		//The url pointing to API definition
 	))
+
+	sr := &shorturlRoutes{s, l, cfg}
+	handler.Get("/{key}", sr.shortLink) // GET /{key}
+	handler.Post("/", sr.longLink)      // POST /
 
 	// Routers
 	h := handler.Route("/api", func(r chi.Router) {
 		r.Routes()
 	})
 	{
-		newShorturlRoutes(h, s, l)
+		newShorturlRoutes(h, s, l, cfg)
 	}
 }

@@ -31,7 +31,7 @@ func Run(cfg *config.Config) {
 
 	// HTTP Server
 	handler := chi.NewRouter()
-	v1.NewRouter(handler, l, shorturlUseCase)
+	v1.NewRouter(handler, l, shorturlUseCase, cfg.HTTP)
 	httpServer := server.New(handler, server.Port(cfg.HTTP.Port))
 
 	// waiting signal
