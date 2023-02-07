@@ -5,11 +5,11 @@ app:
 http:
   port: '8080'
 #  port: ''
-  base_url: 'http://localhost:8080'
+  base_url: 'localhost:8080'
 #  base_url: ''
-  server_address: 'http://localhost'
+  server_address: 'localhost'
 #  server_address: ''
-  server_host: 'http://localhost'
+  server_host: 'localhost'
 
 logger:
   log_level: 'debug'
