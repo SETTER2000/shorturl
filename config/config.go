@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"github.com/caarlos0/env/v7"
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
@@ -17,8 +16,7 @@ type (
 		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
 	}
 	HTTP struct {
-		Port string `env-required:"true" env:"SERVER_PORT" yaml:"port"`
-		//Host          string `env-required:"true" env:"SERVER_HOST" yaml:"server_host"`
+		Port          string `env-required:"true" env:"SERVER_PORT" yaml:"port"`
 		BaseURL       string `env-required:"true" env:"SERVER_HOST" yaml:"base_url"`
 		ServerAddress string `env-required:"true" env:"SERVER_ADDRESS" yaml:"server_address"`
 	}
@@ -39,16 +37,16 @@ func NewConfig() (*Config, error) {
 		return nil, fmt.Errorf("config error: %w", err)
 	}
 
-	//err = cleanenv.ReadEnv(cfg)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	// caarlos0
-	err = env.Parse(&cfg)
+	err = cleanenv.ReadEnv(cfg)
 	if err != nil {
 		return nil, err
 	}
+
+	// caarlos0
+	//err = env.Parse(&cfg)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	return cfg, nil
 }
