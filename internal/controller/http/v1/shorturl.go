@@ -72,10 +72,10 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-
+	d := scripts.GetHost(r.cfg, shorturl)
 	res.Header().Set("Content-Type", "text/plain")
 	res.WriteHeader(http.StatusCreated)
-	res.Write([]byte(scripts.GetHost(r.cfg, shorturl)))
+	res.Write([]byte(d))
 }
 
 type shorturlResponse struct {
