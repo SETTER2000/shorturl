@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/caarlos0/env/v7"
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
@@ -37,15 +38,15 @@ func NewConfig() (*Config, error) {
 		return nil, fmt.Errorf("config error: %w", err)
 	}
 
-	err = cleanenv.ReadEnv(cfg)
-	if err != nil {
-		return nil, err
-	}
+	//err = cleanenv.ReadEnv(cfg)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	// caarlos0
-	//if err := env.Parse(&cfg); err != nil {
-	//	fmt.Errorf("Error: %+v\n", err)
-	//}
+	if err := env.Parse(&cfg); err != nil {
+		fmt.Errorf("Error: %+v\n", err)
+	}
 
 	return cfg, nil
 }
