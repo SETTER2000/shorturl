@@ -16,8 +16,10 @@ type (
 		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
 	}
 	HTTP struct {
-		Port          string `env-required:"true" env:"SERVER_PORT" yaml:"port"`
-		BaseURL       string `env-required:"true" env:"SERVER_HOST" yaml:"base_url"`
+		Port string `env-required:"true" env:"SERVER_PORT" yaml:"port"`
+		// BASE_URL - базовый адрес результирующего сокращённого URL
+		BaseURL string `env-required:"true" env:"BASE_URL" yaml:"base_url"`
+		// SERVER_ADDRESS - адрес запуска HTTP-сервера
 		ServerAddress string `env-required:"true" env:"SERVER_ADDRESS" yaml:"server_address"`
 	}
 
@@ -43,7 +45,7 @@ func NewConfig() (*Config, error) {
 	}
 
 	// caarlos0
-	//err = env.Parse(&cfg)
+	//err = env.Parse(cfg)
 	//if err != nil {
 	//	return nil, err
 	//}
