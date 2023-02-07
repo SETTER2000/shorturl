@@ -7,7 +7,7 @@ http:
 #  port: ''
   base_url: 'http://localhost:8080'
 #  base_url: ''
-  server_address: 'http://localhost:8081'
+  server_address: 'http://localhost'
 #  server_address: ''
 
 logger:

@@ -107,8 +107,8 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	obj, err := json.Marshal(shorturlResponse{scripts.GetHost(r.cfg, shorturl)})
+	respURL := scripts.GetHost(r.cfg, shorturl)
+	obj, err := json.Marshal(shorturlResponse{respURL})
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
