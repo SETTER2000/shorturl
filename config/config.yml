@@ -1,10 +1,14 @@
 app:
   name: 'shorturl'
-  version: '0.4.0'
+  version: '0.5.0'
 
 http:
-  port: '8080'
-  domain: 'http://localhost'
+#  port: '8080'
+  port: ''
+#  base_url: 'http://localhost'
+  base_url: ''
+#  server_address: 'http://localhost'
+  server_address: ''
 
 logger:
   log_level: 'debug'
