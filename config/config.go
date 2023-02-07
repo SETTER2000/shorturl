@@ -17,9 +17,10 @@ type (
 		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
 	}
 	HTTP struct {
-		Port          string `env-required:"true" yaml:"port" env:"SERVER_PORT"`
-		BaseURL       string `env-required:"true" yaml:"base_url" env:"SERVER_HOST"`
-		ServerAddress string `env-required:"true" yaml:"server_address" env:"SERVER_ADDRESS"`
+		Port string `env-required:"true" env:"SERVER_PORT" yaml:"port"`
+		//Host          string `env-required:"true" env:"SERVER_HOST" yaml:"server_host"`
+		BaseURL       string `env-required:"true" env:"SERVER_HOST" yaml:"base_url"`
+		ServerAddress string `env-required:"true" env:"SERVER_ADDRESS" yaml:"server_address"`
 	}
 
 	Log struct {
