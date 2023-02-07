@@ -19,7 +19,7 @@ type (
 	HTTP struct {
 		Port string `env-required:"true" env:"SERVER_PORT" envDefault:"8080"  yaml:"port,omitempty"`
 		// BASE_URL - базовый адрес результирующего сокращённого URL
-		BaseURL string `env-required:"true" yaml:"base_url"`
+		BaseURL string `env-required:"true" env:"BASE_URL" envDefault:"http://localhost:8080" yaml:"base_url"`
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
 		ServerAddress string `env:"SERVER_ADDRESS" yaml:"server_address,omitempty"`
 		ServerHost    string `env:"SERVER_HOST" yaml:"server_host,omitempty"`
