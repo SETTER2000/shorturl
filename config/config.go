@@ -45,8 +45,9 @@ func NewConfig() (*Config, error) {
 	//}
 
 	// caarlos0
-	if err := env.Parse(&cfg); err != nil {
-		fmt.Errorf("Error: %+v\n", err)
+	err = env.Parse(&cfg)
+	if err != nil {
+		return nil, err
 	}
 
 	return cfg, nil
