@@ -25,14 +25,6 @@ type (
 		ServerHost    string `env-required:"true" env:"SERVER_HOST" yaml:"server_host"`
 	}
 
-	//HTTP struct {
-	//	Port string `env-required:"true" env:"SERVER_PORT" yaml:"port"`
-	//	// BASE_URL - базовый адрес результирующего сокращённого URL
-	//	BaseURL string `env-required:"true" env:"BASE_URL" yaml:"base_url"`
-	//	// SERVER_ADDRESS - адрес запуска HTTP-сервера
-	//	ServerAddress string `env-required:"true" env:"SERVER_ADDRESS" yaml:"server_address"`
-	//}
-
 	Log struct {
 		Level string `env-required:"true" yaml:"log_level"  env:"LOG_LEVEL"`
 	}
