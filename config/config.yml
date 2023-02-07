@@ -9,6 +9,7 @@ http:
 #  base_url: ''
   server_address: 'http://localhost'
 #  server_address: ''
+  server_host: 'http://localhost'
 
 logger:
   log_level: 'debug'

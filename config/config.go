@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/caarlos0/env/v7"
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
@@ -16,11 +17,12 @@ type (
 		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
 	}
 	HTTP struct {
-		Port string `env-required:"true" env:"SERVER_PORT" yaml:"port"`
+		Port string `env-required:"true" env:"SERVER_PORT" envDefault:":8080"  yaml:"port"`
 		// BASE_URL - базовый адрес результирующего сокращённого URL
-		BaseURL string `env-required:"true" env:"BASE_URL" yaml:"base_url"`
+		BaseURL string `env-required:"true" env:"BASE_URL" envDefault:"http://localhost:8080" yaml:"base_url"`
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
 		ServerAddress string `env-required:"true" env:"SERVER_ADDRESS" yaml:"server_address"`
+		ServerHost    string `env-required:"true" env:"SERVER_HOST" envDefault:"http://localhost" yaml:"server_host"`
 	}
 
 	//HTTP struct {
@@ -46,17 +48,17 @@ func NewConfig() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("config error: %w", err)
 	}
-
-	err = cleanenv.ReadEnv(cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	// caarlos0
-	//err = env.Parse(cfg)
+	//
+	//err = cleanenv.ReadEnv(cfg)
 	//if err != nil {
 	//	return nil, err
 	//}
+
+	//caarlos0
+	err = env.Parse(cfg)
+	if err != nil {
+		return nil, err
+	}
 
 	return cfg, nil
 }
