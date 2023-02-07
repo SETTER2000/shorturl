@@ -3,13 +3,13 @@ app:
   version: '0.5.0'
 
 http:
-  port: '8080'
+#  port: '8080'
 #  port: ''
   base_url: 'http://localhost:8080'
 #  base_url: ''
-  server_address: 'http://localhost'
+#  server_address: 'http://localhost'
 #  server_address: ''
-  server_host: 'http://localhost'
+#  server_host: 'http://localhost'
 
 logger:
   log_level: 'debug'
