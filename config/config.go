@@ -21,7 +21,7 @@ type (
 		// BASE_URL - базовый адрес результирующего сокращённого URL
 		BaseURL string `env-required:"true" yaml:"base_url"`
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
-		ServerAddress string `env:"SERVER_ADDRESS" envDefault:"http://localhost:8080" yaml:"server_address,omitempty"`
+		ServerAddress string `env:"SERVER_ADDRESS" yaml:"server_address,omitempty"`
 		ServerHost    string `env:"SERVER_HOST" yaml:"server_host,omitempty"`
 	}
 
