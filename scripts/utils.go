@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"hash/fnv"
-	"log"
 	"math/rand"
-	"os"
 	"time"
 )
 
@@ -39,16 +37,16 @@ func UniqueString() string {
 
 func GetHost(cfg config.HTTP, shorturl string) string {
 	// Формирует короткий URL
-	envBaseURL, err := os.LookupEnv("BASE_URL")
+	//envBaseURL, err := os.LookupEnv("BASE_URL")
 
-	if !err {
-		log.Fatalf("Missing environment variable BASE_URL!")
-	}
-	if len(envBaseURL) < 1 {
-		// Если BASE_URL пустой или нет такой переменной окружения, то формирование url
-		// происходит из значений, которые стоят по умолчанию в конфиге (порт отдельно, хост отдельно)
-		return fmt.Sprintf("%s:%s/%s", cfg.BaseURL, cfg.Port, shorturl)
-	}
+	//if !err {
+	//	log.Fatalf("Missing environment variable BASE_URL!")
+	//}
+	//if len(envBaseURL) < 1 {
+	//	// Если BASE_URL пустой или нет такой переменной окружения, то формирование url
+	//	// происходит из значений, которые стоят по умолчанию в конфиге (порт отдельно, хост отдельно)
+	//	return fmt.Sprintf("%s:%s/%s", cfg.BaseURL, cfg.Port, shorturl)
+	//}
 
 	// .. в противном случаи т.к. BASE_URL имеет формат составной
 	// типа такого "http://$SERVER_HOST:$SERVER_PORT",

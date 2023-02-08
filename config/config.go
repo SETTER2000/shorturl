@@ -18,11 +18,11 @@ type (
 		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
 	}
 	HTTP struct {
-		Port string `envDefault:"8080"`
+		//Port string `envDefault:"8083"`
 		// BASE_URL - базовый адрес результирующего сокращённого URL
-		BaseURL string `env:"BASE_URL" envDefault:"http://localhost"`
+		BaseURL string `env:"BASE_URL" envDefault:"http://localhost:8080"`
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
-		ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost"`
+		ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
 	}
 
 	Log struct {
@@ -51,6 +51,7 @@ func NewConfig() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("CONFIGS:: %s", cfg)
+	log.Printf("CFG:: %s", cfg)
+	log.Printf("CFG.ServerAddress:: %s", cfg.ServerAddress)
 	return cfg, nil
 }
