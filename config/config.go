@@ -21,7 +21,7 @@ type (
 		// BASE_URL - базовый адрес результирующего сокращённого URL
 		BaseURL string `env:"BASE_URL" envDefault:"http://localhost"`
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
-		ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost"`
+		ServerAddress string `env:"SERVER_HOST" envDefault:"localhost"`
 	}
 
 	Log struct {

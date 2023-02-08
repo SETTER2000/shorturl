@@ -41,7 +41,7 @@ func GetHost(cfg config.HTTP, shorturl string) string {
 	// Формирует короткий URL
 	envBaseURL, err := os.LookupEnv("BASE_URL")
 
-	if err == false {
+	if !err {
 		log.Fatalf("Missing environment variable BASE_URL!")
 	}
 	if len(envBaseURL) < 1 {
