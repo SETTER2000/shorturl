@@ -36,7 +36,7 @@ func UniqueString() string {
 }
 
 func GetHost(cfg config.HTTP, shorturl string) string {
-	if cfg.Port != "" {
+	if cfg.Port != " " {
 		return fmt.Sprintf("%s:%s/%s", cfg.BaseURL, cfg.Port, shorturl)
 	}
 	return fmt.Sprintf("%s/%s", cfg.BaseURL, shorturl)
