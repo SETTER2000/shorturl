@@ -1,6 +1,7 @@
 package server
 
 import (
+	"net"
 	"time"
 )
 
@@ -15,9 +16,9 @@ type Option func(*Server)
 //}
 
 // Host -.
-func Host(host string) Option {
+func Host(host string, port string) Option {
 	return func(s *Server) {
-		s.server.Addr = host
+		s.server.Addr = net.JoinHostPort(host, port)
 	}
 }
 

@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"hash/fnv"
+	"log"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -36,8 +38,10 @@ func UniqueString() string {
 }
 
 func GetHost(cfg config.HTTP, shorturl string) string {
-	if cfg.Port != " " {
-		return fmt.Sprintf("%s:%s/%s", cfg.BaseURL, cfg.Port, shorturl)
+	_, err := os.LookupEnv("BASE_URL")
+	if err {
+		return fmt.Sprintf("%s/%s", cfg.BaseURL, shorturl)
 	}
-	return fmt.Sprintf("%s/%s", cfg.BaseURL, shorturl)
+	log.Fatalf("GetHost BASE_URL error: %v", err)
+	return fmt.Sprintf("%s:%s/%s", cfg.BaseURL, cfg.Port, shorturl)
 }

@@ -19,9 +19,9 @@ type (
 	HTTP struct {
 		Port string `env:"SERVER_PORT" envDefault:"8080"`
 		// BASE_URL - базовый адрес результирующего сокращённого URL
-		BaseURL string `env:"BASE_URL" envDefault:"http://localhost"`
+		BaseURL string `env:"BASE_URL" envDefault:"http://localhost:8080"`
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
-		ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
+		ServerAddress string `env:"SERVER_HOST" envDefault:"localhost"`
 	}
 
 	Log struct {
