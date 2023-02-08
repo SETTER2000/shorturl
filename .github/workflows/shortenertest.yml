@@ -203,7 +203,7 @@ jobs:
           github.head_ref == 'iter24'
         run: |
           SERVER_HOST=$(random domain)
-          SERVER_PORT=$(random unused-port).
+          SERVER_PORT=$(random unused-port)
           shortenertest -test.v -test.run=^TestIteration5$ \
               -binary-path=cmd/shortener/shortener \
               -server-host=$SERVER_HOST \
