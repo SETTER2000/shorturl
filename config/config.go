@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/caarlos0/env/v7"
 	"github.com/ilyakaznacheev/cleanenv"
+	"log"
 )
 
 type (
@@ -17,11 +18,11 @@ type (
 		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
 	}
 	HTTP struct {
-		Port string `env:"SERVER_PORT" envDefault:"8080"`
+		Port string `envDefault:"8080"`
 		// BASE_URL - базовый адрес результирующего сокращённого URL
 		BaseURL string `env:"BASE_URL" envDefault:"http://localhost"`
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
-		ServerAddress string `env:"SERVER_HOST" envDefault:"localhost"`
+		ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost"`
 	}
 
 	Log struct {
@@ -50,6 +51,6 @@ func NewConfig() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	log.Printf("CONFIGS:: %s", cfg)
 	return cfg, nil
 }

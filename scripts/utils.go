@@ -47,14 +47,11 @@ func GetHost(cfg config.HTTP, shorturl string) string {
 	if len(envBaseURL) < 1 {
 		// Если BASE_URL пустой или нет такой переменной окружения, то формирование url
 		// происходит из значений, которые стоят по умолчанию в конфиге (порт отдельно, хост отдельно)
-		//fmt.Println(" Пустая envBaseURL ...")
 		return fmt.Sprintf("%s:%s/%s", cfg.BaseURL, cfg.Port, shorturl)
 	}
-	//fmt.Printf("НЕ Пустая envBaseURL: %v\n", envBaseURL)
-	//fmt.Printf("err::::: %v\n", err)
+
 	// .. в противном случаи т.к. BASE_URL имеет формат составной
 	// типа такого "http://$SERVER_HOST:$SERVER_PORT",
 	// соответственно он готов к использованию, возвращаем.
 	return fmt.Sprintf("%s/%s", cfg.BaseURL, shorturl)
-
 }
