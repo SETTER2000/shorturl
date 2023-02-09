@@ -14,6 +14,7 @@
 # Binaries
 cmd/shortener/main
 cmd/shortener/shortener
+internal/usecase/repo/files/
 
 # Dependency directories (remove the comment below to include it)
 vendor/

@@ -25,7 +25,9 @@ func Run(cfg *config.Config) {
 
 	// Use case
 	shorturlUseCase := usecase.New(
-		repo.NewInMemory(),
+		//repo.NewInMemory(),
+		repo.NewProducer(),
+		//repo.NewConsumer(),
 		//webapi.New(),
 	)
 
