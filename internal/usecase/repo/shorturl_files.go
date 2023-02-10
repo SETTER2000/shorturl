@@ -71,10 +71,14 @@ func (c *consumer) Close() error {
 
 // NewProducer производитель
 func NewProducer(cfg *config.Storage) *producer {
-	file, err := os.OpenFile(cfg.FileStorage, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
-	if err != nil {
-		fmt.Errorf("Переменная FILE_STORAGE_PATH пуста, err: %e", err)
+	link, ok := os.LookupEnv("FILE_STORAGE_PATH")
+	if !ok {
+		fmt.Errorf("Переменная FILE_STORAGE_PATH пуста!")
 		return nil
+	}
+	file, err := os.OpenFile(link, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
+	if err != nil {
+		fmt.Errorf("%e", err)
 	}
 	return &producer{
 		file:   file,

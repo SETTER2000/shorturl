@@ -28,8 +28,8 @@ type (
 	}
 	Storage struct {
 		PathStorage string `env:"SHORTURL_DIR_STORAGE" envDefault:"internal/usecase/repo/files"`
-		//FileStorage string `env:"FILE_STORAGE_PATH"`
-		FileStorage string `env:"FILE_STORAGE_PATH" envDefault:"storage.txt"`
+		FileStorage string `env:"FILE_STORAGE_PATH"`
+		//FileStorage string `env:"FILE_STORAGE_PATH" envDefault:"storage.txt"`
 	}
 	Log struct {
 		Level string `env-required:"true" yaml:"log_level"  env:"LOG_LEVEL"`
@@ -65,7 +65,7 @@ func setDirFile(cfg *Config) {
 		dir := "internal/usecase/repo/files"
 		createDir("SHORTURL_DIR_STORAGE", dir)
 		//os.Setenv("FILE_STORAGE_PATH", "")
-		os.Setenv("FILE_STORAGE_PATH", fmt.Sprintf("%s/%s", dir, "storage.txt"))
+		os.Setenv("FILE_STORAGE_PATH", fmt.Sprintf("%s/%s", dir, fsp))
 	}
 }
 func createDir(dirNameEvn string, path string) {
