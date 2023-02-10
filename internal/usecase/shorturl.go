@@ -5,6 +5,7 @@ import (
 	"github.com/SETTER2000/shorturl/scripts"
 	"github.com/go-chi/chi/v5"
 	"net/http"
+	"os"
 
 	"github.com/SETTER2000/shorturl/internal/entity"
 )
@@ -18,23 +19,44 @@ var (
 // ShorturlUseCase -.
 type ShorturlUseCase struct {
 	repo      ShorturlRepo
-	repoFiles ShorturlRepoFiles
+	sProduct  ShorturlRepoFilesProduct
+	sConsumer ShorturlRepoFilesConsumer
 }
 
 // New -.
-func New(r ShorturlRepo, rf ShorturlRepoFiles) *ShorturlUseCase {
+func New(sp ShorturlRepoFilesProduct, sc ShorturlRepoFilesConsumer, r ShorturlRepo) *ShorturlUseCase {
 	return &ShorturlUseCase{
+		sProduct:  sp,
+		sConsumer: sc,
 		repo:      r,
-		repoFiles: rf,
 	}
 }
 
-// Shorten принимает длинный URL и возвращает короткий (POST /api/shorten)
+// ShortenMem принимает длинный URL и возвращает короткий (POST /api/shorten)
+//func (uc *ShorturlUseCase) ShortenMem(sh *entity.Shorturl) (string, error) {
+//	sh.Slug = scripts.UniqueString()
+//	log.Printf(os.Getenv("FILE_STORAGE_PATH"))
+//	err := uc.sProduct.Post(sh)
+//	if err == nil {
+//		return sh.Slug, nil
+//	}
+//
+//	return "", ErrBadRequest
+//}
+
 func (uc *ShorturlUseCase) Shorten(sh *entity.Shorturl) (string, error) {
 	sh.Slug = scripts.UniqueString()
-	err := uc.repo.Post(sh)
-	if err == nil {
-		return sh.Slug, nil
+	_, ok := os.LookupEnv("FILE_STORAGE_PATH")
+	if !ok {
+		err := uc.repo.Post(sh)
+		if err == nil {
+			return sh.Slug, nil
+		}
+	} else {
+		err := uc.sProduct.Post(sh)
+		if err == nil {
+			return sh.Slug, nil
+		}
 	}
 
 	return "", ErrBadRequest
@@ -43,10 +65,19 @@ func (uc *ShorturlUseCase) Shorten(sh *entity.Shorturl) (string, error) {
 // LongLink принимает длинный URL и возвращает короткий (PUT /api)
 func (uc *ShorturlUseCase) LongLink(sh *entity.Shorturl) (string, error) {
 	sh.Slug = scripts.UniqueString()
-	err := uc.repo.Put(sh)
-	if err == nil {
-		return sh.Slug, nil
+	_, ok := os.LookupEnv("FILE_STORAGE_PATH")
+	if !ok {
+		err := uc.repo.Put(sh)
+		if err == nil {
+			return sh.Slug, nil
+		}
+	} else {
+		err := uc.sProduct.Put(sh)
+		if err == nil {
+			return sh.Slug, nil
+		}
 	}
+
 	return "", ErrBadRequest
 }
 
@@ -56,9 +87,18 @@ func (uc *ShorturlUseCase) ShortLink(w http.ResponseWriter, r *http.Request) (st
 	if shorturl == "" {
 		return "", ErrBadRequest
 	}
-	sh, err := uc.repoFiles.Get(shorturl)
-	if err != nil {
-		return "", ErrNotFound
+	_, ok := os.LookupEnv("FILE_STORAGE_PATH")
+	if !ok {
+		URL, err := uc.repo.Get(shorturl)
+		if err == nil {
+			return URL, nil
+		}
+	} else {
+		sh, err := uc.sConsumer.Get(shorturl)
+		if err == nil {
+			return sh.URL, nil
+		}
 	}
-	return sh.URL, nil
+
+	return "", ErrBadRequest
 }

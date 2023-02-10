@@ -27,8 +27,9 @@ type (
 		ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
 	}
 	Storage struct {
-		PathStorage string `env:"SHORTURL_DIR_STORAGE" envDefault:"/files"`
-		FileStorage string `env:"FILE_STORAGE_PATH" envDefault:"storage.txt"`
+		PathStorage string `env:"SHORTURL_DIR_STORAGE" envDefault:"internal/usecase/repo/files"`
+		FileStorage string `env:"FILE_STORAGE_PATH"`
+		//FileStorage string `env:"FILE_STORAGE_PATH" envDefault:"storage.txt"`
 	}
 	Log struct {
 		Level string `env-required:"true" yaml:"log_level"  env:"LOG_LEVEL"`
@@ -40,9 +41,6 @@ var instance *Config
 // NewConfig returns app config.
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
-	dir := "internal/usecase/repo/files"
-	createDir("SHORTURL_DIR_STORAGE", dir)
-	os.Setenv("FILE_STORAGE_PATH", fmt.Sprintf("%s/%s", dir, "storage.txt"))
 
 	err := cleanenv.ReadConfig("./config/config.yml", cfg)
 	if err != nil {
@@ -54,10 +52,23 @@ func NewConfig() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	setDirFile(cfg)
 	//log.Println(cfg)
 	return cfg, nil
 }
 
+func setDirFile(cfg *Config) {
+	fsp, err := os.LookupEnv("FILE_STORAGE_PATH")
+	log.Println(cfg)
+	log.Printf(fsp)
+	if err {
+		dir := "internal/usecase/repo/files"
+		createDir("SHORTURL_DIR_STORAGE", dir)
+		os.Setenv("FILE_STORAGE_PATH", "")
+		//os.Setenv("FILE_STORAGE_PATH", fmt.Sprintf("%s/%s", dir, "storage.txt"))
+	}
+}
 func createDir(dirNameEvn string, path string) {
 	// создает каталог с именем path вместе со всеми необходимыми родительскими
 	// элементами и возвращает nil или возвращает ошибку

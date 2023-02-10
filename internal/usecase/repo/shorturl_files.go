@@ -3,9 +3,9 @@ package repo
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
-	"log"
 	"os"
 )
 
@@ -27,7 +27,8 @@ func NewConsumer() *consumer {
 	link, _ := os.LookupEnv("FILE_STORAGE_PATH")
 	file, err := os.OpenFile(link, os.O_RDONLY|os.O_CREATE, 0777)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Errorf("Переменная FILE_STORAGE_PATH пуста, err: %e", err)
+		return nil
 	}
 
 	return &consumer{
@@ -36,8 +37,6 @@ func NewConsumer() *consumer {
 		reader: bufio.NewReader(file),
 	}
 }
-
-type Event struct{}
 
 type Shorturl struct {
 	Slug string `json:"slug" example:"1674872720465761244B_5"`
@@ -74,7 +73,8 @@ func (c *consumer) Close() error {
 func NewProducer(cfg *config.Storage) *producer {
 	file, err := os.OpenFile(cfg.FileStorage, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Errorf("Переменная FILE_STORAGE_PATH пуста, err: %e", err)
+		return nil
 	}
 	return &producer{
 		file:   file,

@@ -1,6 +1,9 @@
 package repo
 
-import "sync"
+import (
+	"github.com/SETTER2000/shorturl/internal/entity"
+	"sync"
+)
 
 // InMemory
 // Если вам нужно защитить доступ к простой структуре данных, такой как слайс,
@@ -32,24 +35,18 @@ func (s *InMemory) Get(key string) (string, error) {
 	return "", ErrNotFound
 }
 
-func (s *InMemory) Put(key string, value string) error {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
-	if _, ok := s.m[key]; ok {
-		return ErrAlreadyExists
-	}
-	s.m[key] = value
+func (s *InMemory) Put(sh *entity.Shorturl) error {
+	s.Post(sh)
 	return nil
 }
 
-func (s *InMemory) Post(key string, value string) error {
+func (s *InMemory) Post(sh *entity.Shorturl) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	if _, ok := s.m[key]; ok {
+	if _, ok := s.m[sh.Slug]; ok {
 		return ErrAlreadyExists
 	}
-	s.m[key] = value
+	s.m[sh.Slug] = sh.URL
 	return nil
 }
