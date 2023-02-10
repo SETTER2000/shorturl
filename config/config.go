@@ -27,7 +27,7 @@ type (
 		ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
 	}
 	Storage struct {
-		PathStorage string `env:"SHORTURL_DIR_STORAGE" envDefault:"internal/usecase/repo/files"`
+		PathStorage string `env:"SHORTURL_DIR_STORAGE" envDefault:"/tmp"`
 		FileStorage string `env:"FILE_STORAGE_PATH"`
 		//FileStorage string `env:"FILE_STORAGE_PATH" envDefault:"storage.txt"`
 	}
@@ -46,7 +46,7 @@ func NewConfig() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("config error: %w", err)
 	}
-	setDirFile(cfg)
+	//setDirFile(cfg)
 	// caarlos0
 	err = env.Parse(cfg)
 	if err != nil {
@@ -59,8 +59,8 @@ func NewConfig() (*Config, error) {
 
 func setDirFile(cfg *Config) {
 	fsp, err := os.LookupEnv("FILE_STORAGE_PATH")
-	log.Println(cfg)
-	log.Printf(fsp)
+	//log.Println(cfg)
+	//log.Printf(fsp)
 	if err {
 		dir := "internal/usecase/repo/files"
 		createDir("SHORTURL_DIR_STORAGE", dir)

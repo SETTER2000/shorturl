@@ -32,18 +32,6 @@ func New(sp ShorturlRepoFilesProduct, sc ShorturlRepoFilesConsumer, r ShorturlRe
 	}
 }
 
-// ShortenMem принимает длинный URL и возвращает короткий (POST /api/shorten)
-//func (uc *ShorturlUseCase) ShortenMem(sh *entity.Shorturl) (string, error) {
-//	sh.Slug = scripts.UniqueString()
-//	log.Printf(os.Getenv("FILE_STORAGE_PATH"))
-//	err := uc.sProduct.Post(sh)
-//	if err == nil {
-//		return sh.Slug, nil
-//	}
-//
-//	return "", ErrBadRequest
-//}
-
 func (uc *ShorturlUseCase) Shorten(sh *entity.Shorturl) (string, error) {
 	sh.Slug = scripts.UniqueString()
 	_, ok := os.LookupEnv("FILE_STORAGE_PATH")

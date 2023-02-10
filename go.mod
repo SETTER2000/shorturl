@@ -1,10 +1,9 @@
 module github.com/SETTER2000/shorturl
 
-go 1.20
+go 1.19
 
 require (
 	github.com/caarlos0/env/v7 v7.0.0
-	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/render v1.0.2
 	github.com/ilyakaznacheev/cleanenv v1.4.2

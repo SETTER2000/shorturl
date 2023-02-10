@@ -27,7 +27,7 @@ func NewConsumer() *consumer {
 	link, _ := os.LookupEnv("FILE_STORAGE_PATH")
 	file, err := os.OpenFile(link, os.O_RDONLY|os.O_CREATE, 0777)
 	if err != nil {
-		fmt.Errorf("Переменная FILE_STORAGE_PATH пуста, err: %e", err)
+		//fmt.Println("Переменная FILE_STORAGE_PATH пуста!")
 		return nil
 	}
 
@@ -45,6 +45,10 @@ type Shorturl struct {
 
 func (c *consumer) Get(key string) (*entity.Shorturl, error) {
 	sh := entity.Shorturl{}
+	fmt.Println(c.reader.Size())
+	if c.reader.Size() < 1 {
+		return nil, ErrNotFound
+	}
 	for {
 		data, err := c.reader.ReadBytes('\n')
 		if err != nil {
@@ -73,13 +77,11 @@ func (c *consumer) Close() error {
 func NewProducer(cfg *config.Storage) *producer {
 	link, ok := os.LookupEnv("FILE_STORAGE_PATH")
 	if !ok {
-		fmt.Errorf("Переменная FILE_STORAGE_PATH пуста!")
+		//fmt.Println("Переменная FILE_STORAGE_PATH пуста!")
 		return nil
 	}
-	file, err := os.OpenFile(link, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
-	if err != nil {
-		fmt.Errorf("%e", err)
-	}
+	file, _ := os.OpenFile(link, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
+
 	return &producer{
 		file:   file,
 		writer: bufio.NewWriter(file),
