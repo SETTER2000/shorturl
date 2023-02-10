@@ -102,7 +102,7 @@ func (p *producer) Post(sh *entity.Shorturl) error {
 	return p.writer.Flush()
 }
 
-func (p *producer) Put(key string, value string) error {
+func (p *producer) Put(sh *entity.Shorturl) error {
 	//s.lock.Lock()
 	//defer s.lock.Unlock()
 	//
@@ -110,7 +110,8 @@ func (p *producer) Put(key string, value string) error {
 	//	return ErrAlreadyExists
 	//}
 	//s.m[key] = value
-	return nil
+	//p.Post(sh)
+	return p.Post(sh)
 }
 
 func (p *producer) Close() error {

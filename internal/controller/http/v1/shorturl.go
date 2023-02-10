@@ -68,7 +68,7 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	}
 
 	data.URL = string(body)
-	shorturl, err := r.s.LongLink(data)
+	shorturl, err := r.s.LongLink(&data)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return

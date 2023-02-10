@@ -10,14 +10,14 @@ type (
 	// Shorturl -.
 	Shorturl interface {
 		Shorten(*entity.Shorturl) (string, error)
-		LongLink(entity.Shorturl) (string, error)
+		LongLink(*entity.Shorturl) (string, error)
 		ShortLink(w http.ResponseWriter, r *http.Request) (string, error)
 	}
 
 	// ShorturlRepo -.
 	ShorturlRepo interface {
 		Post(*entity.Shorturl) error
-		Put(key, value string) error
+		Put(*entity.Shorturl) error
 		//Get(key string) (string, error)
 	}
 	// ShorturlRepoFiles -.
