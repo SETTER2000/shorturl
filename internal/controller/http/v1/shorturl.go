@@ -2,6 +2,7 @@ package v1
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/internal/usecase"
@@ -39,7 +40,7 @@ func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
 	shorturl, err := r.s.ShortLink(res, req)
 	if err != nil {
 		r.l.Error(err, "http - v1 - shortLink")
-		http.Error(res, "key param is missed", http.StatusBadRequest)
+		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
 
@@ -102,7 +103,7 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
 	}
-	shorturl, err := r.s.Shorten(data)
+	shorturl, err := r.s.Shorten(&data)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return

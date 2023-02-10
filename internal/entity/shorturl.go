@@ -4,6 +4,6 @@ package entity
 
 // Shorturl -.
 type Shorturl struct {
-	Slug string `json:"-" example:"1674872720465761244B_5"`
+	Slug string `json:"slug" example:"1674872720465761244B_5"`
 	URL  string `json:"url" example:"https://example.com/go/to/home.html"`
 }
