@@ -109,14 +109,6 @@ func (p *producer) Post(sh *entity.Shorturl) error {
 }
 
 func (p *producer) Put(sh *entity.Shorturl) error {
-	//s.lock.Lock()
-	//defer s.lock.Unlock()
-	//
-	//if _, ok := s.m[key]; ok {
-	//	return ErrAlreadyExists
-	//}
-	//s.m[key] = value
-	//p.Post(sh)
 	return p.Post(sh)
 }
 
