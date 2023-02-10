@@ -1,8 +1,9 @@
 module github.com/SETTER2000/shorturl
 
-go 1.19
+go 1.20
 
 require (
+	github.com/caarlos0/env/v7 v7.0.0
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/render v1.0.2
@@ -16,7 +17,6 @@ require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/ajg/form v1.5.1 // indirect
-	github.com/caarlos0/env/v7 v7.0.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
 	github.com/go-openapi/spec v0.20.8 // indirect
