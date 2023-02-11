@@ -26,7 +26,7 @@ type (
 		ServerAddress string `env:"SERVER_ADDRESS"`
 	}
 	Storage struct {
-		// FILE_STORAGE_PATH путь до файла с сокращёнными URL
+		// FILE_STORAGE_PATH путь до файла с сокращёнными URL (директории не создаёт)
 		FileStorage string `env:"FILE_STORAGE_PATH"`
 	}
 	Log struct {
@@ -55,7 +55,7 @@ func NewConfig() (*Config, error) {
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-
+	os.Setenv("FILE_STORAGE_PATH", cfg.Storage.FileStorage)
 	// environ
 	err = env.Parse(cfg) // caarlos0
 	if err != nil {
