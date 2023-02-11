@@ -21,7 +21,7 @@ type (
 	}
 	HTTP struct {
 		// BASE_URL - базовый адрес результирующего сокращённого URL
-		BaseURL string `env:"BASE_URL" envDefault:"http://localhost:8080"`
+		BaseURL string `env:"BASE_URL"`
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
 		ServerAddress string `env:"SERVER_ADDRESS"`
 	}
@@ -48,6 +48,8 @@ func NewConfig() (*Config, error) {
 
 	// flags
 	flag.StringVar(&cfg.HTTP.ServerAddress, "a", "localhost:8080", "host to listen on")
+	flag.StringVar(&cfg.HTTP.BaseURL, "b", "http://localhost:8080", "the base address of the resulting shortened URL")
+	flag.StringVar(&cfg.Storage.FileStorage, "f", "/tmp/storage", "path to file with abbreviated URLs")
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Version of %s\n%v\nUsage : Project Shorturl - URL Shortener Server\n", os.Args[0], cfg.App.Version)
 		flag.PrintDefaults()
