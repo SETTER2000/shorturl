@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"os"
 )
@@ -23,13 +22,11 @@ type (
 )
 
 // NewConsumer потребитель
-func NewConsumer() *consumer {
-	link, _ := os.LookupEnv("FILE_STORAGE_PATH")
-	file, err := os.OpenFile(link, os.O_RDONLY|os.O_CREATE, 0777)
-	if err != nil {
-		//fmt.Println("Переменная FILE_STORAGE_PATH пуста!")
-		return nil
-	}
+func NewConsumer(file *os.File) *consumer {
+	//if cfg.FileStorage == " " {
+	//	return nil
+	//}
+	//file, _ := os.OpenFile(cfg.FileStorage, os.O_RDONLY|os.O_CREATE, 0777)
 
 	return &consumer{
 		file: file,
@@ -74,14 +71,7 @@ func (c *consumer) Close() error {
 }
 
 // NewProducer производитель
-func NewProducer(cfg *config.Storage) *producer {
-	link, ok := os.LookupEnv("FILE_STORAGE_PATH")
-	if !ok {
-		//fmt.Println("Переменная FILE_STORAGE_PATH пуста!")
-		return nil
-	}
-	file, _ := os.OpenFile(link, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
-
+func NewProducer(file *os.File) *producer {
 	return &producer{
 		file:   file,
 		writer: bufio.NewWriter(file),

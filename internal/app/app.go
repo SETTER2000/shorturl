@@ -23,12 +23,13 @@ func Run(cfg *config.Config) {
 	// seed
 	rand.Seed(time.Now().UnixNano())
 
+	file, _ := os.OpenFile(cfg.FileStorage, os.O_RDONLY|os.O_CREATE, 0777)
+
 	// Use case
 	shorturlUseCase := usecase.New(
-		repo.NewProducer(&cfg.Storage),
-		repo.NewConsumer(),
+		repo.NewProducer(file),
+		repo.NewConsumer(file),
 		repo.NewInMemory(),
-		//webapi.New(),
 	)
 
 	// HTTP Server
