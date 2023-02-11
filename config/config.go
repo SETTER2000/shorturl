@@ -1,9 +1,11 @@
 package config
 
 import (
+	"flag"
 	"fmt"
 	"github.com/caarlos0/env/v7"
 	"github.com/ilyakaznacheev/cleanenv"
+	"os"
 )
 
 type (
@@ -21,9 +23,10 @@ type (
 		// BASE_URL - базовый адрес результирующего сокращённого URL
 		BaseURL string `env:"BASE_URL" envDefault:"http://localhost:8080"`
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
-		ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
+		ServerAddress string `env:"SERVER_ADDRESS"`
 	}
 	Storage struct {
+		// FILE_STORAGE_PATH путь до файла с сокращёнными URL
 		FileStorage string `env:"FILE_STORAGE_PATH"`
 	}
 	Log struct {
@@ -37,13 +40,22 @@ var instance *Config
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
 
+	// yaml
 	err := cleanenv.ReadConfig("./config/config.yml", cfg)
 	if err != nil {
 		return nil, fmt.Errorf("config error: %w", err)
 	}
 
-	// caarlos0
-	err = env.Parse(cfg)
+	// flags
+	flag.StringVar(&cfg.HTTP.ServerAddress, "a", "localhost:8080", "host to listen on")
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "Version of %s\n%v\nUsage : Project Shorturl - URL Shortener Server\n", os.Args[0], cfg.App.Version)
+		flag.PrintDefaults()
+	}
+	flag.Parse()
+
+	// environ
+	err = env.Parse(cfg) // caarlos0
 	if err != nil {
 		return nil, err
 	}
