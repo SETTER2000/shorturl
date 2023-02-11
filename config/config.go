@@ -55,7 +55,7 @@ func NewConfig() (*Config, error) {
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-	os.Setenv("FILE_STORAGE_PATH", cfg.Storage.FileStorage)
+	//os.Setenv("FILE_STORAGE_PATH", cfg.Storage.FileStorage)
 	// environ
 	err = env.Parse(cfg) // caarlos0
 	if err != nil {
