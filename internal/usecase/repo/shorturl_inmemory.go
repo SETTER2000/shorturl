@@ -19,6 +19,7 @@ type InMemory struct {
 	m    map[string]string // <-- это поле под ним
 }
 
+// NewInMemory слой взаимодействия с хранилищем в памяти
 func NewInMemory() *InMemory {
 	return &InMemory{
 		m: make(map[string]string),

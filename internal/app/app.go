@@ -25,7 +25,7 @@ func Run(cfg *config.Config) {
 
 	// Use case
 	var shorturlUseCase usecase.Shorturl
-	file, err := os.OpenFile(cfg.FileStorage, os.O_RDONLY|os.O_CREATE, 0777)
+	file, err := os.OpenFile(cfg.FileStorage, os.O_RDWR|os.O_CREATE, 0777)
 	if err != nil {
 		l.Warn(fmt.Sprintf("app - Open FileStorage: %s", err))
 		shorturlUseCase = usecase.New(repo.NewInMemory())
