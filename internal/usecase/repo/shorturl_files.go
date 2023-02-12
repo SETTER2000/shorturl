@@ -99,6 +99,7 @@ func (i *InFiles) Post(sh *entity.Shorturl) error {
 
 	// записываем буфер в файл
 	t := i.w.writer.Flush()
+	i.w.file.Seek(0, 0)
 	return t
 }
 
