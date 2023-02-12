@@ -25,12 +25,12 @@ func Run(cfg *config.Config) {
 
 	// Use case
 	var shorturlUseCase usecase.Shorturl
-	file, err := os.OpenFile(cfg.FileStorage, os.O_RDWR|os.O_CREATE, 0777)
-	if err != nil {
-		l.Warn(fmt.Sprintf("app - Open FileStorage: %s", err))
+
+	if cfg.FileStorage == " " {
+		l.Warn("app - FileStorage is empty!!!")
 		shorturlUseCase = usecase.New(repo.NewInMemory())
 	} else {
-		shorturlUseCase = usecase.New(repo.NewInFiles(file))
+		shorturlUseCase = usecase.New(repo.NewInFiles(cfg))
 	}
 
 	// HTTP Server
@@ -49,7 +49,7 @@ func Run(cfg *config.Config) {
 		l.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
 	}
 
-	err = httpServer.Shutdown()
+	err := httpServer.Shutdown()
 	if err != nil {
 		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
 	}
