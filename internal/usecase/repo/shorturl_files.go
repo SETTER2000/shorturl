@@ -106,6 +106,6 @@ func (i *InFiles) Put(sh *entity.Shorturl) error {
 	return i.Post(sh)
 }
 
-func (p *producer) Close() error {
-	return p.file.Close()
-}
+//func (p *producer) Close() error {
+//	return p.file.Close()
+//}
