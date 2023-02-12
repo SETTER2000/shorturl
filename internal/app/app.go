@@ -23,14 +23,15 @@ func Run(cfg *config.Config) {
 	// seed
 	rand.Seed(time.Now().UnixNano())
 
-	file, _ := os.OpenFile(cfg.FileStorage, os.O_RDONLY|os.O_CREATE, 0777)
-
 	// Use case
-	shorturlUseCase := usecase.New(
-		repo.NewProducer(file),
-		repo.NewConsumer(file),
-		repo.NewInMemory(),
-	)
+	var shorturlUseCase usecase.Shorturl
+	file, err := os.OpenFile(cfg.FileStorage, os.O_RDONLY|os.O_CREATE, 0777)
+	if err != nil {
+		l.Warn(fmt.Sprintf("app - Open FileStorage: %s", err))
+		shorturlUseCase = usecase.New(repo.NewInMemory())
+	} else {
+		shorturlUseCase = usecase.New(repo.NewInFiles(file))
+	}
 
 	// HTTP Server
 	handler := chi.NewRouter()
@@ -48,7 +49,7 @@ func Run(cfg *config.Config) {
 		l.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
 	}
 
-	err := httpServer.Shutdown()
+	err = httpServer.Shutdown()
 	if err != nil {
 		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
 	}

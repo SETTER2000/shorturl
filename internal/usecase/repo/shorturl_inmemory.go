@@ -25,14 +25,16 @@ func NewInMemory() *InMemory {
 	}
 }
 
-func (s *InMemory) Get(key string) (string, error) {
+func (s *InMemory) Get(key string) (*entity.Shorturl, error) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-
+	sh := entity.Shorturl{}
 	if v, ok := s.m[key]; ok {
-		return v, nil
+		sh.Slug = key
+		sh.URL = v
+		return &sh, nil
 	}
-	return "", ErrNotFound
+	return nil, ErrNotFound
 }
 
 func (s *InMemory) Put(sh *entity.Shorturl) error {
