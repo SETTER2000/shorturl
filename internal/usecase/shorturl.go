@@ -50,16 +50,17 @@ func (uc *ShorturlUseCase) LongLink(sh *entity.Shorturl) (string, error) {
 }
 
 // ShortLink принимает короткий URL и возвращает длинный (GET /api/{key})
-func (uc *ShorturlUseCase) ShortLink(w http.ResponseWriter, r *http.Request) (string, error) {
+func (uc *ShorturlUseCase) ShortLink(w http.ResponseWriter, r *http.Request) (*entity.Shorturl, error) {
 	shorturl := chi.URLParam(r, "key")
 	if shorturl == "" {
-		return "", ErrBadRequest
+		return nil, ErrBadRequest
 	}
 
 	sh, err := uc.repo.Get(shorturl)
+
 	if err == nil {
-		return sh.URL, nil
+		return sh, nil
 	}
 
-	return "", ErrBadRequest
+	return nil, ErrBadRequest
 }

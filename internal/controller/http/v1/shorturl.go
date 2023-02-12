@@ -37,7 +37,8 @@ func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interfac
 // @Failure     500 {object} response
 // @Router      /{key} [get]
 func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
-	shorturl, err := r.s.ShortLink(res, req)
+	sh, err := r.s.ShortLink(res, req)
+	//fmt.Printf("Strff:::%s, ERRRka:: %s", sh.URL, err)
 	if err != nil {
 		r.l.Error(err, "http - v1 - shortLink")
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
@@ -45,7 +46,7 @@ func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
 	}
 
 	res.Header().Set("Content-Type", "text/plain")
-	res.Header().Add("Location", shorturl)
+	res.Header().Add("Location", sh.URL)
 	res.WriteHeader(http.StatusTemporaryRedirect)
 }
 
