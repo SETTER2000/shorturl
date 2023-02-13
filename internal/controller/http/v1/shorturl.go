@@ -38,7 +38,6 @@ func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interfac
 // @Router      /{key} [get]
 func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
 	sh, err := r.s.ShortLink(res, req)
-
 	if err != nil {
 		r.l.Error(err, "http - v1 - shortLink")
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
