@@ -35,6 +35,19 @@ func Run(cfg *config.Config) {
 
 	// HTTP Server
 	handler := chi.NewRouter()
+	// Basic CORS
+	// for more ideas, see: https://developer.github.com/v3/#cross-origin-resource-sharing
+	//handler.Use(cors.Handler(cors.Options{
+	//	// AllowedOrigins:   []string{"https://foo.com"}, // используйте это, чтобы разрешить определенные исходные хосты
+	//	AllowedOrigins: []string{"https://*", "http://*"},
+	//	// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+	//	AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	//	AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+	//	ExposedHeaders:   []string{"Link"},
+	//	AllowCredentials: false,
+	//	MaxAge:           300, // максимальное значение, которое не игнорируется ни одним из основных браузеров
+	//}))
+
 	v1.NewRouter(handler, l, shorturlUseCase, cfg.HTTP)
 	httpServer := server.New(handler, server.Host(cfg.HTTP.ServerAddress))
 
