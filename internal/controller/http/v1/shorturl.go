@@ -11,7 +11,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"io"
 	"net/http"
-	"strings"
 )
 
 type shorturlRoutes struct {
@@ -49,12 +48,11 @@ func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
-	strings.Trim(sh.URL, "\n")
 	//fmt.Printf("Content--TYPE3 string(body): ind: %s\n", res.Header().Get("Content-Type"))
 	//fmt.Printf("Content--TYPE3 string(body): ind: %s\n", res.Header().Get("Content-Type"))
 	//fmt.Printf("Content--sh.URL:  %s\n", sh.URL)
 	res.Header().Set("Content-Type", http.DetectContentType(body))
-	res.Header().Add("Content-Encoding", "gzip")
+	//res.Header().Add("Content-Encoding", "gzip")
 	//res.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	//res.Header().Set("Content-Type", "application/gzip; charset=utf-8")
 	//res.Header().Add("Accept-Encoding", "application/json")
