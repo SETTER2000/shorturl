@@ -107,6 +107,9 @@ func (i *InFiles) Get(key string) (*entity.Shorturl, error) {
 		}
 
 		if sh.Slug == key {
+			//sh.URL = strings.TrimSpace(sh.URL)
+			//sh.URL = strings.Trim(sh.URL, "\n")
+			//fmt.Println("DDD:::", sh.URL)
 			break
 		}
 	}

@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type shorturlRoutes struct {
@@ -48,13 +49,15 @@ func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
+	strings.Trim(sh.URL, "\n")
 	//fmt.Printf("Content--TYPE3 string(body): ind: %s\n", res.Header().Get("Content-Type"))
 	//fmt.Printf("Content--TYPE3 string(body): ind: %s\n", res.Header().Get("Content-Type"))
-	fmt.Printf("Content--TYPE4 string(body):  %s\n", http.DetectContentType(body))
+	//fmt.Printf("Content--sh.URL:  %s\n", sh.URL)
 	res.Header().Set("Content-Type", http.DetectContentType(body))
-	//res.Header().Set("Content-Encoding", "gzip")
+	res.Header().Add("Content-Encoding", "gzip")
 	//res.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	//res.Header().Set("Content-Type", "application/gzip; charset=utf-8")
+	//res.Header().Add("Accept-Encoding", "application/json")
 	res.Header().Add("Location", sh.URL)
 
 	//log.Printf("HHH GET:::%v", res.Header())
@@ -79,11 +82,12 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 
 	fmt.Printf("Content--TYPE string(body): ind: %s\n", res.Header().Get("Content-Type"))
 	fmt.Printf("Content--TYPE2 string(body): ind: %s\n", http.DetectContentType(body))
-	fmt.Printf("POST string(body): ind: %v", body)
-	fmt.Printf("POST string(body): ind: %s", body)
+	fmt.Printf("POST string(bytes):%v\n", body)
+	fmt.Printf("POST string(body):%s\n", body)
 	data := entity.Shorturl{}
 	data.URL = string(body)
-	//fmt.Println(matched, err)
+	fmt.Printf("DATA  в POST::%s\n", data)
+	fmt.Printf("DATA URL в POST::%s\n", data.URL)
 	shorturl, err := r.s.LongLink(&data)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
@@ -91,6 +95,7 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	}
 	d := scripts.GetHost(r.cfg, shorturl)
 	res.Header().Set("Content-Type", http.DetectContentType(body))
+
 	//res.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	res.WriteHeader(http.StatusCreated)
 	res.Write([]byte(d))
