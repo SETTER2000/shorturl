@@ -25,24 +25,22 @@ func NewRouter(handler *chi.Mux, l logger.Interface, s usecase.Shorturl, cfg con
 	handler.Use(middleware.Recoverer)
 	handler.Use(middleware.URLFormat)
 	handler.Use(render.SetContentType(render.ContentTypePlainText))
-
-	//handler.Use(middleware.CleanPath) // CleanPath удалит ошибки двойной косой черты из пути запроса пользователя
-	//headerTypes := []string{
-	//	"application/javascript",
-	//	"application/x-gzip",
-	//	"application/gzip",
-	//	"application/json",
-	//	"text/css",
-	//	"text/html",
-	//	"text/plain",
-	//	"text/xml",
-	//}
-	//handler.Use(middleware.AllowContentEncoding("deflate", "gzip"))
-	handler.Use(middleware.AllowContentEncoding("gzip"))
+	handler.Use(middleware.CleanPath) // CleanPath удалит ошибки двойной косой черты из пути запроса пользователя
+	handler.Use(middleware.AllowContentEncoding("deflate", "gzip"))
+	headerTypes := []string{
+		"application/javascript",
+		"application/x-gzip",
+		"application/gzip",
+		"application/json",
+		"text/css",
+		"text/html",
+		"text/plain",
+		"text/xml",
+	}
 	// AllowContentType применяет белый список запросов Content-Types,
 	// в противном случае отвечает статусом 415 Unsupported Media Type.
-	//handler.Use(middleware.AllowContentType(headerTypes...))
-	//handler.Use(middleware.Compress(5, headerTypes...))
+	handler.Use(middleware.AllowContentType(headerTypes...))
+	handler.Use(middleware.Compress(5, headerTypes...))
 
 	// Swagger
 	handler.Get("/swagger/*", httpSwagger.Handler(
@@ -52,11 +50,8 @@ func NewRouter(handler *chi.Mux, l logger.Interface, s usecase.Shorturl, cfg con
 
 	sr := &shorturlRoutes{s, l, cfg}
 
-	//handler.Get("/{key}", sr.shortLink) // GET /{key}
-	//handler.Post("/", sr.longLink)      // POST /
 	handler.Group(func(r chi.Router) {
-		handler.Post("/", sr.longLink3) // POST /
-		//handler.Post("/", sr.longLink)      // POST /
+		handler.Post("/", sr.longLink)      // POST /
 		handler.Get("/{key}", sr.shortLink) // GET /{key}
 	})
 	// Routers
