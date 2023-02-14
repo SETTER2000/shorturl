@@ -20,16 +20,4 @@ type (
 		Put(*entity.Shorturl) error
 		Get(key string) (*entity.Shorturl, error)
 	}
-	// ShorturlRepoFilesProduct -.
-	//ShorturlRepoFilesProduct interface {
-	//	Post(*entity.Shorturl) error
-	//	Put(*entity.Shorturl) error
-	//	//Get(key string) (string, error)
-	//}
-	//// ShorturlRepoFilesConsumer -.
-	//ShorturlRepoFilesConsumer interface {
-	//	Get(key string) (*entity.Shorturl, error)
-	//	//Put(key, value string) error
-	//	//Post(key, value string) error
-	//}
 )
