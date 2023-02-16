@@ -114,7 +114,10 @@ func (i *InFiles) Get(key string) (*entity.Shorturl, error) {
 		}
 	}
 
-	i.r.file.Seek(0, 0)
+	_, err := i.r.file.Seek(0, 0)
+	if err != nil {
+		return nil, err
+	}
 	return &sh, nil
 }
 
