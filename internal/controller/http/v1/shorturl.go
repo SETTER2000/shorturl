@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"github.com/SETTER2000/shorturl/config"
@@ -22,7 +21,6 @@ type shorturlRoutes struct {
 
 func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interface, cfg config.HTTP) {
 	sr := &shorturlRoutes{s, l, cfg}
-
 	handler.Group(func(r chi.Router) {
 		r.Post("/{some_url}", sr.shorten) // POST /
 	})
@@ -68,29 +66,12 @@ func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
 // @Failure     500 {object} response
 // @Router      / [post]
 func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
-	// переменная reader будет равна r.Body или *gzip.Reader
-	var reader io.Reader
-
-	if req.Header.Get(`Content-Encoding`) == `gzip` {
-		gz, err := gzip.NewReader(req.Body)
-		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		reader = gz
-		defer gz.Close()
-	} else {
-		reader = req.Body
-	}
-
 	// при чтении вернётся распакованный слайс байт
-	body, err := io.ReadAll(reader)
+	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	//fmt.Fprintf(res, "Length: %d", len(body))
-
 	data := entity.Shorturl{}
 	data.URL = string(body)
 
@@ -101,7 +82,6 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	}
 	d := scripts.GetHost(r.cfg, shorturl)
 	res.Header().Set("Content-Type", http.DetectContentType(body))
-
 	res.WriteHeader(http.StatusCreated)
 	res.Write([]byte(d))
 }
