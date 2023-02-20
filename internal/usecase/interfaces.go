@@ -12,6 +12,7 @@ type (
 		Shorten(*entity.Shorturl) (string, error)
 		LongLink(*entity.Shorturl) (string, error)
 		ShortLink(w http.ResponseWriter, r *http.Request) (*entity.Shorturl, error)
+		UserAllLink(u *entity.User) (*entity.User, error)
 	}
 
 	// ShorturlRepo -.
@@ -19,5 +20,6 @@ type (
 		Post(*entity.Shorturl) error
 		Put(*entity.Shorturl) error
 		Get(key string) (*entity.Shorturl, error)
+		GetAll(*entity.User) (*entity.User, error)
 	}
 )

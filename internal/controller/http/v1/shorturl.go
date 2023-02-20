@@ -10,16 +10,17 @@ import (
 	"github.com/SETTER2000/shorturl/scripts"
 	"github.com/go-chi/chi/v5"
 	"io"
+	"log"
 	"net/http"
 )
 
 type shorturlRoutes struct {
 	s   usecase.Shorturl
 	l   logger.Interface
-	cfg config.HTTP
+	cfg *config.Config
 }
 
-func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interface, cfg config.HTTP) {
+func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interface, cfg *config.Config) {
 	sr := &shorturlRoutes{s, l, cfg}
 
 	handler.Group(func(r chi.Router) {
@@ -41,23 +42,15 @@ func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interfac
 // @Failure     500 {object} response
 // @Router      /{key} [get]
 func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
-	body, err := io.ReadAll(req.Body)
-	if err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
-		return
-	}
 	sh, err := r.s.ShortLink(res, req)
 	if err != nil {
 		r.l.Error(err, "http - v1 - shortLink")
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
-
-	res.Header().Set("Content-Type", http.DetectContentType(body))
+	res.Header().Set("Content-Type", "text/plain")
 	res.Header().Add("Content-Encoding", "gzip")
 	res.Header().Add("Location", sh.URL)
-
-	//log.Printf("HHH GET:::%v", res.Header())
 	res.WriteHeader(http.StatusTemporaryRedirect)
 }
 
@@ -79,13 +72,13 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	}
 	data := entity.Shorturl{}
 	data.URL = string(body)
-
+	data.UserId = req.Context().Value("access_token").(string)
 	shorturl, err := r.s.LongLink(&data)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	d := scripts.GetHost(r.cfg, shorturl)
+	d := scripts.GetHost(r.cfg.HTTP, shorturl)
 	res.Header().Set("Content-Type", http.DetectContentType(body))
 	res.WriteHeader(http.StatusCreated)
 	res.Write([]byte(d))
@@ -111,16 +104,16 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
 	}
+	data.UserId = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
 	shorturl, err := r.s.Shorten(&data)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	respURL := scripts.GetHost(r.cfg, shorturl)
+	respURL := scripts.GetHost(r.cfg.HTTP, shorturl)
 	obj, err := json.Marshal(shorturlResponse{respURL})
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
@@ -131,40 +124,31 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	res.Write(obj)
 }
 
+// GET
 func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
-
-	idUser := req.Context().Value("access_token")
-	if idUser == nil {
-		res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", idUser)))
+	u := entity.User{}
+	userId := req.Context().Value("access_token")
+	if userId == nil {
+		res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", userId)))
 	}
-
-	// respond to the client
-
-	//log.Printf("%v", cookie)
-	//data := entity.Shorturl{}
-	//body, err := io.ReadAll(req.Body)
-	//if err != nil {
-	//	http.Error(res, err.Error(), http.StatusBadRequest)
-	//	return
-	//}
-	//
-	//if err := json.Unmarshal(body, &data); err != nil {
-	//	panic(err)
-	//}
-	//shorturl, err := r.s.Shorten(&data)
-	//if err != nil {
-	//	http.Error(res, err.Error(), http.StatusBadRequest)
-	//	return
-	//}
-	//respURL := scripts.GetHost(r.cfg, shorturl)
-	//obj, err := json.Marshal(shorturlResponse{respURL})
-	//if err != nil {
-	//	http.Error(res, err.Error(), http.StatusBadRequest)
-	//	return
-	//}
-	// установить cookie
-
+	u.UserId = fmt.Sprintf("%s", userId)
+	user, err := r.s.UserAllLink(&u)
+	if err != nil {
+		r.l.Error(err, "http - v1 - shortLink")
+		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
+		return
+	}
+	obj, err := json.Marshal(user.Urls)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+	log.Printf("%v", len(obj))
 	res.Header().Set("Content-Type", "application/json")
-	//res.WriteHeader(http.StatusCreated)
-	res.Write([]byte(fmt.Sprintf("user_id decrypte: %s", idUser)))
+	if string(obj) == "null" {
+		res.WriteHeader(http.StatusNoContent)
+	} else {
+		res.WriteHeader(http.StatusOK)
+	}
+	res.Write(obj)
 }

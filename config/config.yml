@@ -3,8 +3,9 @@ app:
   version: '0.8.0'
   access_token_name: 'user_id'
   expiration_time: '2023-03-31T15:04:05Z'
-storage:
+cookie:
   secret_key: 'erter09gj0f9g'
+  access_token_name: 'access_token'
 http:
 #  port: '8080'
 #  port: ''

@@ -1,13 +1,5 @@
 package v1
 
-import (
-	"github.com/SETTER2000/shorturl/config"
-	"github.com/SETTER2000/shorturl/internal/usecase"
-	"github.com/SETTER2000/shorturl/pkg/log/logger"
-	"github.com/go-chi/chi/v5"
-	"testing"
-)
-
 //func TestLongURL(t *testing.T) {
 //	type want struct {
 //		code        int
@@ -285,23 +277,3 @@ import (
 //		})
 //	}
 //}
-
-func TestNewRouter(t *testing.T) {
-	type args struct {
-		handler *chi.Mux
-		l       logger.Interface
-		s       usecase.Shorturl
-		cfg     config.HTTP
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			NewRouter(tt.args.handler, tt.args.l, tt.args.s, tt.args.cfg)
-		})
-	}
-}

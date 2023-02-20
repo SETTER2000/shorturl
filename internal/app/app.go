@@ -37,7 +37,7 @@ func Run(cfg *config.Config) {
 	// HTTP Server
 	handler := chi.NewRouter()
 	handler.Use(middleware.AllowContentEncoding("deflate", "gzip"))
-	v1.NewRouter(handler, l, shorturlUseCase, cfg.HTTP)
+	v1.NewRouter(handler, l, shorturlUseCase, cfg)
 	httpServer := server.New(handler, server.Host(cfg.HTTP.ServerAddress))
 
 	// waiting signal

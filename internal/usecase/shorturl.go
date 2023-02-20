@@ -64,3 +64,14 @@ func (uc *ShorturlUseCase) ShortLink(w http.ResponseWriter, r *http.Request) (*e
 
 	return nil, ErrBadRequest
 }
+
+// UserAllLink принимает короткий URL и возвращает длинный (GET /user/urls)
+func (uc *ShorturlUseCase) UserAllLink(u *entity.User) (*entity.User, error) {
+
+	sh, err := uc.repo.GetAll(u)
+	if err == nil {
+		return sh, nil
+	}
+
+	return nil, ErrBadRequest
+}

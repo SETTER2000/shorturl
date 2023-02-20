@@ -38,6 +38,18 @@ func (s *InMemory) Get(key string) (*entity.Shorturl, error) {
 	return nil, ErrNotFound
 }
 
+func (s *InMemory) GetAll(u *entity.User) (*entity.User, error) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	//sh := entity.Shorturl{}
+	//if v, ok := s.m[key]; ok {
+	//	sh.Slug = key
+	//	sh.URL = v
+	//	return &sh, nil
+	//}
+	return nil, ErrNotFound
+}
+
 func (s *InMemory) Put(sh *entity.Shorturl) error {
 	s.Post(sh)
 	return nil

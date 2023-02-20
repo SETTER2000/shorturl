@@ -4,8 +4,8 @@ package v1
 import (
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/usecase"
+	"github.com/SETTER2000/shorturl/internal/usecase/encryp"
 	"github.com/SETTER2000/shorturl/pkg/compress/gzip"
-	"github.com/SETTER2000/shorturl/pkg/encryp"
 	"github.com/SETTER2000/shorturl/pkg/log/logger"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -21,7 +21,7 @@ import (
 // @version     0.1.0
 // @host        localhost:8080
 // @BasePath    /
-func NewRouter(handler *chi.Mux, l logger.Interface, s usecase.Shorturl, cfg config.HTTP) {
+func NewRouter(handler *chi.Mux, l logger.Interface, s usecase.Shorturl, cfg *config.Config) {
 	headerTypes := []string{
 		"application/javascript",
 		"application/x-gzip",
