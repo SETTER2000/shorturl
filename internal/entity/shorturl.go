@@ -7,3 +7,9 @@ type Shorturl struct {
 	Slug string `json:"slug" example:"1674872720465761244B_5"`
 	URL  string `json:"url" example:"https://example.com/go/to/home.html"`
 }
+
+type User struct {
+	UserId   string
+	ShortUrl Shorturl
+	//OriginalUrl
+}

@@ -5,6 +5,7 @@ import (
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/usecase"
 	"github.com/SETTER2000/shorturl/pkg/compress/gzip"
+	"github.com/SETTER2000/shorturl/pkg/encryp"
 	"github.com/SETTER2000/shorturl/pkg/log/logger"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -40,8 +41,10 @@ func NewRouter(handler *chi.Mux, l logger.Interface, s usecase.Shorturl, cfg con
 	handler.Use(middleware.Logger)
 	handler.Use(middleware.Recoverer)
 	handler.Use(render.SetContentType(render.ContentTypePlainText))
+	handler.Use(encryp.EncryptionKeyCookie)
 	//handler.Use(gzip.CompressGzip)
 	handler.Use(gzip.DeCompressGzip)
+
 	// Swagger
 	handler.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("/swagger/doc.json"),

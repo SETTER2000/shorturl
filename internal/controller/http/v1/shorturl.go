@@ -21,8 +21,13 @@ type shorturlRoutes struct {
 
 func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interface, cfg config.HTTP) {
 	sr := &shorturlRoutes{s, l, cfg}
+
 	handler.Group(func(r chi.Router) {
 		r.Post("/{some_url}", sr.shorten) // POST /
+	})
+
+	handler.Route("/user", func(r chi.Router) {
+		r.Get("/urls", sr.urls)
 	})
 }
 
@@ -124,4 +129,42 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
 	res.Write(obj)
+}
+
+func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
+
+	idUser := req.Context().Value("access_token")
+	if idUser == nil {
+		res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", idUser)))
+	}
+
+	// respond to the client
+
+	//log.Printf("%v", cookie)
+	//data := entity.Shorturl{}
+	//body, err := io.ReadAll(req.Body)
+	//if err != nil {
+	//	http.Error(res, err.Error(), http.StatusBadRequest)
+	//	return
+	//}
+	//
+	//if err := json.Unmarshal(body, &data); err != nil {
+	//	panic(err)
+	//}
+	//shorturl, err := r.s.Shorten(&data)
+	//if err != nil {
+	//	http.Error(res, err.Error(), http.StatusBadRequest)
+	//	return
+	//}
+	//respURL := scripts.GetHost(r.cfg, shorturl)
+	//obj, err := json.Marshal(shorturlResponse{respURL})
+	//if err != nil {
+	//	http.Error(res, err.Error(), http.StatusBadRequest)
+	//	return
+	//}
+	// установить cookie
+
+	res.Header().Set("Content-Type", "application/json")
+	//res.WriteHeader(http.StatusCreated)
+	res.Write([]byte(fmt.Sprintf("user_id decrypte: %s", idUser)))
 }

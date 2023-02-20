@@ -6,6 +6,7 @@ import (
 	"github.com/caarlos0/env/v7"
 	"github.com/ilyakaznacheev/cleanenv"
 	"os"
+	"time"
 )
 
 type (
@@ -16,8 +17,10 @@ type (
 		Log     `yaml:"logger"`
 	}
 	App struct {
-		Name    string `env-required:"true" yaml:"name"    env:"APP_NAME"`
-		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
+		Name            string    `env-required:"true" yaml:"name"    env:"APP_NAME"`
+		Version         string    `env-required:"true" yaml:"version" env:"APP_VERSION"`
+		AccessTokenName string    `env-required:"true" yaml:"access_token_name" env:"ACCESS_TOKEN_NAME" envDefault:"user_id"`
+		ExpirationTime  time.Time `env-required:"true" yaml:"expiration_time" env:"EXPIRATION_TIME"`
 	}
 	HTTP struct {
 		// BASE_URL - базовый адрес результирующего сокращённого URL
@@ -28,6 +31,8 @@ type (
 	Storage struct {
 		// FILE_STORAGE_PATH путь до файла с сокращёнными URL (директории не создаёт)
 		FileStorage string `env:"FILE_STORAGE_PATH"`
+		SecretKey   string `env-required:"true" yaml:"secret_key" env:"SECRET_KEY" envDefault:"RtsynerpoGIYdab_s234r"` // cookie encryp application
+		// key
 	}
 	Log struct {
 		Level string `env-required:"true" yaml:"log_level"  env:"LOG_LEVEL"`
@@ -50,6 +55,7 @@ func NewConfig() (*Config, error) {
 	flag.StringVar(&cfg.HTTP.ServerAddress, "a", "localhost:8080", "host to listen on")
 	flag.StringVar(&cfg.HTTP.BaseURL, "b", "http://localhost:8080", "the base address of the resulting shortened URL")
 	flag.StringVar(&cfg.Storage.FileStorage, "f", "storage.txt", "path to file with abbreviated URLs")
+	flag.StringVar(&cfg.Storage.SecretKey, "s", "RtsynerpoGIYdab_s234r", "cookie secret key")
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Version of %s\n%v\nUsage : Project Shorturl - URL Shortener Server\n", os.Args[0], cfg.App.Version)
 		flag.PrintDefaults()
