@@ -18,11 +18,7 @@ const (
 	secretSecret = "RtsynerpoGIYdab_s234r"
 )
 
-//type contextKey string
-//
-//const accessToken contextKey = "access_token"
-
-var x interface{} = "access_token" //считать значение можно так: var keyToken string = x.(string)
+var x interface{} = "access_token" //прочитать значение можно так: var keyToken string = x.(string)
 
 type Encrypt struct{}
 
