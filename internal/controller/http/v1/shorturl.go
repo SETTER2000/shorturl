@@ -72,7 +72,7 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	}
 	data := entity.Shorturl{}
 	data.URL = string(body)
-	data.UserId = req.Context().Value("access_token").(string)
+	data.UserID = req.Context().Value("access_token").(string)
 	shorturl, err := r.s.LongLink(&data)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
@@ -97,6 +97,7 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	data := entity.Shorturl{}
 	resp := entity.ShorturlResponse{}
 	body, err := io.ReadAll(req.Body)
+	fmt.Printf("DUDA 55 http shorten:: %v\n", string(body))
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
@@ -104,7 +105,8 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
 	}
-	data.UserId = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
+	fmt.Printf("DUDA http shorten:: %v\n", data)
+	data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
 	shorturl, err := r.s.Shorten(&data)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
@@ -124,11 +126,11 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 // GET
 func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
 	u := entity.User{}
-	userId := req.Context().Value("access_token")
-	if userId == nil {
-		res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", userId)))
+	userID := req.Context().Value("access_token")
+	if userID == nil {
+		res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", userID)))
 	}
-	u.UserId = fmt.Sprintf("%s", userId)
+	u.UserID = fmt.Sprintf("%s", userID)
 	user, err := r.s.UserAllLink(&u)
 	if err != nil {
 		r.l.Error(err, "http - v1 - shortLink")

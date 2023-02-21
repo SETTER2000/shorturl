@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/scripts"
 	"github.com/go-chi/chi/v5"
@@ -28,7 +29,7 @@ func New(r ShorturlRepo) *ShorturlUseCase {
 
 func (uc *ShorturlUseCase) Shorten(sh *entity.Shorturl) (string, error) {
 	sh.Slug = scripts.UniqueString()
-
+	fmt.Printf("DUDA Shorten:: %v\n", sh.URL)
 	err := uc.repo.Post(sh)
 	if err == nil {
 		return sh.Slug, nil
@@ -68,9 +69,9 @@ func (uc *ShorturlUseCase) ShortLink(w http.ResponseWriter, r *http.Request) (*e
 // UserAllLink принимает короткий URL и возвращает длинный (GET /user/urls)
 func (uc *ShorturlUseCase) UserAllLink(u *entity.User) (*entity.User, error) {
 
-	sh, err := uc.repo.GetAll(u)
+	u, err := uc.repo.GetAll(u)
 	if err == nil {
-		return sh, nil
+		return u, nil
 	}
 
 	return nil, ErrBadRequest

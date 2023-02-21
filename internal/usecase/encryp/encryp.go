@@ -40,9 +40,7 @@ func generateRandom(size int) ([]byte, error) {
 	return b, nil
 }
 
-type Encrypt struct {
-	idUser string `json:"id_user"`
-}
+type Encrypt struct{}
 
 var u *entity.User
 
@@ -130,16 +128,8 @@ func (e *Encrypt) EncryptToken(secretKey string) (string, error) {
 	}
 
 	// создаём вектор инициализации
-	//nonce, err := generateRandom(aesgcm.NonceSize())
 	nonce := key[len(key)-aesgcm.NonceSize():]
-	if err != nil {
-		fmt.Printf("error: %v\n", err)
-		return "", err
-	}
-
 	dst := aesgcm.Seal(nil, nonce, src, nil) // зашифровываем
-
-	fmt.Sprintf("получил новую куку: %x", dst)
 	return fmt.Sprintf("%x", dst), nil
 }
 

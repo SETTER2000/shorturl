@@ -68,7 +68,5 @@ func NewConfig() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	//log.Println(cfg)
 	return cfg, nil
 }

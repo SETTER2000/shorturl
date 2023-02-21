@@ -3,6 +3,7 @@ package repo
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/scripts"
@@ -55,6 +56,7 @@ func NewProducer(cfg *config.Config) *producer {
 }
 
 func (i *InFiles) Post(sh *entity.Shorturl) error {
+	fmt.Printf("DUDA:: %v\n", sh.URL)
 	data, err := json.Marshal(&sh)
 	if err != nil {
 		return err
@@ -119,6 +121,7 @@ func (i *InFiles) Get(key string) (*entity.Shorturl, error) {
 
 func (i *InFiles) GetAll(u *entity.User) (*entity.User, error) {
 	sh := entity.Shorturl{}
+	lst := entity.List{}
 	size := i.r.reader.Size()
 	if size < 1 {
 		return nil, ErrNotFound
@@ -132,10 +135,10 @@ func (i *InFiles) GetAll(u *entity.User) (*entity.User, error) {
 		if err != nil {
 			i.r.file.Seek(0, 0)
 		}
-		if sh.UserId == u.UserId {
-			sh.UserId = ""
-			sh.Slug = scripts.GetHost(i.cfg.HTTP, sh.Slug)
-			u.Urls = append(u.Urls, sh)
+		if sh.UserID == u.UserID {
+			lst.URL = sh.URL
+			lst.Slug = scripts.GetHost(i.cfg.HTTP, sh.Slug)
+			u.Urls = append(u.Urls, lst)
 		}
 	}
 	_, err := i.r.file.Seek(0, 0)

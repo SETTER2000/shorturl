@@ -4,14 +4,17 @@ package entity
 
 // Shorturl -.
 type Shorturl struct {
-	Slug   string `json:"short_url" example:"1674872720465761244B_5"`
+	Slug   string `json:"slug" example:"1674872720465761244B_5"`
 	URL    string `json:"url" example:"https://example.com/go/to/home.html"`
-	UserId string `json:"user_id,omitempty"`
+	UserID string `json:"user_id,omitempty"`
 }
-
+type List struct {
+	Slug string `json:"short_url" example:"1674872720465761244B_5"`
+	URL  string `json:"original_url" example:"https://example.com/go/to/home.html"`
+}
 type User struct {
-	UserId string `json:"user_id" example:"1674872720465761244B_5"`
-	Urls   []Shorturl
+	UserID string `json:"user_id" example:"1674872720465761244B_5"`
+	Urls   []List
 }
 
 type ShorturlResponse struct {
