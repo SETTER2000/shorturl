@@ -18,9 +18,11 @@ const (
 	secretSecret = "RtsynerpoGIYdab_s234r"
 )
 
-type contextKey string
+//type contextKey string
+//
+//const accessToken contextKey = "access_token"
 
-const accessToken contextKey = "access_token"
+var x interface{} = "access_token" //считать значение можно так: var keyToken string = x.(string)
 
 type Encrypt struct{}
 
@@ -34,7 +36,7 @@ func EncryptionKeyCookie(next http.Handler) http.Handler {
 		ctx := r.Context()
 		en := Encrypt{}
 		idUser := ""
-		at, err := r.Cookie(string(accessToken))
+		at, err := r.Cookie("access_token")
 		if err == http.ErrNoCookie {
 			// создать токен
 			token, err := en.EncryptToken(secretSecret)
@@ -43,7 +45,7 @@ func EncryptionKeyCookie(next http.Handler) http.Handler {
 			}
 			//sessionLifeNanos := 100000000000
 			http.SetCookie(w, &http.Cookie{
-				Name:  string(accessToken),
+				Name:  string("access_token"),
 				Path:  "/",
 				Value: token,
 				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
@@ -53,7 +55,7 @@ func EncryptionKeyCookie(next http.Handler) http.Handler {
 			if err != nil {
 				fmt.Printf(" Decrypt error: %v\n", err)
 			}
-			ctx = context.WithValue(ctx, accessToken, idUser)
+			ctx = context.WithValue(ctx, x, idUser)
 			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
@@ -68,7 +70,7 @@ func EncryptionKeyCookie(next http.Handler) http.Handler {
 			}
 			//sessionLifeNanos := 100000000000
 			http.SetCookie(w, &http.Cookie{
-				Name:  string(accessToken),
+				Name:  "access_token",
 				Path:  "/",
 				Value: token,
 				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
@@ -78,12 +80,12 @@ func EncryptionKeyCookie(next http.Handler) http.Handler {
 			if err != nil {
 				fmt.Printf(" Decrypt error: %v\n", err)
 			}
-			ctx = context.WithValue(ctx, accessToken, idUser)
+			ctx = context.WithValue(ctx, x, idUser)
 			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
 
-		ctx = context.WithValue(ctx, accessToken, idUser)
+		ctx = context.WithValue(ctx, x, idUser)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

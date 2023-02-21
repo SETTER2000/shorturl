@@ -14,6 +14,10 @@ import (
 	"net/http"
 )
 
+type contextKey string
+
+const userIDKey contextKey = "access_token"
+
 type shorturlRoutes struct {
 	s   usecase.Shorturl
 	l   logger.Interface
