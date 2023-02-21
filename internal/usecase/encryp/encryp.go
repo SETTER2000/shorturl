@@ -5,7 +5,6 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/hmac"
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
@@ -17,28 +16,11 @@ import (
 
 const (
 	secretSecret = "RtsynerpoGIYdab_s234r"
-	cookieName   = "access_token"
 )
 
-/*
-https://practicum.yandex.ru/learn/go-developer/courses/9908027e-ac38-4005-a7c9-30f61f5ed23f/sprints/89180/topics/40590a94-b05e-46a9-8b71-3f13c57bfe86/lessons/f4fa6991-c8d9-4e92-9328-a8e234ec5867/
-Чтобы шифровать данные произвольной длины, нужен алгоритм, который делил бы данные на блоки,
-преобразовывал и подавал их на вход AES. Стоит взять алгоритм GCM.
-Для работы алгоритма GCM нужно дополнительно сгенерировать вектор инициализации из 12 байт.
-Вектор должен быть уникальным для каждой процедуры шифрования. Если переиспользовать один и
-тот же вектор, можно атаковать алгоритм, подавая на вход данные с разницей в один байт, и по
-косвенным признакам вычислить ключ шифрования.
-*/
+type contextKey string
 
-func generateRandom(size int) ([]byte, error) {
-	b := make([]byte, size)
-	_, err := rand.Read(b)
-	if err != nil {
-		return nil, err
-	}
-
-	return b, nil
-}
+const accessToken contextKey = "access_token"
 
 type Encrypt struct{}
 
@@ -52,7 +34,7 @@ func EncryptionKeyCookie(next http.Handler) http.Handler {
 		ctx := r.Context()
 		en := Encrypt{}
 		idUser := ""
-		at, err := r.Cookie(cookieName)
+		at, err := r.Cookie(string(accessToken))
 		if err == http.ErrNoCookie {
 			// создать токен
 			token, err := en.EncryptToken(secretSecret)
@@ -61,7 +43,7 @@ func EncryptionKeyCookie(next http.Handler) http.Handler {
 			}
 			//sessionLifeNanos := 100000000000
 			http.SetCookie(w, &http.Cookie{
-				Name:  cookieName,
+				Name:  string(accessToken),
 				Path:  "/",
 				Value: token,
 				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
@@ -71,7 +53,7 @@ func EncryptionKeyCookie(next http.Handler) http.Handler {
 			if err != nil {
 				fmt.Printf(" Decrypt error: %v\n", err)
 			}
-			ctx = context.WithValue(ctx, cookieName, idUser)
+			ctx = context.WithValue(ctx, accessToken, idUser)
 			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
@@ -86,7 +68,7 @@ func EncryptionKeyCookie(next http.Handler) http.Handler {
 			}
 			//sessionLifeNanos := 100000000000
 			http.SetCookie(w, &http.Cookie{
-				Name:  cookieName,
+				Name:  string(accessToken),
 				Path:  "/",
 				Value: token,
 				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
@@ -96,12 +78,12 @@ func EncryptionKeyCookie(next http.Handler) http.Handler {
 			if err != nil {
 				fmt.Printf(" Decrypt error: %v\n", err)
 			}
-			ctx = context.WithValue(ctx, cookieName, idUser)
+			ctx = context.WithValue(ctx, accessToken, idUser)
 			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
 
-		ctx = context.WithValue(ctx, cookieName, idUser)
+		ctx = context.WithValue(ctx, accessToken, idUser)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
