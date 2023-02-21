@@ -9,7 +9,6 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
-	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/scripts"
 	"net/http"
 )
@@ -21,8 +20,6 @@ const (
 var x interface{} = "access_token" //прочитать значение можно так: var keyToken string = x.(string)
 
 type Encrypt struct{}
-
-var u *entity.User
 
 // EncryptionKeyCookie - middleware, которая устанавливает симметрично подписанную и зашифрованную куку
 // кука устанавливается любому запросу не имеющему соответствующую куку или не прошедшая идентификацию
@@ -41,7 +38,7 @@ func EncryptionKeyCookie(next http.Handler) http.Handler {
 			}
 			//sessionLifeNanos := 100000000000
 			http.SetCookie(w, &http.Cookie{
-				Name:  string("access_token"),
+				Name:  "access_token",
 				Path:  "/",
 				Value: token,
 				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),

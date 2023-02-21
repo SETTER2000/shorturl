@@ -22,15 +22,18 @@ require (
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
 	github.com/go-openapi/spec v0.20.8 // indirect
 	github.com/go-openapi/swag v0.22.3 // indirect
+	github.com/golang/mock v1.6.0 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/swaggo/files v1.0.0 // indirect
 	github.com/swaggo/swag v1.8.10 // indirect
+	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/tools v0.5.0 // indirect
