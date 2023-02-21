@@ -84,10 +84,6 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	res.Write([]byte(d))
 }
 
-type shorturlResponse struct {
-	URL string `json:"result"`
-}
-
 // @Summary     Return JSON short URL
 // @Description Redirect to long URL
 // @ID          shorten
@@ -99,6 +95,7 @@ type shorturlResponse struct {
 // @Router      /{shorten} [post]
 func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	data := entity.Shorturl{}
+	resp := entity.ShorturlResponse{}
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
@@ -113,8 +110,8 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	respURL := scripts.GetHost(r.cfg.HTTP, shorturl)
-	obj, err := json.Marshal(shorturlResponse{respURL})
+	resp.URL = scripts.GetHost(r.cfg.HTTP, shorturl)
+	obj, err := json.Marshal(resp)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return

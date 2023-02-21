@@ -48,9 +48,6 @@ func NewInFiles(cfg *config.Config) *InFiles {
 // NewProducer производитель
 func NewProducer(cfg *config.Config) *producer {
 	file, _ := os.OpenFile(cfg.FileStorage, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
-	//if err != nil {
-	//	return nil, err
-	//}
 	return &producer{
 		file:   file,
 		writer: bufio.NewWriter(file),
