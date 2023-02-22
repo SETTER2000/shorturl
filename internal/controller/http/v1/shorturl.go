@@ -94,7 +94,7 @@ func (r *shorturlRoutes) ping(res http.ResponseWriter, req *http.Request) {
 		//fmt.Printf("connect... %s\n", dsn)
 		fmt.Printf("connect... \n")
 		res.WriteHeader(http.StatusOK)
-		res.Write([]byte(fmt.Sprintf("connect... \n")))
+		res.Write([]byte("connect... "))
 		//res.Write([]byte(fmt.Sprintf("connect... %s\n", dsn)))
 	}
 }
