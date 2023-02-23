@@ -3,7 +3,6 @@ package repo
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/scripts"
@@ -56,7 +55,6 @@ func NewProducer(cfg *config.Config) *producer {
 }
 
 func (i *InFiles) Post(sh *entity.Shorturl) error {
-	fmt.Printf("DUDA:: %v\n", sh.URL)
 	data, err := json.Marshal(&sh)
 	if err != nil {
 		return err

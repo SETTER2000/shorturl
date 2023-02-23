@@ -65,7 +65,7 @@ func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
 // GET /ping, который при запросе проверяет соединение с базой данных
 // при успешной проверке хендлер должен вернуть HTTP-статус 200 OK
 // при неуспешной — 500 Internal Server Error
-func (r *shorturlRoutes) ping(res http.ResponseWriter, req *http.Request) {
+func (r *shorturlRoutes) connect(res http.ResponseWriter, req *http.Request) {
 	dsn, ok := os.LookupEnv("DATABASE_DSN")
 	if !ok || dsn == "" {
 		dsn = r.cfg.Storage.ConnectDB
@@ -75,27 +75,16 @@ func (r *shorturlRoutes) ping(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 	} else {
-		conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_DSN"))
+		db, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_DSN"))
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-			//os.Exit(1)
 			res.WriteHeader(http.StatusInternalServerError)
 		}
-		defer conn.Close(context.Background())
-		//var name string
-		//var weight int64
-		//err = conn.QueryRow(context.Background(), "select name, weight from widgets where id=$1", 42).Scan(&name, &weight)
-		//if err != nil {
-		//	fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-		//	os.Exit(1)
-		//}
+		defer db.Close(context.Background())
 
-		//fmt.Println(name, weight)
-		//fmt.Printf("connect... %s\n", dsn)
 		fmt.Printf("connect... \n")
 		res.WriteHeader(http.StatusOK)
 		res.Write([]byte("connect... "))
-		//res.Write([]byte(fmt.Sprintf("connect... %s\n", dsn)))
 	}
 }
 

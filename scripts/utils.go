@@ -5,6 +5,7 @@ import (
 	"github.com/SETTER2000/shorturl/config"
 	"hash/fnv"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -52,4 +53,17 @@ func GetHost(cfg config.HTTP, shorturl string) string {
 	// типа такого "http://$SERVER_HOST:$SERVER_PORT",
 	// соответственно он готов к использованию, возвращаем.
 	return fmt.Sprintf("%s/%s", cfg.BaseURL, shorturl)
+}
+
+// CheckEnvironFlag проверка значения переменной окружения и одноименного флага
+func CheckEnvironFlag(environName string, flagName string) bool {
+	dsn, ok := os.LookupEnv(environName)
+	if !ok || dsn == "" {
+		dsn = flagName
+		if dsn == "" {
+			fmt.Printf("connect DSN string is empty: %v\n", dsn)
+			return false
+		}
+	}
+	return true
 }

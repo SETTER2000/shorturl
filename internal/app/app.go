@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/SETTER2000/shorturl/scripts"
 	"github.com/go-chi/chi/v5/middleware"
 	"math/rand"
 	"os"
@@ -26,13 +27,20 @@ func Run(cfg *config.Config) {
 
 	// Use case
 	var shorturlUseCase usecase.Shorturl
-
-	if cfg.FileStorage == " " {
-		l.Warn("app - FileStorage is empty!!!")
-		shorturlUseCase = usecase.New(repo.NewInMemory())
+	if !scripts.CheckEnvironFlag("DATABASE_DSN", cfg.Storage.ConnectDB) {
+		if cfg.FileStorage == " " {
+			l.Warn("In memory storage!!!")
+			shorturlUseCase = usecase.New(repo.NewInMemory())
+		} else {
+			l.Info("File storage - is work...")
+			shorturlUseCase = usecase.New(repo.NewInFiles(cfg))
+		}
 	} else {
-		shorturlUseCase = usecase.New(repo.NewInFiles(cfg))
+		l.Info("DB SQL - is work...")
+		shorturlUseCase = usecase.New(repo.NewInSQL(cfg))
 	}
+
+	// NewPG(cfg *config.Config)
 
 	// HTTP Server
 	handler := chi.NewRouter()

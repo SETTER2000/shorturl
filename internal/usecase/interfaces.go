@@ -23,9 +23,9 @@ type (
 		GetAll(*entity.User) (*entity.User, error)
 	}
 
-	Store interface {
-		Set(key string, value []byte) error
-		Get(key string) ([]byte, error)
-		Delete(key string) error
-	}
+	//Store interface {
+	//	Set(key string, value []byte) error
+	//	Get(key string) ([]byte, error)
+	//	Delete(key string) error
+	//}
 )
