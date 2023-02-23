@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"sync"
 )
@@ -26,7 +27,7 @@ func NewInMemory() *InMemory {
 	}
 }
 
-func (s *InMemory) Get(key string) (*entity.Shorturl, error) {
+func (s *InMemory) Get(ctx context.Context, key string) (*entity.Shorturl, error) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	sh := entity.Shorturl{}
@@ -38,7 +39,7 @@ func (s *InMemory) Get(key string) (*entity.Shorturl, error) {
 	return nil, ErrNotFound
 }
 
-func (s *InMemory) GetAll(u *entity.User) (*entity.User, error) {
+func (s *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	//sh := entity.Shorturl{}
@@ -50,12 +51,12 @@ func (s *InMemory) GetAll(u *entity.User) (*entity.User, error) {
 	return nil, ErrNotFound
 }
 
-func (s *InMemory) Put(sh *entity.Shorturl) error {
-	s.Post(sh)
+func (s *InMemory) Put(ctx context.Context, sh *entity.Shorturl) error {
+	s.Post(ctx, sh)
 	return nil
 }
 
-func (s *InMemory) Post(sh *entity.Shorturl) error {
+func (s *InMemory) Post(ctx context.Context, sh *entity.Shorturl) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 

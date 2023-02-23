@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
@@ -98,6 +99,8 @@ func (r *shorturlRoutes) connect(res http.ResponseWriter, req *http.Request) {
 // @Failure     500 {object} response
 // @Router      / [post]
 func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
+	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
+	defer cancel()
 	// при чтении вернётся распакованный слайс байт
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
@@ -107,7 +110,7 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	data := entity.Shorturl{}
 	data.URL = string(body)
 	data.UserID = req.Context().Value("access_token").(string)
-	shorturl, err := r.s.LongLink(&data)
+	shorturl, err := r.s.LongLink(ctx, &data)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
@@ -128,6 +131,8 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 // @Failure     500 {object} response
 // @Router      /{shorten} [post]
 func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
+	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
+	defer cancel()
 	data := entity.Shorturl{}
 	resp := entity.ShorturlResponse{}
 	body, err := io.ReadAll(req.Body)
@@ -139,7 +144,8 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 	data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
-	shorturl, err := r.s.Shorten(&data)
+
+	shorturl, err := r.s.Shorten(ctx, &data)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
@@ -157,18 +163,21 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 
 // GET
 func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
+	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
+	defer cancel()
 	u := entity.User{}
 	userID := req.Context().Value("access_token")
 	if userID == nil {
 		res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", userID)))
 	}
 	u.UserID = fmt.Sprintf("%s", userID)
-	user, err := r.s.UserAllLink(&u)
+	user, err := r.s.UserAllLink(ctx, &u)
 	if err != nil {
 		r.l.Error(err, "http - v1 - shortLink")
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
+	fmt.Printf("RESPOS::: %v", user)
 	obj, err := json.Marshal(user.Urls)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)

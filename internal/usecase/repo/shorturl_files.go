@@ -2,6 +2,7 @@ package repo
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
@@ -54,7 +55,7 @@ func NewProducer(cfg *config.Config) *producer {
 	}
 }
 
-func (i *InFiles) Post(sh *entity.Shorturl) error {
+func (i *InFiles) Post(ctx context.Context, sh *entity.Shorturl) error {
 	data, err := json.Marshal(&sh)
 	if err != nil {
 		return err
@@ -72,8 +73,8 @@ func (i *InFiles) Post(sh *entity.Shorturl) error {
 	return t
 }
 
-func (i *InFiles) Put(sh *entity.Shorturl) error {
-	return i.Post(sh)
+func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
+	return i.Post(ctx, sh)
 }
 
 func (p *producer) Close() error {
@@ -90,7 +91,7 @@ func NewConsumer(cfg *config.Config) *consumer {
 	}
 }
 
-func (i *InFiles) Get(key string) (*entity.Shorturl, error) {
+func (i *InFiles) Get(ctx context.Context, key string) (*entity.Shorturl, error) {
 	sh := entity.Shorturl{}
 	if i.r.reader.Size() < 1 {
 		return nil, ErrNotFound
@@ -100,12 +101,10 @@ func (i *InFiles) Get(key string) (*entity.Shorturl, error) {
 		if err != nil {
 			return nil, ErrNotFound
 		}
-
 		err = json.Unmarshal(data, &sh)
 		if err != nil {
 			i.r.file.Seek(0, 0)
 		}
-
 		if sh.Slug == key {
 			break
 		}
@@ -117,7 +116,7 @@ func (i *InFiles) Get(key string) (*entity.Shorturl, error) {
 	return &sh, nil
 }
 
-func (i *InFiles) GetAll(u *entity.User) (*entity.User, error) {
+func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	sh := entity.Shorturl{}
 	lst := entity.List{}
 	size := i.r.reader.Size()

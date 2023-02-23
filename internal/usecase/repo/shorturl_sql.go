@@ -2,13 +2,15 @@ package repo
 
 import (
 	"context"
-	"database/sql"
-	_ "github.com/jackc/pgx/v5"
-	_ "github.com/jackc/pgx/v5/stdlib"
-	"time"
-
+	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
+	"github.com/SETTER2000/shorturl/scripts"
+	_ "github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"os"
 )
 
 const (
@@ -17,14 +19,12 @@ const (
 
 type (
 	producerSQL struct {
-		ctx *context.Context
-		db  *sql.DB
+		db *pgxpool.Pool
 		//writer *bufio.Writer
 	}
 
 	consumerSQL struct {
-		ctx *context.Context
-		db  *sql.DB
+		db *pgxpool.Pool
 		// заменяем reader на scanner
 		//reader *bufio.Reader
 		//sql.DB(QueryContext)
@@ -51,122 +51,108 @@ func NewInSQL(cfg *config.Config) *InSQL {
 
 // NewSQLProducer производитель
 func NewSQLProducer(cfg *config.Config) *producerSQL {
-	context, connect := Connect(cfg)
+	connect := Connect(cfg)
 	return &producerSQL{
-		ctx: &context,
-		db:  connect,
+		db: connect,
 		//writer: bufio.NewWriter(file),
 	}
 }
 
-func (i *InSQL) Post(sh *entity.Shorturl) error {
-	//data, err := json.Marshal(&sh)
-	//if err != nil {
-	//	return err
-	//}
-	//// записываем событие в буфер
-	//if _, err = i.w.writer.Write(data); err != nil {
-	//	return err
-	//}
-	//// добавляем перенос строки
-	//if err = i.w.writer.WriteByte('\n'); err != nil {
-	//	return err
-	//}
-	//// записываем буфер в файл
-	//t := i.w.writer.Flush()
-	//return t
-	// TODO POST producerSQL
+func (i *InSQL) Post(ctx context.Context, sh *entity.Shorturl) error {
+	var slug string
+	q := `INSERT INTO public.shorturl (slug, url, user_id) VALUES ($1,$2,$3) RETURNING slug`
+	if err := i.w.db.QueryRow(ctx, q, sh.Slug, sh.URL, sh.UserID).Scan(&slug); err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			newErr := fmt.Sprintf("SQL Error: %s, Deatil: %s, Where: %s, Code: %s, SQLState: %s",
+				pgErr.Message,
+				pgErr.Detail,
+				pgErr.Where,
+				pgErr.Code,
+				pgErr.SQLState())
+			fmt.Println(newErr)
+			return nil
+		}
+		fmt.Printf("%s", err)
+		return err
+	}
+	//fmt.Printf("new slug: %s\n", slug)
 	return nil
 }
 
-func (i *InSQL) Put(sh *entity.Shorturl) error {
-	return i.Post(sh)
+func (i *InSQL) Put(ctx context.Context, sh *entity.Shorturl) error {
+	return i.Post(ctx, sh)
 }
 
 // NewSQLConsumer потребитель
 func NewSQLConsumer(cfg *config.Config) *consumerSQL {
-	context, connect := Connect(cfg)
+	connect := Connect(cfg)
 	return &consumerSQL{
-		ctx: &context,
-		db:  connect,
+		db: connect,
 		//reader: bufio.NewReader(file),
 	}
 }
 
-func (i *InSQL) Get(key string) (*entity.Shorturl, error) {
-	//sh := entity.Shorturl{}
-	//if i.r.reader.Size() < 1 {
-	//	return nil, ErrNotFound
-	//}
-	//for {
-	//	data, err := i.r.reader.ReadBytes('\n')
-	//	if err != nil {
-	//		return nil, ErrNotFound
-	//	}
-	//
-	//	err = json.Unmarshal(data, &sh)
-	//	if err != nil {
-	//		i.r.file.Seek(0, 0)
-	//	}
-	//
-	//	if sh.Slug == key {
-	//		break
-	//	}
-	//}
-	//_, err := i.r.file.Seek(0, 0)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//return &sh, nil
-	// TODO GET /user/{user_id}/url/{url_id} consumerSQL
-	return nil, nil
-}
-
-func (i *InSQL) GetAll(u *entity.User) (*entity.User, error) {
-	//sh := entity.Shorturl{}
-	//lst := entity.List{}
-	//size := i.r.reader.Size()
-	//if size < 1 {
-	//	return nil, ErrNotFound
-	//}
-	//for j := 0; j < size; j++ {
-	//	data, err := i.r.reader.ReadBytes('\n')
-	//	if err != nil {
-	//		break
-	//	}
-	//	err = json.Unmarshal(data, &sh)
-	//	if err != nil {
-	//		i.r.file.Seek(0, 0)
-	//	}
-	//	if sh.UserID == u.UserID {
-	//		lst.URL = sh.URL
-	//		lst.Slug = scripts.GetHost(i.cfg.HTTP, sh.Slug)
-	//		u.Urls = append(u.Urls, lst)
-	//	}
-	//}
-	//_, err := i.r.file.Seek(0, 0)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//return u, nil
-	// TODO GET /user/{user_id}/url consumerSQL
-	return nil, nil
-}
-
-func Connect(cfg *config.Config) (ctx context.Context, db *sql.DB) {
-	// Контекст позволяет ограничить по времени или прервать слишком долгие или уже не
-	// нужные операции с базой данных, назначить для них дедлайн или тайм-аут.
-	// Вот пример использования контекста:
-	// конструируем контекст с 5-секундным тайм-аутом
-	// после 5 секунд затянувшаяся операция с БД будет прервана
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	// не забываем освободить ресурс
-	defer cancel()
-	//db, err := sql.Open("sqlite3", "db.db")
-	db, err := sql.Open(driverName, cfg.ConnectDB)
-	if err != nil {
-		panic(err)
+func (i *InSQL) Get(ctx context.Context, key string) (*entity.Shorturl, error) {
+	var slug, url, id string
+	q := `SELECT * FROM shorturl WHERE slug=$1`
+	if err := i.w.db.QueryRow(ctx, q, key).Scan(&slug, &url, &id); err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			newErr := fmt.Sprintf("SQL Error: %s, Deatil: %s, Where: %s, Code: %s, SQLState: %s",
+				pgErr.Message,
+				pgErr.Detail,
+				pgErr.Where,
+				pgErr.Code,
+				pgErr.SQLState())
+			fmt.Println(newErr)
+			return nil, err
+		}
+		fmt.Printf("%s", err)
+		return nil, err
 	}
-	//defer db.Close()
-	return ctx, db
+	sh := entity.Shorturl{}
+	sh.Slug = slug
+	sh.URL = url
+	sh.UserID = id
+	return &sh, nil
+}
+
+func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
+	var slug, url, id string
+	q := `SELECT * FROM shorturl WHERE user_id=$1`
+	rows, err := i.w.db.Query(ctx, q, u.UserID)
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			newErr := fmt.Sprintf("SQL Error: %s, Deatil: %s, Where: %s, Code: %s, SQLState: %s",
+				pgErr.Message,
+				pgErr.Detail,
+				pgErr.Where,
+				pgErr.Code,
+				pgErr.SQLState())
+			fmt.Println(newErr)
+			return nil, err
+		}
+		fmt.Printf("%s", err)
+		return nil, err
+	}
+	l := entity.List{}
+	for rows.Next() {
+		err = rows.Scan(&slug, &url, &id)
+		if err != nil {
+			return nil, err
+		}
+		l.URL = url
+		l.Slug = scripts.GetHost(i.cfg.HTTP, slug)
+		u.Urls = append(u.Urls, l)
+	}
+	return u, nil
+}
+
+func Connect(cfg *config.Config) (db *pgxpool.Pool) {
+	dbpool, err := pgxpool.New(context.Background(), cfg.ConnectDB)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
+		os.Exit(1)
+	}
+	//defer dbpool.Close()
+	return dbpool
 }
