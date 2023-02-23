@@ -131,7 +131,6 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	data := entity.Shorturl{}
 	resp := entity.ShorturlResponse{}
 	body, err := io.ReadAll(req.Body)
-	fmt.Printf("DUDA 55 http shorten:: %v\n", string(body))
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
@@ -139,7 +138,6 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
 	}
-	fmt.Printf("DUDA http shorten:: %v\n", data)
 	data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
 	shorturl, err := r.s.Shorten(&data)
 	if err != nil {

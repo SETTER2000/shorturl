@@ -60,11 +60,11 @@ func NewConfig() (*Config, error) {
 	flag.StringVar(&cfg.Storage.FileStorage, "f", "storage.txt", "path to file with abbreviated URLs")
 	flag.StringVar(&cfg.Storage.ConnectDB, "d", "", "dsn connect string urlExample PostgreSQL: postgres://username:password@localhost:5432/database_name")
 	flag.StringVar(&cfg.Cookie.SecretKey, "s", "RtsynerpoGIYdab_s234r", "cookie secret key")
-
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "Version of %s\n%v\nUsage : Project Shorturl - URL Shortener Server\n", os.Args[0], cfg.App.Version)
+		fmt.Fprintf(flag.CommandLine.Output(), "Shorturl Version %s %v\nUsage : Project Shorturl - URL Shortener Server\n", os.Args[0], cfg.App.Version)
 		flag.PrintDefaults()
 	}
+
 	flag.Parse()
 
 	// environ
