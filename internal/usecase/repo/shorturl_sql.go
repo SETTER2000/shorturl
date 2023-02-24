@@ -168,6 +168,9 @@ INSERT INTO public.shorturl (slug, url, user_id) VALUES ('1676935920173833222h46
 INSERT INTO public.shorturl (slug, url, user_id) VALUES ('1676935920173833222h47','https://poaleell.com/chinese-crested/Poale-Ell-Cooper','1676935920173833222h_3');
 `
 	tag, err := dbpool.Exec(ctx, tabs)
+	if err != nil {
+		panic(err)
+	}
 	log.Printf("%s", tag)
 	return dbpool
 }
