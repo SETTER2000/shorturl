@@ -32,12 +32,16 @@ type shorturlRoutes struct {
 func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interface, cfg *config.Config) {
 	sr := &shorturlRoutes{s, l, cfg}
 
-	handler.Group(func(r chi.Router) {
-		r.Post("/{some_url}", sr.shorten) // POST /
-	})
+	//handler.Group(func(r chi.Router) {
+	//	r.Post("/shorten", sr.shorten) // POST /
+	//})
 
 	handler.Route("/user", func(r chi.Router) {
 		r.Get("/urls", sr.urls)
+	})
+	handler.Route("/shorten", func(r chi.Router) {
+		r.Post("/", sr.shorten) // POST /
+		r.Post("/batch", sr.batch)
 	})
 }
 
@@ -121,46 +125,6 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	res.Write([]byte(d))
 }
 
-// @Summary     Return JSON short URL
-// @Description Redirect to long URL
-// @ID          shorten
-// @Tags  	    shorturl
-// @Accept      json
-// @Produce     json
-// @Success     307 {object} string
-// @Failure     500 {object} response
-// @Router      /{shorten} [post]
-func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
-	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
-	defer cancel()
-	data := entity.Shorturl{}
-	resp := entity.ShorturlResponse{}
-	body, err := io.ReadAll(req.Body)
-	if err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
-		return
-	}
-	if err := json.Unmarshal(body, &data); err != nil {
-		panic(err)
-	}
-	data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
-
-	shorturl, err := r.s.Shorten(ctx, &data)
-	if err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
-		return
-	}
-	resp.URL = scripts.GetHost(r.cfg.HTTP, shorturl)
-	obj, err := json.Marshal(resp)
-	if err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
-		return
-	}
-	res.Header().Set("Content-Type", "application/json")
-	res.WriteHeader(http.StatusCreated)
-	res.Write(obj)
-}
-
 // GET
 func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
@@ -177,7 +141,7 @@ func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
-	fmt.Printf("RESPOS::: %v", user)
+
 	obj, err := json.Marshal(user.Urls)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
@@ -191,4 +155,82 @@ func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusOK)
 	}
 	res.Write(obj)
+}
+
+// @Summary     Return JSON short URL
+// @Description Redirect to long URL
+// @ID          shorten
+// @Tags  	    shorturl
+// @Accept      json
+// @Produce     json
+// @Success     307 {object} string
+// @Failure     500 {object} response
+// @Router      /{shorten} [post]
+func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
+	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
+	defer cancel()
+	data := entity.Shorturl{Config: r.cfg}
+	resp := entity.ShorturlResponse{}
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := json.Unmarshal(body, &data); err != nil {
+		panic(err)
+	}
+	data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
+	resp.URL, err = r.s.Shorten(ctx, &data)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+	obj, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(http.StatusCreated)
+	res.Write(obj)
+}
+
+func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
+	//ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
+	//defer cancel()
+	//
+	batch := []entity.Batch{
+		{},
+	}
+	//resp := []entity.ShortenResponse{
+	//	{},
+	//}
+
+	//data := entity.Shorturl{}
+	//resp := entity.ShorturlResponse{}
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := json.Unmarshal(body, &batch); err != nil {
+		panic(err)
+	}
+
+	//shorturl, err := r.s.Shorten(ctx, &data)
+	//if err != nil {
+	//	http.Error(res, err.Error(), http.StatusBadRequest)
+	//	return
+	//}
+	//resp.URL = scripts.GetHost(r.cfg.HTTP, shorturl)
+	obj, err := json.Marshal(batch)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(http.StatusCreated)
+	res.Write(obj)
+	//res.Write(obj)
 }
