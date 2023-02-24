@@ -20,14 +20,10 @@ const (
 type (
 	producerSQL struct {
 		db *pgxpool.Pool
-		//writer *bufio.Writer
 	}
 
 	consumerSQL struct {
 		db *pgxpool.Pool
-		// заменяем reader на scanner
-		//reader *bufio.Reader
-		//sql.DB(QueryContext)
 	}
 
 	InSQL struct {
@@ -54,7 +50,6 @@ func NewSQLProducer(cfg *config.Config) *producerSQL {
 	connect := Connect(cfg)
 	return &producerSQL{
 		db: connect,
-		//writer: bufio.NewWriter(file),
 	}
 }
 
@@ -75,7 +70,6 @@ func (i *InSQL) Post(ctx context.Context, sh *entity.Shorturl) error {
 		fmt.Printf("%s", err)
 		return err
 	}
-	//fmt.Printf("new slug: %s\n", slug)
 	return nil
 }
 
@@ -88,7 +82,6 @@ func NewSQLConsumer(cfg *config.Config) *consumerSQL {
 	connect := Connect(cfg)
 	return &consumerSQL{
 		db: connect,
-		//reader: bufio.NewReader(file),
 	}
 }
 
@@ -153,6 +146,5 @@ func Connect(cfg *config.Config) (db *pgxpool.Pool) {
 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
 		os.Exit(1)
 	}
-	//defer dbpool.Close()
 	return dbpool
 }
