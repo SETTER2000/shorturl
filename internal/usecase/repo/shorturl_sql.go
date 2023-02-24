@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
@@ -10,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"log"
 	"os"
 )
 
@@ -141,10 +143,67 @@ func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error
 }
 
 func Connect(cfg *config.Config) (db *pgxpool.Pool) {
-	dbpool, err := pgxpool.New(context.Background(), cfg.ConnectDB)
+	ctx := context.Background()
+	dbpool, err := pgxpool.New(ctx, cfg.ConnectDB)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
 		os.Exit(1)
 	}
+	var tabs = `CREATE TABLE IF NOT EXISTS public.user
+(
+   id   VARCHAR(30) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS public.shorturl
+(
+   slug    VARCHAR(30) NOT NULL,
+   url     VARCHAR NOT NULL,
+   user_id VARCHAR(30) NOT NULL
+);
+INSERT INTO public.user(id) VALUES ('1676935920173833222h_1');
+INSERT INTO public.user(id) VALUES ('1676935920173833222h_2');
+INSERT INTO public.user(id) VALUES ('1676935920173833222h_3');
+
+INSERT INTO public.shorturl (slug, url, user_id) VALUES ('1676935920173833222h45','https://poaleell.com/chinese-crested/Poale-Ell-Adam','1676935920173833222h_1');
+INSERT INTO public.shorturl (slug, url, user_id) VALUES ('1676935920173833222h46','https://poaleell.com/chinese-crested/Poale-Ell-Chen','1676935920173833222h_2');
+INSERT INTO public.shorturl (slug, url, user_id) VALUES ('1676935920173833222h47','https://poaleell.com/chinese-crested/Poale-Ell-Cooper','1676935920173833222h_3');
+`
+	tag, err := dbpool.Exec(ctx, tabs)
+	log.Printf("%s", tag)
 	return dbpool
+}
+
+func CreateTables(cfg *config.Config) error {
+	db, err := sql.Open("pgx", cfg.ConnectDB)
+	if err != nil {
+		return err
+	}
+
+	var tabs = `
+CREATE 
+
+CREATE TABLE IF NOT EXISTS public.user
+(
+   id   VARCHAR(30) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS public.shorturl
+(
+   slug    VARCHAR(30) NOT NULL,
+   url     VARCHAR NOT NULL,
+   user_id VARCHAR(30) NOT NULL
+);
+INSERT INTO public.user(id) VALUES ('1676935920173833222h_1');
+INSERT INTO public.user(id) VALUES ('1676935920173833222h_2');
+INSERT INTO public.user(id) VALUES ('1676935920173833222h_3');
+
+INSERT INTO public.shorturl (slug, url, user_id) VALUES ('1676935920173833222h45','https://poaleell.com/chinese-crested/Poale-Ell-Adam','1676935920173833222h_1');
+INSERT INTO public.shorturl (slug, url, user_id) VALUES ('1676935920173833222h46','https://poaleell.com/chinese-crested/Poale-Ell-Chen','1676935920173833222h_2');
+INSERT INTO public.shorturl (slug, url, user_id) VALUES ('1676935920173833222h47','https://poaleell.com/chinese-crested/Poale-Ell-Cooper','1676935920173833222h_3');
+`
+	tag, err := db.Exec(tabs)
+	if err != nil {
+		return err
+	}
+	log.Printf("%s", tag)
+	//defer db.Close()
+	return nil
 }
