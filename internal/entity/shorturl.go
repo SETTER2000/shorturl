@@ -6,6 +6,7 @@ import "github.com/SETTER2000/shorturl/config"
 
 // CorrelationOrigin -.
 type CorrelationOrigin []Batch
+type Response []ShortenResponse
 
 // Shorturl -.
 type Shorturl struct {
@@ -35,8 +36,8 @@ type Batch struct {
 }
 
 type ShortenResponse struct {
-	Slug string `json:"correlation_id" example:"1674872720465761244B_5"`            // Строковый идентификатор
-	URL  string `json:"original_url" example:"https://example.com/go/to/home.html"` // URL для сокращения
+	Slug string `json:"correlation_id" example:"1674872720465761244B_5"`        // Строковый идентификатор
+	URL  string `json:"short_url" example:"https://example.com/correlation_id"` // URL для сокращения
 }
 
 type Short interface{}

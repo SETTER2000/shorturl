@@ -105,15 +105,14 @@ func (r *shorturlRoutes) connect(res http.ResponseWriter, req *http.Request) {
 func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
 	defer cancel()
-	// при чтении вернётся распакованный слайс байт
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	data := entity.Shorturl{}
+	data := entity.Shorturl{Config: r.cfg}
 	data.URL = string(body)
-	data.UserID = req.Context().Value("access_token").(string)
+	//data.UserID = req.Context().Value("access_token").(string)
 	shorturl, err := r.s.LongLink(ctx, &data)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
@@ -200,7 +199,6 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
 	defer cancel()
-
 	data := entity.Shorturl{Config: r.cfg}
 	//resp := entity.ShorturlResponse{}
 	body, err := io.ReadAll(req.Body)
@@ -211,11 +209,19 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 	if err := json.Unmarshal(body, &data.CorrelationOrigin); err != nil {
 		panic(err)
 	}
-	if r.s.Shorten(ctx, &data); err != nil {
+	_, err = r.s.Shorten(ctx, &data)
+	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	obj, err := json.Marshal(data.CorrelationOrigin)
+	var rs entity.Response
+	var sr entity.ShortenResponse
+	for _, j := range *data.CorrelationOrigin {
+		sr.Slug = j.Slug
+		sr.URL = scripts.GetHost(r.cfg.HTTP, j.Slug)
+		rs = append(rs, sr)
+	}
+	obj, err := json.Marshal(rs)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
@@ -223,5 +229,4 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
 	res.Write(obj)
-	//res.Write(obj)
 }
