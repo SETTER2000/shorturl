@@ -4,12 +4,16 @@ package entity
 
 import "github.com/SETTER2000/shorturl/config"
 
+// CorrelationOrigin -.
+type CorrelationOrigin []Batch
+
 // Shorturl -.
 type Shorturl struct {
-	Slug   string `json:"slug" example:"1674872720465761244B_5"`             // Строковый идентификатор
-	URL    string `json:"url" example:"https://example.com/go/to/home.html"` // URL для сокращения
-	UserID string `json:"user_id,omitempty"`
-	*config.Config
+	Slug               string `json:"slug,omitempty" example:"1674872720465761244B_5"`             // Строковый идентификатор
+	URL                string `json:"url,omitempty" example:"https://example.com/go/to/home.html"` // URL для сокращения
+	UserID             string `json:"user_id,omitempty"`
+	*config.Config     `json:"-"`
+	*CorrelationOrigin `json:"correlation_origin,omitempty"`
 }
 type List struct {
 	Slug string `json:"short_url" example:"1674872720465761244B_5"`                 // Строковый идентификатор
@@ -34,3 +38,5 @@ type ShortenResponse struct {
 	Slug string `json:"correlation_id" example:"1674872720465761244B_5"`            // Строковый идентификатор
 	URL  string `json:"original_url" example:"https://example.com/go/to/home.html"` // URL для сокращения
 }
+
+type Short interface{}

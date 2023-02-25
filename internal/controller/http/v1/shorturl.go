@@ -176,15 +176,17 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
+	data.Slug = scripts.UniqueString()
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
 	}
-	data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
+	//data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
 	resp.URL, err = r.s.Shorten(ctx, &data)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
+	resp.URL = scripts.GetHost(r.cfg.HTTP, resp.URL)
 	obj, err := json.Marshal(resp)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
@@ -196,35 +198,24 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 }
 
 func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
-	//ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
-	//defer cancel()
-	//
-	batch := []entity.Batch{
-		{},
-	}
-	//resp := []entity.ShortenResponse{
-	//	{},
-	//}
+	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
+	defer cancel()
 
-	//data := entity.Shorturl{}
+	data := entity.Shorturl{Config: r.cfg}
 	//resp := entity.ShorturlResponse{}
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	if err := json.Unmarshal(body, &batch); err != nil {
+	if err := json.Unmarshal(body, &data.CorrelationOrigin); err != nil {
 		panic(err)
 	}
-
-	//shorturl, err := r.s.Shorten(ctx, &data)
-	//if err != nil {
-	//	http.Error(res, err.Error(), http.StatusBadRequest)
-	//	return
-	//}
-	//resp.URL = scripts.GetHost(r.cfg.HTTP, shorturl)
-	obj, err := json.Marshal(batch)
+	if r.s.Shorten(ctx, &data); err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+	obj, err := json.Marshal(data.CorrelationOrigin)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return

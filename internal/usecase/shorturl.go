@@ -29,11 +29,10 @@ func New(r ShorturlRepo) *ShorturlUseCase {
 }
 
 func (uc *ShorturlUseCase) Shorten(ctx context.Context, sh *entity.Shorturl) (string, error) {
-	sh.Slug = scripts.UniqueString()
-	shorturl := scripts.GetHost(sh.Config.HTTP, sh.Slug)
+	sh.UserID = ctx.Value(sh.Cookie.AccessTokenName).(string)
 	err := uc.repo.Post(ctx, sh)
 	if err == nil {
-		return shorturl, nil
+		return sh.Slug, nil
 	}
 	return "", ErrBadRequest
 }
