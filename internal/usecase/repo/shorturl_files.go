@@ -101,11 +101,13 @@ func (i *InFiles) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shortur
 		if err != nil {
 			return nil, ErrNotFound
 		}
-		err = json.Unmarshal(data, &sh)
+		err = json.Unmarshal(data, &sh2)
 		if err != nil {
 			i.r.file.Seek(0, 0)
 		}
 		if sh2.Slug == sh.Slug {
+			sh.URL = sh2.URL
+			sh.UserID = sh2.UserID
 			break
 		}
 	}

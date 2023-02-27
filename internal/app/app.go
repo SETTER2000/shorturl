@@ -28,7 +28,7 @@ func Run(cfg *config.Config) {
 	// Use case
 	var shorturlUseCase usecase.Shorturl
 	if !scripts.CheckEnvironFlag("DATABASE_DSN", cfg.Storage.ConnectDB) {
-		if !scripts.CheckEnvironFlag("DATABASE_DSN", cfg.Storage.FileStorage) {
+		if !scripts.CheckEnvironFlag("FILE_STORAGE_PATH", cfg.Storage.FileStorage) {
 			l.Warn("In memory storage!!!")
 			shorturlUseCase = usecase.New(repo.NewInMemory())
 		} else {
