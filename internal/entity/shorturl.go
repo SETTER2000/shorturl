@@ -10,11 +10,11 @@ type Response []ShortenResponse
 
 // Shorturl -.
 type Shorturl struct {
-	Slug               string `json:"slug,omitempty" example:"1674872720465761244B_5"`             // Строковый идентификатор
-	URL                string `json:"url,omitempty" example:"https://example.com/go/to/home.html"` // URL для сокращения
-	UserID             string `json:"user_id,omitempty"`
-	*config.Config     `json:"-"`
-	*CorrelationOrigin `json:"correlation_origin,omitempty"`
+	Slug           string `json:"slug,omitempty" example:"1674872720465761244B_5"`             // Строковый идентификатор
+	URL            string `json:"url,omitempty" example:"https://example.com/go/to/home.html"` // URL для сокращения
+	UserID         string `json:"user_id,omitempty"`
+	*config.Config `json:"-"`
+	//*CorrelationOrigin `json:"correlation_origin,omitempty"`
 }
 type List struct {
 	Slug string `json:"short_url" example:"1674872720465761244B_5"`                 // Строковый идентификатор

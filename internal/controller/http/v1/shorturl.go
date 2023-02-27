@@ -3,7 +3,9 @@ package v1
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/SETTER2000/shorturl/internal/usecase/repo"
 	"io"
 	"log"
 	"net/http"
@@ -31,11 +33,6 @@ type shorturlRoutes struct {
 
 func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interface, cfg *config.Config) {
 	sr := &shorturlRoutes{s, l, cfg}
-
-	//handler.Group(func(r chi.Router) {
-	//	r.Post("/shorten", sr.shorten) // POST /
-	//})
-
 	handler.Route("/user", func(r chi.Router) {
 		r.Get("/urls", sr.urls)
 	})
@@ -182,6 +179,11 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	//data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
 	resp.URL, err = r.s.Shorten(ctx, &data)
 	if err != nil {
+		if errors.Is(err, repo.ErrAlreadyExists) {
+			fmt.Printf("ERR Already::  %v, ", err.Error())
+			res.WriteHeader(http.StatusConflict)
+			return
+		}
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -200,27 +202,35 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
 	defer cancel()
 	data := entity.Shorturl{Config: r.cfg}
-	//resp := entity.ShorturlResponse{}
+	CorrelationOrigin := entity.CorrelationOrigin{}
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if err := json.Unmarshal(body, &data.CorrelationOrigin); err != nil {
-		panic(err)
-	}
-	_, err = r.s.Shorten(ctx, &data)
-	if err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
-		return
+	if err := json.Unmarshal(body, &CorrelationOrigin); err != nil {
+		fmt.Errorf("error unmarshal: %v", err)
 	}
 	var rs entity.Response
 	var sr entity.ShortenResponse
-	for _, j := range *data.CorrelationOrigin {
-		sr.Slug = j.Slug
-		sr.URL = scripts.GetHost(r.cfg.HTTP, j.Slug)
+	for _, bt := range CorrelationOrigin {
+		data.URL = bt.URL
+		data.Slug = bt.Slug
+		_, err = r.s.Shorten(ctx, &data)
+		if err != nil {
+			if errors.Is(err, repo.ErrAlreadyExists) {
+				fmt.Printf("ERR Already::  %v, ", err.Error())
+				res.WriteHeader(http.StatusConflict)
+				return
+			}
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
+		sr.Slug = data.Slug
+		sr.URL = scripts.GetHost(r.cfg.HTTP, data.Slug)
 		rs = append(rs, sr)
 	}
+
 	obj, err := json.Marshal(rs)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)

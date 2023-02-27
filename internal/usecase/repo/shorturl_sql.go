@@ -6,7 +6,9 @@ import (
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/scripts"
+	"github.com/jackc/pgerrcode"
 	_ "github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 	"log"
@@ -57,19 +59,34 @@ func (i *InSQL) Post(ctx context.Context, sh *entity.Shorturl) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if sh.CorrelationOrigin == nil {
-		_, err = stmt.Exec(sh.Slug, sh.URL, sh.UserID)
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		for _, j := range *sh.CorrelationOrigin {
-			_, err = stmt.Exec(j.Slug, j.URL, sh.UserID)
-			if err != nil {
-				log.Fatal(err)
-			}
+
+	_, err = stmt.Exec(sh.Slug, sh.URL, sh.UserID)
+	if err, ok := err.(*pgconn.PgError); ok {
+		if err.Code == pgerrcode.UniqueViolation {
+			return NewConflictError("old url", "http://testiki", ErrAlreadyExists)
 		}
 	}
+	//if sh.CorrelationOrigin == nil {
+	//	_, err := stmt.Exec(sh.Slug, sh.URL, sh.UserID)
+	//	if err, ok := err.(*pgconn.PgError); ok {
+	//		if err.Code == pgerrcode.UniqueViolation {
+	//			return NewConflictError("old url", "http://testiki", ErrAlreadyExists)
+	//		}
+	//	}
+	//} else {
+	//	for _, j := range *sh.CorrelationOrigin {
+	//		res, err := stmt.Exec(j.Slug, j.URL, sh.UserID)
+	//		if err != nil {
+	//			log.Fatal(err)
+	//		}
+	//
+	//		r, err := res.RowsAffected()
+	//		if err != nil {
+	//			fmt.Printf("Error Affected: %e\n", err)
+	//		}
+	//		fmt.Printf("RowsAffected: %v\n", r)
+	//	}
+	//}
 	return nil
 }
 
@@ -151,7 +168,7 @@ func Connect(cfg *config.Config) (db *sqlx.DB) {
 CREATE TABLE IF NOT EXISTS public.shorturl
 (
    slug    VARCHAR(300) NOT NULL,
-   url     VARCHAR NOT NULL,
+   url     VARCHAR NOT NULL UNIQUE,
    user_id VARCHAR(300) NOT NULL
 );
 `
