@@ -52,17 +52,14 @@ func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interfac
 // @Failure     500 {object} response
 // @Router      /{key} [get]
 func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
+	shorturl := chi.URLParam(req, "key")
 	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
 	defer cancel()
 	data := entity.Shorturl{Config: r.cfg}
-	data.Slug = chi.URLParam(req, "key")
-	//if data.Slug == "" {
-	//	http.Error(res, fmt.Sprintf("%v", ""), http.StatusBadRequest)
-	//	return
-	//}
+	data.Slug = shorturl
 	sh, err := r.s.ShortLink(ctx, &data)
 	if err != nil {
-		//r.l.Error(err, "http - v1 - shortLink")
+		r.l.Error(err, "http - v1 - shortLink")
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
@@ -126,7 +123,9 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 			data2.URL = data.URL
 			sh, err := r.s.ShortLink(ctx, &data2)
 			if err != nil {
-				http.Error(res, err.Error(), http.StatusBadRequest)
+				r.l.Error(err, "http - v2 - shortLink")
+				http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
+				return
 			}
 			shorturl = sh.Slug
 			res.Header().Set("Content-Type", http.DetectContentType(body))
