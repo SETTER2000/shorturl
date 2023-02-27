@@ -122,12 +122,20 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	shorturl, err := r.s.LongLink(ctx, &data)
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
-			fmt.Printf("ERR Already::  %v, ", err.Error())
+			data2 := entity.Shorturl{Config: r.cfg}
+			fmt.Printf("ERR Already Shorten::  %v, ", err.Error())
+			data2.URL = data.URL
+			sh, err := r.s.ShortLink(ctx, &data2)
+			if err != nil {
+				http.Error(res, err.Error(), http.StatusBadRequest)
+			}
+			shorturl = sh.Slug
+			res.Header().Set("Content-Type", http.DetectContentType(body))
 			res.WriteHeader(http.StatusConflict)
+		} else {
+			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-		http.Error(res, err.Error(), http.StatusBadRequest)
-		return
 	}
 	d := scripts.GetHost(r.cfg.HTTP, shorturl)
 	res.Header().Set("Content-Type", http.DetectContentType(body))
@@ -194,12 +202,20 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	resp.URL, err = r.s.Shorten(ctx, &data)
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
-			fmt.Printf("ERR Already::  %v, ", err.Error())
+			data2 := entity.Shorturl{Config: r.cfg}
+			//fmt.Printf("ERR Already Shorten::  %v, ", err.Error())
+			data2.URL = data.URL
+			sh, err := r.s.ShortLink(ctx, &data2)
+			if err != nil {
+				http.Error(res, err.Error(), http.StatusBadRequest)
+			}
+			resp.URL = sh.Slug
+			res.Header().Set("Content-Type", "application/json")
 			res.WriteHeader(http.StatusConflict)
+		} else {
+			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-		http.Error(res, err.Error(), http.StatusBadRequest)
-		return
 	}
 	resp.URL = scripts.GetHost(r.cfg.HTTP, resp.URL)
 	obj, err := json.Marshal(resp)
