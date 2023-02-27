@@ -238,7 +238,10 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	json.Unmarshal(body, &CorrelationOrigin)
+	if err = json.Unmarshal(body, &CorrelationOrigin); err != nil {
+		panic(err)
+	}
+
 	var rs entity.Response
 	var sr entity.ShortenResponse
 	for _, bt := range CorrelationOrigin {
