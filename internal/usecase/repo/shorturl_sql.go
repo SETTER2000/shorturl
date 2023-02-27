@@ -102,9 +102,9 @@ func NewSQLConsumer(cfg *config.Config) *consumerSQL {
 	}
 }
 
-func (i *InSQL) Get(ctx context.Context, key string) (*entity.Shorturl, error) {
+func (i *InSQL) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
 	var slug, url, id string
-	rows, err := i.w.db.Query("SELECT slug, url, user_id FROM shorturl WHERE slug = $1", key)
+	rows, err := i.w.db.Query("SELECT slug, url, user_id FROM shorturl WHERE slug = $1 OR url = $2 ", sh.Slug, sh.URL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -119,11 +119,11 @@ func (i *InSQL) Get(ctx context.Context, key string) (*entity.Shorturl, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	sh := entity.Shorturl{}
+	//sh := entity.Shorturl{}
 	sh.Slug = slug
 	sh.URL = url
 	sh.UserID = id
-	return &sh, nil
+	return sh, nil
 }
 
 func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {

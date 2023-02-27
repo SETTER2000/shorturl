@@ -27,14 +27,14 @@ func NewInMemory() *InMemory {
 	}
 }
 
-func (s *InMemory) Get(ctx context.Context, key string) (*entity.Shorturl, error) {
+func (s *InMemory) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	sh := entity.Shorturl{}
-	if v, ok := s.m[key]; ok {
-		sh.Slug = key
+	//sh := entity.Shorturl{}
+	if v, ok := s.m[sh.Slug]; ok {
+		//sh.Slug = key
 		sh.URL = v
-		return &sh, nil
+		return sh, nil
 	}
 	return nil, ErrNotFound
 }

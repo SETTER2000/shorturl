@@ -91,8 +91,8 @@ func NewConsumer(cfg *config.Config) *consumer {
 	}
 }
 
-func (i *InFiles) Get(ctx context.Context, key string) (*entity.Shorturl, error) {
-	sh := entity.Shorturl{}
+func (i *InFiles) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
+	sh2 := entity.Shorturl{}
 	if i.r.reader.Size() < 1 {
 		return nil, ErrNotFound
 	}
@@ -105,7 +105,7 @@ func (i *InFiles) Get(ctx context.Context, key string) (*entity.Shorturl, error)
 		if err != nil {
 			i.r.file.Seek(0, 0)
 		}
-		if sh.Slug == key {
+		if sh2.Slug == sh.Slug {
 			break
 		}
 	}
@@ -113,7 +113,7 @@ func (i *InFiles) Get(ctx context.Context, key string) (*entity.Shorturl, error)
 	if err != nil {
 		return nil, err
 	}
-	return &sh, nil
+	return sh, nil
 }
 
 func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {

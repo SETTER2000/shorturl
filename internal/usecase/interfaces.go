@@ -4,7 +4,6 @@ package usecase
 import (
 	"context"
 	"github.com/SETTER2000/shorturl/internal/entity"
-	"net/http"
 )
 
 type (
@@ -12,7 +11,7 @@ type (
 	Shorturl interface {
 		Shorten(context.Context, *entity.Shorturl) (string, error)
 		LongLink(context.Context, *entity.Shorturl) (string, error)
-		ShortLink(w http.ResponseWriter, r *http.Request) (*entity.Shorturl, error)
+		ShortLink(context.Context, *entity.Shorturl) (*entity.Shorturl, error)
 		UserAllLink(ctx context.Context, u *entity.User) (*entity.User, error)
 	}
 
@@ -20,7 +19,7 @@ type (
 	ShorturlRepo interface {
 		Post(context.Context, *entity.Shorturl) error
 		Put(context.Context, *entity.Shorturl) error
-		Get(ctx context.Context, key string) (*entity.Shorturl, error)
+		Get(context.Context, *entity.Shorturl) (*entity.Shorturl, error)
 		GetAll(context.Context, *entity.User) (*entity.User, error)
 	}
 )

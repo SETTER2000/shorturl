@@ -52,7 +52,15 @@ func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interfac
 // @Failure     500 {object} response
 // @Router      /{key} [get]
 func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
-	sh, err := r.s.ShortLink(res, req)
+	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
+	defer cancel()
+	data := entity.Shorturl{Config: r.cfg}
+	data.Slug = chi.URLParam(req, "key")
+	if data.Slug == "" {
+		http.Error(res, fmt.Sprintf("%v", ""), http.StatusBadRequest)
+		return
+	}
+	sh, err := r.s.ShortLink(ctx, &data)
 	if err != nil {
 		r.l.Error(err, "http - v1 - shortLink")
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
@@ -109,9 +117,15 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	}
 	data := entity.Shorturl{Config: r.cfg}
 	data.URL = string(body)
+	data.Slug = scripts.UniqueString()
 	//data.UserID = req.Context().Value("access_token").(string)
 	shorturl, err := r.s.LongLink(ctx, &data)
 	if err != nil {
+		if errors.Is(err, repo.ErrAlreadyExists) {
+			fmt.Printf("ERR Already::  %v, ", err.Error())
+			res.WriteHeader(http.StatusConflict)
+			return
+		}
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}

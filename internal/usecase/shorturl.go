@@ -4,10 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/SETTER2000/shorturl/internal/entity"
-	"github.com/SETTER2000/shorturl/scripts"
-	"github.com/go-chi/chi/v5"
-	"net/http"
-	"time"
 )
 
 var (
@@ -39,24 +35,25 @@ func (uc *ShorturlUseCase) Shorten(ctx context.Context, sh *entity.Shorturl) (st
 
 // LongLink принимает длинный URL и возвращает короткий (PUT /api)
 func (uc *ShorturlUseCase) LongLink(ctx context.Context, sh *entity.Shorturl) (string, error) {
-	sh.Slug = scripts.UniqueString()
+	//sh.Slug = scripts.UniqueString()
 	sh.UserID = ctx.Value("access_token").(string)
 	err := uc.repo.Put(ctx, sh)
-	if err == nil {
-		return sh.Slug, nil
+	if err != nil {
+		return "", err
+
 	}
-	return "", ErrBadRequest
+	return sh.Slug, nil
 }
 
 // ShortLink принимает короткий URL и возвращает длинный (GET /api/{key})
-func (uc *ShorturlUseCase) ShortLink(w http.ResponseWriter, r *http.Request) (*entity.Shorturl, error) {
-	shorturl := chi.URLParam(r, "key")
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-	if shorturl == "" {
-		return nil, ErrBadRequest
-	}
-	sh, err := uc.repo.Get(ctx, shorturl)
+func (uc *ShorturlUseCase) ShortLink(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
+	//shorturl := chi.URLParam(r, "key")
+	//ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	//defer cancel()
+	//if shorturl == "" {
+	//	return nil, ErrBadRequest
+	//}
+	sh, err := uc.repo.Get(ctx, sh)
 	if err == nil {
 		return sh, nil
 	}
