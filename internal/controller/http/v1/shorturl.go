@@ -56,13 +56,13 @@ func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
 	defer cancel()
 	data := entity.Shorturl{Config: r.cfg}
 	data.Slug = chi.URLParam(req, "key")
-	if data.Slug == "" {
-		http.Error(res, fmt.Sprintf("%v", ""), http.StatusBadRequest)
-		return
-	}
+	//if data.Slug == "" {
+	//	http.Error(res, fmt.Sprintf("%v", ""), http.StatusBadRequest)
+	//	return
+	//}
 	sh, err := r.s.ShortLink(ctx, &data)
 	if err != nil {
-		r.l.Error(err, "http - v1 - shortLink")
+		//r.l.Error(err, "http - v1 - shortLink")
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
@@ -123,7 +123,6 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
 			data2 := entity.Shorturl{Config: r.cfg}
-			fmt.Printf("ERR Already Shorten::  %v, ", err.Error())
 			data2.URL = data.URL
 			sh, err := r.s.ShortLink(ctx, &data2)
 			if err != nil {
@@ -203,7 +202,6 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
 			data2 := entity.Shorturl{Config: r.cfg}
-			//fmt.Printf("ERR Already Shorten::  %v, ", err.Error())
 			data2.URL = data.URL
 			sh, err := r.s.ShortLink(ctx, &data2)
 			if err != nil {
@@ -250,7 +248,6 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 		_, err = r.s.Shorten(ctx, &data)
 		if err != nil {
 			if errors.Is(err, repo.ErrAlreadyExists) {
-				fmt.Printf("ERR Already::  %v, ", err.Error())
 				res.WriteHeader(http.StatusConflict)
 				return
 			}
