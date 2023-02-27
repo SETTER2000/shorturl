@@ -21,9 +21,9 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type contextKey string
+//type contextKey string
 
-const userIDKey contextKey = "access_token"
+//const userIDKey contextKey = "access_token"
 
 type shorturlRoutes struct {
 	s   usecase.Shorturl

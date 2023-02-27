@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"fmt"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"sync"
 )
@@ -28,14 +29,17 @@ func NewInMemory() *InMemory {
 }
 
 func (s *InMemory) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
+	fmt.Printf("Start01::: %v", sh.URL)
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	//sh := entity.Shorturl{}
 	if v, ok := s.m[sh.Slug]; ok {
 		//sh.Slug = key
+		fmt.Printf("Fooo::: %v", sh.URL)
 		sh.URL = v
 		return sh, nil
 	}
+	fmt.Printf("Fooo:2:: %v", sh.URL)
 	return nil, ErrNotFound
 }
 
