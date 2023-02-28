@@ -21,6 +21,10 @@ func GenerateString(n int) string {
 	specials := "_"
 	all := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + digits + specials
 	length := 3
+	if n > length {
+		length = n
+	}
+
 	buf := make([]byte, length)
 	buf[0] = digits[rand.Intn(len(digits))]
 	buf[1] = specials[rand.Intn(len(specials))]
@@ -36,26 +40,15 @@ func UniqueString() string {
 	return fmt.Sprintf("%v%s", time.Now().UnixNano(), GenerateString(3))
 }
 
+// GetHost формирует короткий URL
 func GetHost(cfg config.HTTP, shorturl string) string {
-	// Формирует короткий URL
-	//envBaseURL, err := os.LookupEnv("BASE_URL")
-
-	//if !err {
-	//	log.Fatalf("Missing environment variable BASE_URL!")
-	//}
-	//if len(envBaseURL) < 1 {
-	//	// Если BASE_URL пустой или нет такой переменной окружения, то формирование url
-	//	// происходит из значений, которые стоят по умолчанию в конфиге (порт отдельно, хост отдельно)
-	//	return fmt.Sprintf("%s:%s/%s", cfg.BaseURL, cfg.Port, shorturl)
-	//}
-
-	// .. в противном случаи т.к. BASE_URL имеет формат составной
-	// типа такого "http://$SERVER_HOST:$SERVER_PORT",
-	// соответственно он готов к использованию, возвращаем.
 	return fmt.Sprintf("%s/%s", cfg.BaseURL, shorturl)
 }
 
 // CheckEnvironFlag проверка значения переменной окружения и одноименного флага
+// при отсутствие переменной окружения в самой среде или пустое значение этой переменной, проверяется
+// значение флага с таким же именем, по сути сама переменная окружение отсутствовать не может в системе,
+// идет лишь проверка значения в двух местах в начале в окружение, затем во флаге.
 func CheckEnvironFlag(environName string, flagName string) bool {
 	dsn, ok := os.LookupEnv(environName)
 	if !ok || dsn == "" {

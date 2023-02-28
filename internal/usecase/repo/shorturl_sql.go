@@ -66,27 +66,7 @@ func (i *InSQL) Post(ctx context.Context, sh *entity.Shorturl) error {
 			return NewConflictError("old url", "http://testiki", ErrAlreadyExists)
 		}
 	}
-	//if sh.CorrelationOrigin == nil {
-	//	_, err := stmt.Exec(sh.Slug, sh.URL, sh.UserID)
-	//	if err, ok := err.(*pgconn.PgError); ok {
-	//		if err.Code == pgerrcode.UniqueViolation {
-	//			return NewConflictError("old url", "http://testiki", ErrAlreadyExists)
-	//		}
-	//	}
-	//} else {
-	//	for _, j := range *sh.CorrelationOrigin {
-	//		res, err := stmt.Exec(j.Slug, j.URL, sh.UserID)
-	//		if err != nil {
-	//			log.Fatal(err)
-	//		}
-	//
-	//		r, err := res.RowsAffected()
-	//		if err != nil {
-	//			fmt.Printf("Error Affected: %e\n", err)
-	//		}
-	//		fmt.Printf("RowsAffected: %v\n", r)
-	//	}
-	//}
+
 	return nil
 }
 
