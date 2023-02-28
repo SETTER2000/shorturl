@@ -5,20 +5,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/SETTER2000/shorturl/internal/usecase/repo"
-	"io"
-	"log"
-	"net/http"
-	"os"
-	"time"
-
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/internal/usecase"
+	"github.com/SETTER2000/shorturl/internal/usecase/repo"
 	"github.com/SETTER2000/shorturl/pkg/log/logger"
 	"github.com/SETTER2000/shorturl/scripts"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
+	"io"
+	"log"
+	"net/http"
+	"os"
 )
 
 //type contextKey string
@@ -53,11 +51,9 @@ func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interfac
 // @Router      /{key} [get]
 func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
 	shorturl := chi.URLParam(req, "key")
-	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
-	defer cancel()
 	data := entity.Shorturl{Config: r.cfg}
 	data.Slug = shorturl
-	sh, err := r.s.ShortLink(ctx, &data)
+	sh, err := r.s.ShortLink(req.Context(), &data)
 	if err != nil {
 		r.l.Error(err, "http - v1 - shortLink")
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
@@ -82,7 +78,7 @@ func (r *shorturlRoutes) connect(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 	} else {
-		db, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_DSN"))
+		db, err := pgx.Connect(req.Context(), os.Getenv("DATABASE_DSN"))
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -105,8 +101,7 @@ func (r *shorturlRoutes) connect(res http.ResponseWriter, req *http.Request) {
 // @Failure     500 {object} response
 // @Router      / [post]
 func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
-	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
-	defer cancel()
+	ctx := req.Context()
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -143,15 +138,13 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 
 // GET
 func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
-	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
-	defer cancel()
 	u := entity.User{}
 	userID := req.Context().Value("access_token")
 	if userID == nil {
 		res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", userID)))
 	}
 	u.UserID = fmt.Sprintf("%s", userID)
-	user, err := r.s.UserAllLink(ctx, &u)
+	user, err := r.s.UserAllLink(req.Context(), &u)
 	if err != nil {
 		r.l.Error(err, "http - v1 - shortLink")
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
@@ -183,8 +176,7 @@ func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
 // @Failure     500 {object} response
 // @Router      /{shorten} [post]
 func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
-	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
-	defer cancel()
+	ctx := req.Context()
 	data := entity.Shorturl{Config: r.cfg}
 	resp := entity.ShorturlResponse{}
 	body, err := io.ReadAll(req.Body)
@@ -226,8 +218,7 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 }
 
 func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
-	ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
-	defer cancel()
+	ctx := req.Context()
 	data := entity.Shorturl{Config: r.cfg}
 	CorrelationOrigin := entity.CorrelationOrigin{}
 	body, err := io.ReadAll(req.Body)
