@@ -56,6 +56,7 @@ package v1
 //		})
 //	}
 //}
+
 //
 //func TestShortURL(t *testing.T) {
 //	type want struct {
@@ -84,7 +85,7 @@ package v1
 //			//request := httptest.NewRequest(http.MethodPost, "/", nil)
 //			request := httptest.NewRequest(http.MethodGet, "/", nil)
 //			w := httptest.NewRecorder()
-//			h := http.HandlerFunc(ShortURL)
+//			h := http.HandlerFunc(sr.shortLink)
 //			h.ServeHTTP(w, request)
 //			res := w.Result()
 //			// запускаем сервер

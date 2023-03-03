@@ -108,7 +108,7 @@ func (i *InSQL) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl,
 
 func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	var slug, url, id string
-	q := `SELECT * FROM shorturl WHERE user_id=$1`
+	q := `SELECT slug, url, user_id FROM shorturl WHERE user_id=$1`
 	rows, err := i.w.db.Queryx(q, u.UserID)
 	if err != nil {
 		log.Fatal(err)
@@ -149,7 +149,8 @@ CREATE TABLE IF NOT EXISTS public.shorturl
 (
    slug    VARCHAR(300) NOT NULL,
    url     VARCHAR NOT NULL UNIQUE,
-   user_id VARCHAR(300) NOT NULL
+   user_id VARCHAR(300) NOT NULL,
+   del BOOLEAN DEFAULT FALSE
 );
 `
 	db.MustExec(schema)

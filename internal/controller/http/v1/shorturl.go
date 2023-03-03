@@ -19,10 +19,6 @@ import (
 	"os"
 )
 
-//type contextKey string
-
-//const userIDKey contextKey = "access_token"
-
 type shorturlRoutes struct {
 	s   usecase.Shorturl
 	l   logger.Interface
@@ -33,6 +29,7 @@ func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interfac
 	sr := &shorturlRoutes{s, l, cfg}
 	handler.Route("/user", func(r chi.Router) {
 		r.Get("/urls", sr.urls)
+		r.Delete("/urls", sr.delUrls)
 	})
 	handler.Route("/shorten", func(r chi.Router) {
 		r.Post("/", sr.shorten) // POST /
@@ -73,7 +70,7 @@ func (r *shorturlRoutes) connect(res http.ResponseWriter, req *http.Request) {
 	if !ok || dsn == "" {
 		dsn = r.cfg.Storage.ConnectDB
 		if dsn == "" {
-			fmt.Printf("connect DSN string is empty: %v\n", dsn)
+			r.l.Info("connect DSN string is empty: %v\n", dsn)
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -174,7 +171,7 @@ func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
 // @Produce     json
 // @Success     307 {object} string
 // @Failure     500 {object} response
-// @Router      /{shorten} [post]
+// @Router      /shorten [post]
 func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 	data := entity.Shorturl{Config: r.cfg}
@@ -256,5 +253,40 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 	}
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
+	res.Write(obj)
+}
+
+// Асинхронный хендлер DELETE /api/user/urls,
+// который принимает список идентификаторов сокращённых URL для удаления
+// в формате: [ "a", "b", "c", "d", ...]
+// В случае успешного приёма запроса хендлер должен возвращать HTTP-статус 202 Accepted.
+// Фактический результат удаления может происходить позже — каким-либо
+// образом оповещать пользователя об успешности или неуспешности не нужно.
+func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
+	u := entity.User{}
+	userID := req.Context().Value("access_token")
+	if userID == nil {
+		res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", userID)))
+	}
+	u.UserID = fmt.Sprintf("%s", userID)
+	user, err := r.s.UserAllLink(req.Context(), &u)
+	if err != nil {
+		r.l.Error(err, "http - v1 - delUrls")
+		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
+		return
+	}
+
+	obj, err := json.Marshal(user.Urls)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+	log.Printf("%v", len(obj))
+	res.Header().Set("Content-Type", "application/json")
+	if string(obj) == "null" {
+		res.WriteHeader(http.StatusNoContent)
+	} else {
+		res.WriteHeader(http.StatusOK)
+	}
 	res.Write(obj)
 }

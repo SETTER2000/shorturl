@@ -6,6 +6,8 @@ import (
 	"github.com/SETTER2000/shorturl/internal/entity"
 )
 
+//go:generate mockgen -source=interfaces.go -destination=mocks/mock.go
+
 type (
 	// Shorturl -.
 	Shorturl interface {
