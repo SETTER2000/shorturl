@@ -56,6 +56,11 @@ func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
+	// при запросе удалённого URL с помощью хендлера GET /{id} нужно вернуть статус 410 Gone
+	if sh.Del {
+		res.WriteHeader(http.StatusGone)
+		return
+	}
 	res.Header().Set("Content-Type", "text/plain")
 	res.Header().Add("Content-Encoding", "gzip")
 	res.Header().Add("Location", sh.URL)
@@ -256,37 +261,36 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 	res.Write(obj)
 }
 
-// Асинхронный хендлер DELETE /api/user/urls,
+// Асинхронный (КАБУДА!) хендлер DELETE /api/user/urls,
 // который принимает список идентификаторов сокращённых URL для удаления
 // в формате: [ "a", "b", "c", "d", ...]
 // В случае успешного приёма запроса хендлер должен возвращать HTTP-статус 202 Accepted.
 // Фактический результат удаления может происходить позже — каким-либо
 // образом оповещать пользователя об успешности или неуспешности не нужно.
 func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
+	var slugs []string
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err = json.Unmarshal(body, &slugs); err != nil {
+		panic(err)
+	}
+
 	u := entity.User{}
 	userID := req.Context().Value("access_token")
 	if userID == nil {
 		res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", userID)))
 	}
 	u.UserID = fmt.Sprintf("%s", userID)
-	user, err := r.s.UserAllLink(req.Context(), &u)
+	u.DelLink = slugs
+	err = r.s.UserDelLink(req.Context(), &u)
 	if err != nil {
 		r.l.Error(err, "http - v1 - delUrls")
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
-
-	obj, err := json.Marshal(user.Urls)
-	if err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
-		return
-	}
-	log.Printf("%v", len(obj))
-	res.Header().Set("Content-Type", "application/json")
-	if string(obj) == "null" {
-		res.WriteHeader(http.StatusNoContent)
-	} else {
-		res.WriteHeader(http.StatusOK)
-	}
-	res.Write(obj)
+	res.WriteHeader(http.StatusAccepted)
+	res.Write([]byte("Ok!"))
 }

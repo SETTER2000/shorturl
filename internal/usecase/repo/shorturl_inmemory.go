@@ -54,7 +54,10 @@ func (s *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, er
 	//}
 	return nil, ErrNotFound
 }
-
+func (s *InMemory) Delete(ctx context.Context, u *entity.User) error {
+	//user := entity.User{}
+	return nil
+}
 func (s *InMemory) Put(ctx context.Context, sh *entity.Shorturl) error {
 	s.Post(ctx, sh)
 	return nil

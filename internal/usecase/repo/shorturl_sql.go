@@ -84,13 +84,14 @@ func NewSQLConsumer(cfg *config.Config) *consumerSQL {
 
 func (i *InSQL) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
 	var slug, url, id string
-	rows, err := i.w.db.Query("SELECT slug, url, user_id FROM shorturl WHERE slug = $1 OR url = $2 ", sh.Slug, sh.URL)
+	var del bool
+	rows, err := i.w.db.Query("SELECT slug, url, user_id, del FROM shorturl WHERE slug = $1 OR url = $2 ", sh.Slug, sh.URL)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&slug, &url, &id)
+		err := rows.Scan(&slug, &url, &id, &del)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -103,13 +104,14 @@ func (i *InSQL) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl,
 	sh.Slug = slug
 	sh.URL = url
 	sh.UserID = id
+	sh.Del = del
 	return sh, nil
 }
 
 func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	var slug, url, id string
-	q := `SELECT slug, url, user_id FROM shorturl WHERE user_id=$1`
-	rows, err := i.w.db.Queryx(q, u.UserID)
+	q := `SELECT slug, url, user_id FROM shorturl WHERE user_id=$1 AND del=$2`
+	rows, err := i.w.db.Queryx(q, u.UserID, false)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -129,6 +131,18 @@ func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error
 		return nil, err
 	}
 	return u, nil
+}
+func (i *InSQL) Delete(ctx context.Context, u *entity.User) error {
+	q := `UPDATE shorturl SET del = $1
+	FROM (SELECT unnest($2::text[]) AS slug) AS data_table
+	WHERE shorturl.slug = data_table.slug AND shorturl.user_id=$3`
+
+	_, err := i.w.db.Queryx(q, true, u.DelLink, u.UserID)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	return nil
 }
 
 func Connect(cfg *config.Config) (db *sqlx.DB) {

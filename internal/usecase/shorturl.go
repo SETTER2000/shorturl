@@ -47,12 +47,6 @@ func (uc *ShorturlUseCase) LongLink(ctx context.Context, sh *entity.Shorturl) (s
 
 // ShortLink принимает короткий URL и возвращает длинный (GET /api/{key})
 func (uc *ShorturlUseCase) ShortLink(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	//shorturl := chi.URLParam(r, "key")
-	//ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	//defer cancel()
-	//if shorturl == "" {
-	//	return nil, ErrBadRequest
-	//}
 	sh, err := uc.repo.Get(ctx, sh)
 	if err == nil {
 		return sh, nil
@@ -67,4 +61,13 @@ func (uc *ShorturlUseCase) UserAllLink(ctx context.Context, u *entity.User) (*en
 		return u, nil
 	}
 	return nil, ErrBadRequest
+}
+
+// UserDelLink принимает короткий URL и возвращает длинный (DELETE /api/user/urls)
+func (uc *ShorturlUseCase) UserDelLink(ctx context.Context, u *entity.User) error {
+	err := uc.repo.Delete(ctx, u)
+	if err != nil {
+		return err
+	}
+	return nil
 }

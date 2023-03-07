@@ -147,6 +147,10 @@ func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, err
 	return u, nil
 }
 
+func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
+	//user := entity.User{}
+	return nil
+}
 func (c *consumer) Close() error {
 	return c.file.Close()
 }

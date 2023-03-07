@@ -15,6 +15,7 @@ type (
 		LongLink(context.Context, *entity.Shorturl) (string, error)
 		ShortLink(context.Context, *entity.Shorturl) (*entity.Shorturl, error)
 		UserAllLink(ctx context.Context, u *entity.User) (*entity.User, error)
+		UserDelLink(ctx context.Context, u *entity.User) error
 	}
 
 	// ShorturlRepo -.
@@ -23,5 +24,6 @@ type (
 		Put(context.Context, *entity.Shorturl) error
 		Get(context.Context, *entity.Shorturl) (*entity.Shorturl, error)
 		GetAll(context.Context, *entity.User) (*entity.User, error)
+		Delete(context.Context, *entity.User) error
 	}
 )
