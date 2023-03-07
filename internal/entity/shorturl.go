@@ -13,7 +13,7 @@ type Shorturl struct {
 	Slug           string `json:"slug,omitempty" example:"1674872720465761244B_5"`             // Строковый идентификатор
 	URL            string `json:"url,omitempty" example:"https://example.com/go/to/home.html"` // URL для сокращения
 	UserID         string `json:"user_id,omitempty"`
-	Del            bool   `json:"-"`
+	Del            bool   `json:"del"`
 	*config.Config `json:"-"`
 	//*CorrelationOrigin `json:"correlation_origin,omitempty"`
 }
