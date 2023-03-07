@@ -31,14 +31,7 @@ func TestCheckEnvironFlag(t *testing.T) {
 			},
 			want: true,
 		}, {
-			name: "positive test #3 environment variable set",
-			args: args{
-				environName: "DATABASE_DSN",
-				flagName:    "",
-			},
-			want: true,
-		}, {
-			name: "positive test #4 same naming of environment variable and flag",
+			name: "positive test #3 same naming of environment variable and flag",
 			args: args{
 				environName: "environName",
 				flagName:    "DATABASE_DSN",

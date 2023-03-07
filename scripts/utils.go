@@ -60,11 +60,3 @@ func CheckEnvironFlag(environName string, flagName string) bool {
 	}
 	return true
 }
-
-//func NewBools(n, v bool) []bool {
-//	s := make([]bool, n)
-//	for i := range s {
-//		s[i] = v
-//	}
-//	return s
-//}
