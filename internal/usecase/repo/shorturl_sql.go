@@ -137,9 +137,12 @@ func (i *InSQL) Delete(ctx context.Context, u *entity.User) error {
 	FROM (SELECT unnest($2::text[]) AS slug) AS data_table
 	WHERE shorturl.slug = data_table.slug AND shorturl.user_id=$3`
 
-	_, err := i.w.db.Queryx(q, true, u.DelLink, u.UserID)
+	rows, err := i.w.db.Queryx(q, true, u.DelLink, u.UserID)
 	if err != nil {
 		log.Fatal(err)
+		return err
+	}
+	if err = rows.Err(); err != nil {
 		return err
 	}
 	return nil
