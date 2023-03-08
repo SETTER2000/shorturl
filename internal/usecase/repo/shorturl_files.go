@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/scripts"
+	"io"
 	"os"
 )
 
@@ -74,7 +76,59 @@ func (i *InFiles) Post(ctx context.Context, sh *entity.Shorturl) error {
 }
 
 func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
-	return i.Post(ctx, sh)
+	var shorts []entity.Shorturl
+	var sh2 entity.Shorturl
+	for {
+		path, err := i.r.reader.ReadString(10) // 0x0A separator = newline
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return err // if you return error
+		}
+		err = json.Unmarshal([]byte(path), &sh2)
+		if err != nil {
+			i.r.file.Seek(0, 0)
+		}
+		if sh2.Slug != sh.Slug {
+			shorts = append(shorts, sh2)
+		}
+
+	}
+	shorts = append(shorts, *sh)
+
+	_, err := i.w.file.Seek(0, io.SeekStart)
+	if err != nil {
+		return err
+	}
+
+	err = i.w.file.Truncate(0)
+	if err != nil {
+		return err
+	}
+
+	for _, short := range shorts {
+
+		data, err := json.Marshal(&short)
+		if err != nil {
+			return err
+		}
+		// записываем событие в буфер
+		if _, err = i.w.writer.Write(data); err != nil {
+			return err
+		}
+		// добавляем перенос строки
+		if err = i.w.writer.WriteByte('\n'); err != nil {
+			return err
+		}
+
+	}
+
+	fmt.Printf("TTt:: %v", shorts)
+	fmt.Printf("Count: %d\n", len(shorts))
+	i.r.file.Seek(0, 0)
+	// записываем буфер в файл
+	t := i.w.writer.Flush()
+	return t
 }
 
 func (p *producer) Close() error {
