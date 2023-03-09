@@ -110,6 +110,7 @@ func (i *InFiles) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shortur
 		if sh2.Slug == sh.Slug {
 			sh.URL = sh2.URL
 			sh.UserID = sh2.UserID
+			sh.Del = sh2.Del
 			break
 		}
 	}
