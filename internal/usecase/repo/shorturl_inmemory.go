@@ -46,20 +46,6 @@ func (s *InMemory) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shortu
 }
 
 func (s *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
-	//s.lock.Lock()
-	//defer s.lock.Unlock()
-	//sh := entity.Shorturl{}
-	//lst := entity.List{}
-	//err := json.Unmarshal(s.m[slug], &sh)
-	//	if err != nil {
-	//		i.r.file.Seek(0, 0)
-	//	}
-	//	if sh.UserID == u.UserID {
-	//		lst.URL = sh.URL
-	//		lst.Slug = scripts.GetHost(s.cfg.HTTP, sh.Slug)
-	//		u.Urls = append(u.Urls, lst)
-	//	}
-	//fmt.Printf("DD:: %s, %v, %s, %s", u.Slug, u.Del, u.UserID, u.URL)
 	return nil, ErrNotFound
 }
 func (s *InMemory) Delete(ctx context.Context, u *entity.User) error {
@@ -72,7 +58,6 @@ func (s *InMemory) Delete(ctx context.Context, u *entity.User) error {
 	}
 	for _, slug := range u.DelLink {
 		if err := json.Unmarshal(s.m[slug], &sh2); err != nil {
-			//fmt.Printf("delete error in memory unmarshal: %e", err)
 			continue
 		}
 		sh2.Del = true
@@ -82,7 +67,6 @@ func (s *InMemory) Delete(ctx context.Context, u *entity.User) error {
 		}
 		s.m[slug] = obj
 	}
-	//fmt.Printf("DD:: %s, %v, %s, %s", sh2.Slug, sh2.Del, sh2.UserID, sh2.URL)
 	return nil
 }
 func (s *InMemory) Put(ctx context.Context, sh *entity.Shorturl) error {
@@ -103,6 +87,5 @@ func (s *InMemory) Post(ctx context.Context, sh *entity.Shorturl) error {
 		return ErrNotFound
 	}
 	s.m[sh.Slug] = obj
-	//s.m[sh.Slug] = sh.URL
 	return nil
 }
