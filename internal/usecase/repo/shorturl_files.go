@@ -152,7 +152,6 @@ func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, err
 func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
 	sh := entity.Shorturl{}
 	var shorts, shorts2 []entity.Shorturl
-
 	size := i.r.reader.Size()
 	if size < 1 {
 		return ErrNotFound
