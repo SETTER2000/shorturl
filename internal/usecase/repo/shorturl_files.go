@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/scripts"
+	"io"
 	"os"
 )
 
@@ -148,8 +150,61 @@ func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, err
 }
 
 func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
-	//user := entity.User{}
-	return nil
+	sh := entity.Shorturl{}
+	var shorts, shorts2 []entity.Shorturl
+
+	size := i.r.reader.Size()
+	if size < 1 {
+		return ErrNotFound
+	}
+	for j := 0; j < size; j++ {
+		data, err := i.r.reader.ReadBytes('\n')
+		if err != nil {
+			break
+		}
+		err = json.Unmarshal(data, &sh)
+		if err != nil {
+			i.r.file.Seek(0, 0)
+		}
+		shorts = append(shorts, sh)
+	}
+	_, err := i.r.file.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+
+	for _, v := range shorts {
+		for _, g := range u.DelLink {
+			if v.Slug == g && v.UserID == u.UserID {
+				v.Del = true
+			}
+		}
+		shorts2 = append(shorts2, v)
+		fmt.Printf("SH:: %s %v\n", v.Slug, v.Del)
+	}
+	_, err = i.w.file.Seek(0, io.SeekStart)
+	if err != nil {
+		return err
+	}
+	err = i.w.file.Truncate(0)
+	if err != nil {
+		return err
+	}
+	for _, short := range shorts2 {
+		data, err := json.Marshal(&short)
+		if err != nil {
+			return err
+		}
+		if _, err = i.w.writer.Write(data); err != nil {
+			return err
+		}
+		if err = i.w.writer.WriteByte('\n'); err != nil {
+			return err
+		}
+	}
+	i.r.file.Seek(0, 0)
+	t := i.w.writer.Flush()
+	return t
 }
 func (c *consumer) Close() error {
 	return c.file.Close()
