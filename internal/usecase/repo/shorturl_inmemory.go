@@ -64,11 +64,9 @@ func (s *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, er
 }
 func (s *InMemory) Delete(ctx context.Context, u *entity.User) error {
 	s.lock.Lock()
-	var sh, sh2 entity.Shorturl
+	var sh2 entity.Shorturl
 	defer s.lock.Unlock()
 	for _, slug := range u.DelLink {
-		sh.Slug = slug
-		//fmt.Printf("DD:: %s, %v, %s", sh2.Slug, sh2.Del, sh2.UserID)
 		if err := json.Unmarshal(s.m[slug], &sh2); err != nil {
 			return fmt.Errorf("delete error in memory unmarshal: %e", err)
 		}
