@@ -307,7 +307,7 @@ func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
 
 	// здесь fanIn
 	for v := range fanIn(workerChs...) {
-		fmt.Printf("%v\n", v.DelLink)
+		r.l.Info("%v\n", v.UserID)
 	}
 	//-- end fanOut fanIn
 
