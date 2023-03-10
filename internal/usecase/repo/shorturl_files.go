@@ -23,9 +23,8 @@ type (
 	}
 
 	consumer struct {
-		cfg  *config.Config
-		file *os.File
-		// заменяем reader на scanner
+		cfg    *config.Config
+		file   *os.File
 		reader *bufio.Reader
 	}
 

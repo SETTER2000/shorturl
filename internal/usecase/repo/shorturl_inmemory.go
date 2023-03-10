@@ -70,8 +70,7 @@ func (s *InMemory) Delete(ctx context.Context, u *entity.User) error {
 	return nil
 }
 func (s *InMemory) Put(ctx context.Context, sh *entity.Shorturl) error {
-	s.Post(ctx, sh)
-	return nil
+	return s.Post(ctx, sh)
 }
 
 func (s *InMemory) Post(ctx context.Context, sh *entity.Shorturl) error {
