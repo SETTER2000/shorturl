@@ -308,6 +308,8 @@ func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
 	// здесь fanIn
 	for v := range fanIn(workerChs...) {
 		r.l.Info("%v\n", v.UserID)
+		res.WriteHeader(http.StatusAccepted)
+		//res.Write([]byte("Ok!"))
 	}
 	//-- end fanOut fanIn
 
@@ -321,8 +323,6 @@ func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
 	//	return
 	//}
 
-	res.WriteHeader(http.StatusAccepted)
-	res.Write([]byte("Ok!"))
 }
 
 func newWorker(r *shorturlRoutes, req *http.Request, input, out chan entity.User) {
