@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	_defaultReadTimeout     = 30 * time.Second
-	_defaultWriteTimeout    = 30 * time.Second
+	_defaultReadTimeout     = 10 * time.Second
+	_defaultWriteTimeout    = 10 * time.Second
 	_defaultAddr            = ":80"
-	_defaultShutdownTimeout = 0 * time.Second
+	_defaultShutdownTimeout = 3 * time.Second
 )
 
 // Server -.
