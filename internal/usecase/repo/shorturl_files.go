@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/scripts"
@@ -180,7 +179,6 @@ func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
 			}
 		}
 		shorts2 = append(shorts2, v)
-		fmt.Printf("SH:: %s %v\n", v.Slug, v.Del)
 	}
 	_, err = i.w.file.Seek(0, io.SeekStart)
 	if err != nil {

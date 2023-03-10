@@ -17,6 +17,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 )
 
 type shorturlRoutes struct {
@@ -285,12 +286,111 @@ func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
 	}
 	u.UserID = fmt.Sprintf("%s", userID)
 	u.DelLink = slugs
-	err = r.s.UserDelLink(req.Context(), &u)
-	if err != nil {
-		r.l.Error(err, "http - v1 - delUrls")
-		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
-		return
+
+	//-- fanOut fanIn - multithreading
+	const workersCount = 10
+	inputCh := make(chan entity.User)
+	// генерируем входные значения и кладём в inputCh
+	go func(u entity.User) {
+		inputCh <- u
+		close(inputCh)
+	}(u)
+	// здесь fanOut
+	fanOutChs := fanOut(inputCh, workersCount)
+	workerChs := make([]chan entity.User, 0, workersCount)
+	for _, fanOutCh := range fanOutChs {
+		workerCh := make(chan entity.User)
+		newWorker(r, req, fanOutCh, workerCh)
+		workerChs = append(workerChs, workerCh)
 	}
+
+	// здесь fanIn
+	for v := range fanIn(workerChs...) {
+		fmt.Printf("%v\n", v.DelLink)
+	}
+	//-- end fanOut fanIn
+
+	//for _, v := range slugs {
+	//	fmt.Printf("SLUG:: %s\n", v)
+	//	err = r.s.UserDelLink(req.Context(), &u)
+	//}
+	//if err != nil {
+	//	r.l.Error(err, "http - v1 - delUrls")
+	//	http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
+	//	return
+	//}
+
 	res.WriteHeader(http.StatusAccepted)
 	res.Write([]byte("Ok!"))
+}
+
+func newWorker(r *shorturlRoutes, req *http.Request, input, out chan entity.User) {
+	go func() {
+		us := entity.User{}
+		for u := range input {
+			err := r.s.UserDelLink(req.Context(), &u)
+			if err != nil {
+				r.l.Error("error %e", err)
+			}
+			out <- us
+		}
+
+		close(out)
+	}()
+}
+func fanIn(inputChs ...chan entity.User) chan entity.User {
+	// один выходной канал, куда сливаются данные из всех каналов
+	outCh := make(chan entity.User)
+
+	go func() {
+		wg := &sync.WaitGroup{}
+
+		for _, inputCh := range inputChs {
+			wg.Add(1)
+
+			go func(inputCh chan entity.User) {
+				defer wg.Done()
+				for item := range inputCh {
+					outCh <- item
+				}
+			}(inputCh)
+		}
+
+		wg.Wait()
+		close(outCh)
+	}()
+
+	return outCh
+}
+
+func fanOut(inputCh chan entity.User, n int) []chan entity.User {
+	chs := make([]chan entity.User, 0, n)
+	for i := 0; i < n; i++ {
+		ch := make(chan entity.User)
+		chs = append(chs, ch)
+	}
+
+	go func() {
+		defer func(chs []chan entity.User) {
+			for _, ch := range chs {
+				close(ch)
+			}
+		}(chs)
+
+		for i := 0; ; i++ {
+			if i == len(chs) {
+				i = 0
+			}
+
+			num, ok := <-inputCh
+			if !ok {
+				return
+			}
+
+			ch := chs[i]
+			ch <- num
+		}
+	}()
+
+	return chs
 }
