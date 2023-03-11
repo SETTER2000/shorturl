@@ -111,8 +111,8 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	data := entity.Shorturl{Config: r.cfg}
-	data.URL = string(body)
-	//data.URL, _ = scripts.Trim(string(body), "")
+	//data.URL = string(body)
+	data.URL, _ = scripts.Trim(string(body), "")
 	data.Slug = scripts.UniqueString()
 	//data.UserID = req.Context().Value("access_token").(string)
 	shorturl, err := r.s.LongLink(ctx, &data)
