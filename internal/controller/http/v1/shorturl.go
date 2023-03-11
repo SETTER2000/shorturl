@@ -181,6 +181,7 @@ func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
 // @Router      /shorten [post]
 func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
+	defer req.Body.Close()
 	data := entity.Shorturl{Config: r.cfg}
 	resp := entity.ShorturlResponse{}
 	body, err := io.ReadAll(req.Body)
