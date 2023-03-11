@@ -123,14 +123,14 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 			sh, err := r.s.ShortLink(ctx, &data2)
 			if err != nil {
 				r.l.Error(err, "http - v2 - shortLink")
-				http.Error(res, fmt.Sprintf("%v", err), http.StatusAlreadyReported)
+				http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
 				return
 			}
 			shorturl = sh.Slug
 			res.Header().Set("Content-Type", http.DetectContentType(body))
 			res.WriteHeader(http.StatusConflict)
 		} else {
-			http.Error(res, err.Error(), http.StatusEarlyHints)
+			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 	}
@@ -289,41 +289,40 @@ func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
 	u.DelLink = slugs
 
 	//-- fanOut fanIn - multithreading
-	const workersCount = 10
-	inputCh := make(chan entity.User)
-	// генерируем входные значения и кладём в inputCh
-	go func(u entity.User) {
-		inputCh <- u
-		close(inputCh)
-	}(u)
-	// здесь fanOut
-	fanOutChs := fanOut(inputCh, workersCount)
-	workerChs := make([]chan entity.User, 0, workersCount)
-	for _, fanOutCh := range fanOutChs {
-		workerCh := make(chan entity.User)
-		newWorker(r, req, fanOutCh, workerCh)
-		workerChs = append(workerChs, workerCh)
-	}
-
-	// здесь fanIn
-	for v := range fanIn(workerChs...) {
-		r.l.Info("%v\n", v.UserID)
-		res.WriteHeader(http.StatusAccepted)
-		res.Header().Set("Content-Type", "application/json")
-		res.Write([]byte("Ok!"))
-	}
+	//const workersCount = 10
+	//inputCh := make(chan entity.User)
+	//// генерируем входные значения и кладём в inputCh
+	//go func(u entity.User) {
+	//	inputCh <- u
+	//	close(inputCh)
+	//}(u)
+	//// здесь fanOut
+	//fanOutChs := fanOut(inputCh, workersCount)
+	//workerChs := make([]chan entity.User, 0, workersCount)
+	//for _, fanOutCh := range fanOutChs {
+	//	workerCh := make(chan entity.User)
+	//	newWorker(r, req, fanOutCh, workerCh)
+	//	workerChs = append(workerChs, workerCh)
+	//}
+	//
+	//// здесь fanIn
+	//for v := range fanIn(workerChs...) {
+	//	r.l.Info("%v\n", v.UserID)
+	//}
 	//-- end fanOut fanIn
 
-	//for _, v := range slugs {
-	//	fmt.Printf("SLUG:: %s\n", v)
-	//	err = r.s.UserDelLink(req.Context(), &u)
-	//}
-	//if err != nil {
-	//	r.l.Error(err, "http - v1 - delUrls")
-	//	http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
-	//	return
-	//}
-
+	for _, v := range slugs {
+		fmt.Printf("SLUG:: %s\n", v)
+		err = r.s.UserDelLink(req.Context(), &u)
+	}
+	if err != nil {
+		r.l.Error(err, "http - v1 - delUrls")
+		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
+		return
+	}
+	res.WriteHeader(http.StatusAccepted)
+	res.Header().Set("Content-Type", "application/json")
+	res.Write([]byte("Ok!"))
 }
 
 func newWorker(r *shorturlRoutes, req *http.Request, input, out chan entity.User) {
