@@ -339,7 +339,6 @@ func newWorker(r *shorturlRoutes, req *http.Request, input, out chan entity.User
 			}
 			out <- us
 		}
-
 		close(out)
 	}()
 }
