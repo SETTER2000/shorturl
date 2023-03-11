@@ -118,8 +118,8 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	shorturl, err := r.s.LongLink(ctx, &data)
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
-			data2 := entity.Shorturl{Config: r.cfg}
-			data2.URL = data.URL
+			data2 := entity.Shorturl{Config: r.cfg, URL: data.URL}
+			//data2.URL = data.URL
 			sh, err := r.s.ShortLink(ctx, &data2)
 			if err != nil {
 				r.l.Error(err, "http - v2 - shortLink")
