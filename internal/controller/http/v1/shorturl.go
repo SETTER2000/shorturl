@@ -105,7 +105,6 @@ func (r *shorturlRoutes) connect(res http.ResponseWriter, req *http.Request) {
 // @Router      / [post]
 func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
-	defer req.Body.Close()
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -130,6 +129,10 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 			shorturl = sh.Slug
 			res.Header().Set("Content-Type", http.DetectContentType(body))
 			res.WriteHeader(http.StatusConflict)
+
+		} else {
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
 		}
 	}
 	d := scripts.GetHost(r.cfg.HTTP, shorturl)
