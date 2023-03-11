@@ -309,7 +309,8 @@ func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
 	for v := range fanIn(workerChs...) {
 		r.l.Info("%v\n", v.UserID)
 		res.WriteHeader(http.StatusAccepted)
-		//res.Write([]byte("Ok!"))
+		res.Header().Set("Content-Type", "application/json")
+		res.Write([]byte("Ok!"))
 	}
 	//-- end fanOut fanIn
 
