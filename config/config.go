@@ -58,7 +58,7 @@ func NewConfig() (*Config, error) {
 	flag.StringVar(&cfg.HTTP.ServerAddress, "a", "localhost:8080", "host to listen on")
 	flag.StringVar(&cfg.HTTP.BaseURL, "b", "http://localhost:8080", "the base address of the resulting shortened URL")
 	flag.StringVar(&cfg.Storage.FileStorage, "f", "storage.txt", "path to file with abbreviated URLs")
-	flag.StringVar(&cfg.Storage.ConnectDB, "d", "", "dsn connect string urlExample PostgreSQL: postgres://username:password@localhost:5432/database_name")
+	flag.StringVar(&cfg.Storage.ConnectDB, "database-dsn", "", "dsn connect string urlExample PostgreSQL: postgres://username:password@localhost:5432/database_name")
 	flag.StringVar(&cfg.Cookie.SecretKey, "s", "RtsynerpoGIYdab_s234r", "cookie secret key")
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Shorturl Version %s %v\nUsage : Project Shorturl - URL Shortener Server\n", os.Args[0], cfg.App.Version)
