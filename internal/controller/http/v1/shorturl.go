@@ -289,37 +289,40 @@ func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
 	u.DelLink = slugs
 
 	//-- fanOut fanIn - multithreading
-	//const workersCount = 10
-	//inputCh := make(chan entity.User)
-	//// генерируем входные значения и кладём в inputCh
-	//go func(u entity.User) {
-	//	inputCh <- u
-	//	close(inputCh)
-	//}(u)
-	//// здесь fanOut
-	//fanOutChs := fanOut(inputCh, workersCount)
-	//workerChs := make([]chan entity.User, 0, workersCount)
-	//for _, fanOutCh := range fanOutChs {
-	//	workerCh := make(chan entity.User)
-	//	newWorker(r, req, fanOutCh, workerCh)
-	//	workerChs = append(workerChs, workerCh)
-	//}
-	//
-	//// здесь fanIn
-	//for v := range fanIn(workerChs...) {
-	//	r.l.Info("%v\n", v.UserID)
-	//}
+	const workersCount = 10
+	inputCh := make(chan entity.User)
+	// генерируем входные значения и кладём в inputCh
+	go func(u entity.User) {
+		inputCh <- u
+		close(inputCh)
+	}(u)
+	// здесь fanOut
+	fanOutChs := fanOut(inputCh, workersCount)
+	workerChs := make([]chan entity.User, 0, workersCount)
+	for _, fanOutCh := range fanOutChs {
+		workerCh := make(chan entity.User)
+		newWorker(r, req, fanOutCh, workerCh)
+		workerChs = append(workerChs, workerCh)
+	}
+
+	// здесь fanIn
+	for v := range fanIn(workerChs...) {
+		r.l.Info("%v\n", v.UserID)
+	}
 	//-- end fanOut fanIn
 
-	for _, v := range slugs {
-		fmt.Printf("SLUG:: %s\n", v)
-		err = r.s.UserDelLink(req.Context(), &u)
-	}
-	if err != nil {
-		r.l.Error(err, "http - v1 - delUrls")
-		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
-		return
-	}
+	//-- not multithreading
+	//for i := 0; i < len(slugs); i++ {
+	//	fmt.Printf("SLUG#%d: %s\n", i, slugs[i])
+	//	err = r.s.UserDelLink(req.Context(), &u)
+	//}
+	//if err != nil {
+	//	r.l.Error(err, "http - v1 - delUrls")
+	//	http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
+	//	return
+	//}
+	//-- end not multithreading
+
 	res.WriteHeader(http.StatusAccepted)
 	res.Header().Set("Content-Type", "application/json")
 	res.Write([]byte("Ok!"))
