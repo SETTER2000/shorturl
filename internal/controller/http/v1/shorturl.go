@@ -331,7 +331,7 @@ func newWorker(r *shorturlRoutes, req *http.Request, input, out chan entity.User
 		for u := range input {
 			err := r.s.UserDelLink(req.Context(), &u)
 			if err != nil {
-				r.l.Error("error %e", err)
+				r.l.Error(err, "http - v1 - newWorker")
 			}
 			out <- us
 		}

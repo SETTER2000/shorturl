@@ -24,3 +24,4 @@ vendor/
 .vscode
 shortener
 storage.txt
+/internal/usecase/repo/shorturl_files_test.go
