@@ -52,7 +52,6 @@ func (s *InMemory) Delete(ctx context.Context, u *entity.User) error {
 	s.lock.Lock()
 	var sh2 entity.Shorturl
 	defer s.lock.Unlock()
-	fmt.Printf("Count: %d\n", len(s.m))
 	if len(s.m) < 1 {
 		return nil
 	}
