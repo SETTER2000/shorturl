@@ -30,7 +30,7 @@ func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interfac
 	sr := &shorturlRoutes{s, l, cfg}
 	handler.Route("/user", func(r chi.Router) {
 		r.Get("/urls", sr.urls)
-		r.Delete("/urls", sr.delUrls)
+		r.Delete("/urls", sr.delUrls2)
 	})
 	handler.Route("/shorten", func(r chi.Router) {
 		r.Post("/", sr.shorten) // POST /
@@ -290,9 +290,9 @@ func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
 	u.DelLink = slugs
 
 	//-- fanOut fanIn - multithreading
-	const workersCount = 10
+	const workersCount = 16
 	inputCh := make(chan entity.User)
-	// генерируем входные значения и кладём в inputCh
+	// входные значения кладём в inputCh
 	go func(u entity.User) {
 		inputCh <- u
 		close(inputCh)
@@ -329,10 +329,51 @@ func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
 	res.Write([]byte("Ok!"))
 }
 
+func (r *shorturlRoutes) delUrls2(res http.ResponseWriter, req *http.Request) {
+	var slugs []string
+	const workersCount = 16
+	inputCh := make(chan entity.User)
+	go func() {
+		body, _ := io.ReadAll(req.Body)
+		if err := json.Unmarshal(body, &slugs); err != nil {
+			panic(err)
+		}
+
+		u := entity.User{}
+		userID := req.Context().Value("access_token")
+		if userID == nil {
+			res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", userID)))
+		}
+		u.UserID = fmt.Sprintf("%s", userID)
+		u.DelLink = slugs
+		inputCh <- u
+		close(inputCh)
+	}()
+
+	// здесь fanOut
+	fanOutChs := fanOut(inputCh, workersCount)
+	workerChs := make([]chan entity.User, 0, workersCount)
+	for _, fanOutCh := range fanOutChs {
+		workerCh := make(chan entity.User)
+		newWorker(r, req, fanOutCh, workerCh)
+		workerChs = append(workerChs, workerCh)
+	}
+
+	// здесь fanIn
+	for v := range fanIn(workerChs...) {
+		r.l.Info("%s\n", v.UserID)
+	}
+
+	res.WriteHeader(http.StatusAccepted)
+	res.Header().Set("Content-Type", "application/json")
+	res.Write([]byte("Ok!"))
+}
+
 func newWorker(r *shorturlRoutes, req *http.Request, input, out chan entity.User) {
 	go func() {
 		us := entity.User{}
 		for u := range input {
+			fmt.Println("channel ch1 is closed -->", r, <-input)
 			err := r.s.UserDelLink(req.Context(), &u)
 			if err != nil {
 				r.l.Error(err, "http - v1 - newWorker")
