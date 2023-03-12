@@ -333,12 +333,16 @@ func (r *shorturlRoutes) delUrls2(res http.ResponseWriter, req *http.Request) {
 	var slugs []string
 	const workersCount = 16
 	inputCh := make(chan entity.User)
+
 	go func() {
-		body, _ := io.ReadAll(req.Body)
+		body, err := io.ReadAll(req.Body)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusBadRequest)
+			return
+		}
 		if err := json.Unmarshal(body, &slugs); err != nil {
 			panic(err)
 		}
-
 		u := entity.User{}
 		userID := req.Context().Value("access_token")
 		if userID == nil {
@@ -373,13 +377,14 @@ func newWorker(r *shorturlRoutes, req *http.Request, input, out chan entity.User
 	go func() {
 		us := entity.User{}
 		for u := range input {
-			fmt.Println("channel ch1 is closed -->", r, <-input)
+			fmt.Printf("UserID: %s, DelLink: %s ", u.UserID, u.DelLink)
 			err := r.s.UserDelLink(req.Context(), &u)
 			if err != nil {
 				r.l.Error(err, "http - v1 - newWorker")
 			}
 			out <- us
 		}
+		fmt.Println("channel ch1 is closed -->", r, <-input)
 		close(out)
 	}()
 }
