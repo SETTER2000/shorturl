@@ -377,7 +377,7 @@ func newWorker(r *shorturlRoutes, req *http.Request, input, out chan entity.User
 	go func() {
 		us := entity.User{}
 		for u := range input {
-			fmt.Printf("UserID: %s, DelLink: %s ", u.UserID, u.DelLink)
+			fmt.Printf("UserID: %s, DelLink: %s count: %v ", u.UserID, u.DelLink, len(u.DelLink))
 			err := r.s.UserDelLink(req.Context(), &u)
 			if err != nil {
 				r.l.Error(err, "http - v1 - newWorker")
