@@ -74,7 +74,22 @@ func (i *InFiles) Post(ctx context.Context, sh *entity.Shorturl) error {
 }
 
 func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
-	return i.Post(ctx, sh)
+	//return i.Post(ctx, sh)
+	data, err := json.Marshal(&sh)
+	if err != nil {
+		return err
+	}
+	// записываем событие в буфер
+	if _, err = i.w.writer.Write(data); err != nil {
+		return err
+	}
+	// добавляем перенос строки
+	if err = i.w.writer.WriteByte('\n'); err != nil {
+		return err
+	}
+	// записываем буфер в файл
+	t := i.w.writer.Flush()
+	return t
 }
 
 func (p *producer) Close() error {
@@ -201,6 +216,8 @@ func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
 	}
 	i.r.file.Seek(0, 0)
 	t := i.w.writer.Flush()
+	//i.r.file.Close()
+	//i.w.file.Close()
 	return t
 }
 func (c *consumer) Close() error {
