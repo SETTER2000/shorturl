@@ -331,7 +331,7 @@ func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
 
 func (r *shorturlRoutes) delUrls2(res http.ResponseWriter, req *http.Request) {
 	var slugs []string
-	const workersCount = 16
+	const workersCount = 10
 	inputCh := make(chan entity.User)
 
 	go func() {
