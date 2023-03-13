@@ -9,11 +9,18 @@ import (
 	"github.com/SETTER2000/shorturl/scripts"
 	"io"
 	"os"
+	"sync"
 )
 
 const (
 	secretSecret = "RtsynerpoGIYdab_s234r"
 	cookieName   = "access_token"
+)
+
+var (
+	shorts    []entity.Shorturl
+	shorts2   []entity.Shorturl
+	serviceMu sync.Mutex
 )
 
 type (
@@ -164,8 +171,10 @@ func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, err
 }
 
 func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
+	serviceMu.Lock()
+	defer serviceMu.Unlock()
 	sh := entity.Shorturl{}
-	var shorts, shorts2 []entity.Shorturl
+
 	size := i.r.reader.Size()
 	if size < 1 {
 		return ErrNotFound
@@ -179,25 +188,26 @@ func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
 		if err != nil {
 			i.r.file.Seek(0, 0)
 		}
+		// собирает все строки файла
 		shorts = append(shorts, sh)
-	}
-	_, err := i.r.file.Seek(0, 0)
-	if err != nil {
-		return err
 	}
 
 	for _, v := range shorts {
+		// изменяет флаг del на true, в результате url становиться недоступным для пользователя
 		for _, g := range u.DelLink {
 			if v.Slug == g && v.UserID == u.UserID {
 				v.Del = true
 			}
 		}
+		// обновлённый слайс данных, с флагом del=true
 		shorts2 = append(shorts2, v)
 	}
-	_, err = i.w.file.Seek(0, io.SeekStart)
+	// переводит курсор в начало файла
+	_, err := i.w.file.Seek(0, io.SeekStart)
 	if err != nil {
 		return err
 	}
+	// очищает файл
 	err = i.w.file.Truncate(0)
 	if err != nil {
 		return err
@@ -216,8 +226,6 @@ func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
 	}
 	i.r.file.Seek(0, 0)
 	t := i.w.writer.Flush()
-	//i.r.file.Close()
-	//i.w.file.Close()
 	return t
 }
 func (c *consumer) Close() error {
