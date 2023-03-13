@@ -9,18 +9,11 @@ import (
 	"github.com/SETTER2000/shorturl/scripts"
 	"io"
 	"os"
-	"sync"
 )
 
 const (
 	secretSecret = "RtsynerpoGIYdab_s234r"
 	cookieName   = "access_token"
-)
-
-var (
-	shorts    []entity.Shorturl
-	shorts2   []entity.Shorturl
-	serviceMu sync.Mutex
 )
 
 type (
@@ -171,9 +164,8 @@ func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, err
 }
 
 func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
-	serviceMu.Lock()
-	defer serviceMu.Unlock()
 	sh := entity.Shorturl{}
+	var shorts, shorts2 []entity.Shorturl
 
 	size := i.r.reader.Size()
 	if size < 1 {
