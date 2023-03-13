@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"time"
 )
 
 type shorturlRoutes struct {
@@ -378,11 +379,12 @@ func newWorker(r *shorturlRoutes, req *http.Request, input, out chan entity.User
 		us := entity.User{}
 		for u := range input {
 			fmt.Printf("UserID: %s, DelLink: %s count: %v ", u.UserID, u.DelLink, len(u.DelLink))
-			err := r.s.UserDelLink(req.Context(), &u)
-			if err != nil {
-				r.l.Error(err, "http - v1 - newWorker")
-			}
+			r.s.UserDelLink(req.Context(), &u)
+			//if err != nil {
+			//	r.l.Error(err, "http - v1 - newWorker")
+			//}
 			out <- us
+			time.Sleep(250 * time.Millisecond)
 		}
 		close(out)
 	}()
