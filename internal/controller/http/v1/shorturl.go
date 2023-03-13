@@ -384,7 +384,6 @@ func newWorker(r *shorturlRoutes, req *http.Request, input, out chan entity.User
 			}
 			out <- us
 		}
-		fmt.Println("channel ch1 is closed -->", r, <-input)
 		close(out)
 	}()
 }
