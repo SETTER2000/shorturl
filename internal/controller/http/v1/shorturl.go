@@ -105,6 +105,7 @@ func (r *shorturlRoutes) connect(res http.ResponseWriter, req *http.Request) {
 // @Failure     500 {object} response
 // @Router      / [post]
 func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
+
 	ctx := req.Context()
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
@@ -130,12 +131,12 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 			shorturl = sh.Slug
 			res.Header().Set("Content-Type", http.DetectContentType(body))
 			res.WriteHeader(http.StatusConflict)
-
 		} else {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
 		}
 	}
+
 	d := scripts.GetHost(r.cfg.HTTP, shorturl)
 	res.Header().Set("Content-Type", http.DetectContentType(body))
 	res.WriteHeader(http.StatusCreated)
@@ -196,6 +197,7 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	}
 	//data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
 	resp.URL, err = r.s.Shorten(ctx, &data)
+
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
 			data2 := entity.Shorturl{Config: r.cfg}
@@ -380,14 +382,11 @@ func newWorker(r *shorturlRoutes, req *http.Request, input, out chan entity.User
 		for u := range input {
 			fmt.Printf("UserID: %s, DelLink: %s count: %v ", u.UserID, u.DelLink, len(u.DelLink))
 			r.s.UserDelLink(req.Context(), &u)
-			//if err != nil {
-			//	r.l.Error(err, "http - v1 - newWorker")
-			//}
 			out <- us
-			time.Sleep(250 * time.Millisecond)
 		}
 		close(out)
 	}()
+	time.Sleep(50 * time.Millisecond)
 }
 func fanIn(inputChs ...chan entity.User) chan entity.User {
 	// один выходной канал, куда сливаются данные из всех каналов

@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"github.com/SETTER2000/shorturl/config"
@@ -9,7 +8,10 @@ import (
 	"github.com/SETTER2000/shorturl/scripts"
 	"io"
 	"os"
+	"sync"
 )
+
+var mutex = &sync.Mutex{}
 
 const (
 	secretSecret = "RtsynerpoGIYdab_s234r"
@@ -18,14 +20,18 @@ const (
 
 type (
 	producer struct {
-		file   *os.File
-		writer *bufio.Writer
+		lock sync.Mutex // <-- этот мьютекс защищает
+		file *os.File
+		//encoder *bufio.Writer
+		encoder *json.Encoder
 	}
 
 	consumer struct {
-		cfg    *config.Config
-		file   *os.File
-		reader *bufio.Reader
+		lock    sync.Mutex // <-- этот мьютекс защищает
+		file    *os.File
+		cfg     *config.Config
+		decoder *json.Decoder
+		//decoder *bufio.Reader
 	}
 
 	InFiles struct {
@@ -50,46 +56,25 @@ func NewInFiles(cfg *config.Config) *InFiles {
 func NewProducer(cfg *config.Config) *producer {
 	file, _ := os.OpenFile(cfg.FileStorage, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
 	return &producer{
-		file:   file,
-		writer: bufio.NewWriter(file),
+		file:    file,
+		encoder: json.NewEncoder(file),
+		//encoder: bufio.NewWriter(file),
 	}
 }
 
+func (i *InFiles) post(sh *entity.Shorturl) error {
+	return i.w.encoder.Encode(&sh)
+}
 func (i *InFiles) Post(ctx context.Context, sh *entity.Shorturl) error {
-	data, err := json.Marshal(&sh)
-	if err != nil {
-		return err
-	}
-	// записываем событие в буфер
-	if _, err = i.w.writer.Write(data); err != nil {
-		return err
-	}
-	// добавляем перенос строки
-	if err = i.w.writer.WriteByte('\n'); err != nil {
-		return err
-	}
-	// записываем буфер в файл
-	t := i.w.writer.Flush()
-	return t
+	//i.w.lock.Lock()
+	//defer i.w.lock.Unlock()
+	return i.post(sh)
 }
 
 func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
-	//return i.Post(ctx, sh)
-	data, err := json.Marshal(&sh)
-	if err != nil {
-		return err
-	}
-	// записываем событие в буфер
-	if _, err = i.w.writer.Write(data); err != nil {
-		return err
-	}
-	// добавляем перенос строки
-	if err = i.w.writer.WriteByte('\n'); err != nil {
-		return err
-	}
-	// записываем буфер в файл
-	t := i.w.writer.Flush()
-	return t
+	//i.w.lock.Lock()
+	//defer i.w.lock.Unlock()
+	return i.Post(ctx, sh)
 }
 
 func (p *producer) Close() error {
@@ -99,102 +84,88 @@ func (p *producer) Close() error {
 // NewConsumer потребитель
 func NewConsumer(cfg *config.Config) *consumer {
 	file, _ := os.OpenFile(cfg.FileStorage, os.O_RDONLY|os.O_CREATE, 0777)
+
 	return &consumer{
-		file: file,
-		// создаём новый scanner
-		reader: bufio.NewReader(file),
+		file:    file,
+		decoder: json.NewDecoder(file),
 	}
 }
 
 func (i *InFiles) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	sh2 := entity.Shorturl{}
-	if i.r.reader.Size() < 1 {
-		return nil, ErrNotFound
-	}
-	for {
-		data, err := i.r.reader.ReadBytes('\n')
-		if err != nil {
-			return nil, ErrNotFound
-		}
-		err = json.Unmarshal(data, &sh2)
-		if err != nil {
-			i.r.file.Seek(0, 0)
-		}
-		if sh2.Slug == sh.Slug {
-			sh.URL = sh2.URL
-			sh.UserID = sh2.UserID
-			sh.Del = sh2.Del
-			break
-		}
-	}
-	_, err := i.r.file.Seek(0, 0)
+	i.r.lock.Lock()
+	defer i.r.lock.Unlock()
+	return i.getSlag(ctx, sh)
+}
+func (i *InFiles) getSlag(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
+	sh2 := &entity.Shorturl{}
+	shorts, err := i.getAll()
 	if err != nil {
 		return nil, err
 	}
-	return sh, nil
-}
-
-func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
-	sh := entity.Shorturl{}
-	lst := entity.List{}
-	size := i.r.reader.Size()
-	if size < 1 {
-		return nil, ErrNotFound
-	}
-	for j := 0; j < size; j++ {
-		data, err := i.r.reader.ReadBytes('\n')
-		if err != nil {
+	for _, short := range shorts {
+		if short.Slug == sh.Slug {
+			sh2.URL = short.URL
+			sh2.UserID = short.UserID
+			sh2.Del = short.Del
 			break
 		}
-		err = json.Unmarshal(data, &sh)
-		if err != nil {
-			i.r.file.Seek(0, 0)
+	}
+	return sh2, nil
+}
+
+func (i *InFiles) getAll() ([]entity.Shorturl, error) {
+	sh := &entity.Shorturl{}
+	var shorts []entity.Shorturl
+	for {
+		if err := i.r.decoder.Decode(&sh); err != nil {
+			if err == io.EOF {
+				break
+			}
+			return nil, err
 		}
-		if sh.UserID == u.UserID {
-			lst.URL = sh.URL
-			lst.Slug = scripts.GetHost(i.cfg.HTTP, sh.Slug)
+		shorts = append(shorts, *sh)
+	}
+	return shorts, nil
+}
+func (i *InFiles) getAllUserId(u *entity.User) (*entity.User, error) {
+	lst := entity.List{}
+	shorts, err := i.getAll()
+	if err != nil {
+		return nil, err
+	}
+	for _, short := range shorts {
+		if short.UserID == u.UserID {
+			lst.URL = short.URL
+			lst.Slug = scripts.GetHost(i.cfg.HTTP, short.Slug)
 			u.Urls = append(u.Urls, lst)
 		}
 	}
-	_, err := i.r.file.Seek(0, 0)
-	if err != nil {
-		return nil, err
-	}
 	return u, nil
 }
+func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
+	i.r.lock.Lock()
+	defer i.r.lock.Unlock()
+	return i.getAllUserId(u)
+}
 
-func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
-	sh := entity.Shorturl{}
-	var shorts, shorts2 []entity.Shorturl
-
-	size := i.r.reader.Size()
-	if size < 1 {
-		return ErrNotFound
-	}
-	for j := 0; j < size; j++ {
-		data, err := i.r.reader.ReadBytes('\n')
-		if err != nil {
-			break
-		}
-		err = json.Unmarshal(data, &sh)
-		if err != nil {
-			i.r.file.Seek(0, 0)
-		}
-		// собирает все строки файла
-		shorts = append(shorts, sh)
-	}
-
+func (i *InFiles) delete(shorts []entity.Shorturl, u *entity.User) ([]entity.Shorturl, error) {
+	var d []entity.Shorturl
 	for _, v := range shorts {
-		// изменяет флаг del на true, в результате url становиться недоступным для пользователя
 		for _, g := range u.DelLink {
 			if v.Slug == g && v.UserID == u.UserID {
+				// изменяет флаг del на true, в результате url становиться недоступным для пользователя
 				v.Del = true
 			}
 		}
 		// обновлённый слайс данных, с флагом del=true
-		shorts2 = append(shorts2, v)
+		d = append(d, v)
 	}
-	// переводит курсор в начало файла
+	return d, nil
+}
+
+// rewriteFile перезаписать файл с новыми данными
+func (i *InFiles) rewriteFile(shorts []entity.Shorturl) error {
+	//переводит курсор в начало файла
 	_, err := i.w.file.Seek(0, io.SeekStart)
 	if err != nil {
 		return err
@@ -204,22 +175,35 @@ func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
 	if err != nil {
 		return err
 	}
-	for _, short := range shorts2 {
-		data, err := json.Marshal(&short)
+	for _, sh := range shorts {
+		i.post(&sh)
 		if err != nil {
-			return err
-		}
-		if _, err = i.w.writer.Write(data); err != nil {
-			return err
-		}
-		if err = i.w.writer.WriteByte('\n'); err != nil {
 			return err
 		}
 	}
 	i.r.file.Seek(0, 0)
-	t := i.w.writer.Flush()
-	return t
+
+	return nil
 }
+func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
+	//i.w.lock.Lock()
+	shorts, err := i.getAll()
+	//i.w.lock.Unlock()
+	if err != nil {
+		return err
+	}
+	//// изменяет флаг del на true, в результате url становиться недоступным для пользователя
+	//i.w.lock.Lock()
+	shorts, _ = i.delete(shorts, u)
+	//i.w.lock.Unlock()
+	// перезаписать файл с новыми значениями
+	//i.w.lock.Lock()
+	err = i.rewriteFile(shorts)
+	//i.w.lock.Unlock()
+	return err
+
+}
+
 func (c *consumer) Close() error {
 	return c.file.Close()
 }

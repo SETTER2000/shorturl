@@ -40,7 +40,6 @@ func (uc *ShorturlUseCase) LongLink(ctx context.Context, sh *entity.Shorturl) (s
 	err := uc.repo.Put(ctx, sh)
 	if err != nil {
 		return "", err
-
 	}
 	return sh.Slug, nil
 }
