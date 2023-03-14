@@ -99,21 +99,19 @@ func (i *InFiles) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shortur
 	return sh2, nil
 }
 func (i *InFiles) getSlag(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	sh2 := &entity.Shorturl{}
 	shorts, err := i.getAll()
 	if err != nil {
 		return nil, err
 	}
 	for _, short := range shorts {
 		if short.Slug == sh.Slug {
-			sh2.Slug = short.Slug
-			sh2.URL = short.URL
-			sh2.UserID = short.UserID
-			sh2.Del = short.Del
+			sh.URL = short.URL
+			sh.UserID = short.UserID
+			sh.Del = short.Del
 			break
 		}
 	}
-	return sh2, nil
+	return sh, nil
 }
 
 func (i *InFiles) getAll() ([]entity.Shorturl, error) {
