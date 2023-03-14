@@ -64,15 +64,15 @@ func (i *InFiles) post(sh *entity.Shorturl) error {
 	return i.w.encoder.Encode(&sh)
 }
 func (i *InFiles) Post(ctx context.Context, sh *entity.Shorturl) error {
-	//i.w.lock.Lock()
-	//defer i.w.lock.Unlock()
+	i.w.lock.Lock()
+	defer i.w.lock.Unlock()
 	return i.post(sh)
 }
 
 func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
-	//i.w.lock.Lock()
-	//defer i.w.lock.Unlock()
-	return i.Post(ctx, sh)
+	i.w.lock.Lock()
+	defer i.w.lock.Unlock()
+	return i.post(sh)
 }
 
 func (p *producer) Close() error {

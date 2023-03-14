@@ -7,6 +7,7 @@ import "github.com/SETTER2000/shorturl/config"
 // CorrelationOrigin -.
 type CorrelationOrigin []Batch
 type Response []ShortenResponse
+type Shorturls []Shorturl
 
 // Shorturl -.
 type Shorturl struct {
