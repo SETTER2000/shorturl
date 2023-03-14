@@ -90,8 +90,8 @@ func NewConsumer(cfg *config.Config) *consumer {
 }
 
 func (i *InFiles) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	i.r.lock.Lock()
-	defer i.r.lock.Unlock()
+	//i.r.lock.Lock()
+	//defer i.r.lock.Unlock()
 	return i.getSlag(ctx, sh)
 }
 func (i *InFiles) getSlag(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
