@@ -92,7 +92,11 @@ func NewConsumer(cfg *config.Config) *consumer {
 func (i *InFiles) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
 	//i.r.lock.Lock()
 	//defer i.r.lock.Unlock()
-	return i.getSlag(ctx, sh)
+	sh2, err := i.getSlag(ctx, sh)
+	if err != nil {
+		return nil, err
+	}
+	return sh2, nil
 }
 func (i *InFiles) getSlag(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
 	sh2 := &entity.Shorturl{}
@@ -102,6 +106,7 @@ func (i *InFiles) getSlag(ctx context.Context, sh *entity.Shorturl) (*entity.Sho
 	}
 	for _, short := range shorts {
 		if short.Slug == sh.Slug {
+			sh2.Slug = short.Slug
 			sh2.URL = short.URL
 			sh2.UserID = short.UserID
 			sh2.Del = short.Del
