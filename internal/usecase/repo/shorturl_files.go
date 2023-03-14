@@ -11,8 +11,6 @@ import (
 	"sync"
 )
 
-var mutex = &sync.Mutex{}
-
 const (
 	secretSecret = "RtsynerpoGIYdab_s234r"
 	cookieName   = "access_token"
