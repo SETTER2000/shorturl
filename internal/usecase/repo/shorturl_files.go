@@ -127,7 +127,7 @@ func (i *InFiles) getAll() ([]entity.Shorturl, error) {
 	}
 	return shorts, nil
 }
-func (i *InFiles) getAllUserId(u *entity.User) (*entity.User, error) {
+func (i *InFiles) getAllUserID(u *entity.User) (*entity.User, error) {
 	lst := entity.List{}
 	shorts, err := i.getAll()
 	if err != nil {
@@ -145,7 +145,7 @@ func (i *InFiles) getAllUserId(u *entity.User) (*entity.User, error) {
 func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	i.r.lock.Lock()
 	defer i.r.lock.Unlock()
-	return i.getAllUserId(u)
+	return i.getAllUserID(u)
 }
 
 func (i *InFiles) delete(shorts []entity.Shorturl, u *entity.User) ([]entity.Shorturl, error) {
@@ -176,7 +176,7 @@ func (i *InFiles) rewriteFile(shorts []entity.Shorturl) error {
 		return err
 	}
 	for _, sh := range shorts {
-		i.post(&sh)
+		err = i.post(&sh)
 		if err != nil {
 			return err
 		}
