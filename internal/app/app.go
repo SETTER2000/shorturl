@@ -17,9 +17,11 @@ import (
 	"github.com/SETTER2000/shorturl/internal/usecase/repo"
 	"github.com/SETTER2000/shorturl/pkg/log/logger"
 	"github.com/go-chi/chi/v5"
+	"github.com/xlab/closer"
 )
 
 func Run(cfg *config.Config) {
+	closer.Bind(cleanup)
 	// logger
 	l := logger.New(cfg.Log.Level)
 	// seed
@@ -59,8 +61,16 @@ func Run(cfg *config.Config) {
 		l.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
 	}
 
+	closer.Hold()
+
 	err := httpServer.Shutdown()
 	if err != nil {
 		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
 	}
+}
+
+func cleanup() {
+	fmt.Print("Hang on! I'm closing some DBs, wiping some trails..")
+	time.Sleep(3 * time.Second)
+	fmt.Println("  Done...")
 }
