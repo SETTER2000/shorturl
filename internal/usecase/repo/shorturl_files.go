@@ -56,7 +56,6 @@ func NewProducer(cfg *config.Config) *producer {
 	return &producer{
 		file:    file,
 		encoder: json.NewEncoder(file),
-		//encoder: bufio.NewWriter(file),
 	}
 }
 
@@ -102,7 +101,6 @@ func (i *InFiles) getSlag(sh *entity.Shorturl) (*entity.Shorturl, error) {
 			break
 		}
 	}
-	// short[sh.Slug]
 	return sh, nil
 }
 
@@ -117,7 +115,6 @@ func (i *InFiles) getAll() error {
 		}
 		i.m[sh.UserID] = append(i.m[sh.UserID], *sh)
 	}
-
 	return nil
 }
 func (i *InFiles) getAllUserID(u *entity.User) (*entity.User, error) {
@@ -171,7 +168,6 @@ func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
 	i.lock.Lock()
 	defer i.lock.Unlock()
 	return i.delete(u)
-
 }
 func (i *InFiles) delete(u *entity.User) error {
 	for j := 0; j < len(i.m[u.UserID]); j++ {
