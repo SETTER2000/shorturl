@@ -32,11 +32,11 @@ func NewInMemory(cfg *config.Config) *InMemory {
 	}
 }
 
-func (s *InMemory) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	s.lock.Lock()
+func (i *InMemory) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
+	i.lock.Lock()
 	sh2 := entity.Shorturl{}
-	defer s.lock.Unlock()
-	if err := json.Unmarshal(s.m[sh.Slug], &sh2); err != nil {
+	defer i.lock.Unlock()
+	if err := json.Unmarshal(i.m[sh.Slug], &sh2); err != nil {
 		panic(err)
 	}
 	if sh2.URL != "" {
@@ -45,18 +45,18 @@ func (s *InMemory) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shortu
 	return nil, ErrNotFound
 }
 
-func (s *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
+func (i *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	return nil, ErrNotFound
 }
-func (s *InMemory) Delete(ctx context.Context, u *entity.User) error {
-	s.lock.Lock()
+func (i *InMemory) Delete(ctx context.Context, u *entity.User) error {
+	i.lock.Lock()
 	var sh2 entity.Shorturl
-	defer s.lock.Unlock()
-	if len(s.m) < 1 {
+	defer i.lock.Unlock()
+	if len(i.m) < 1 {
 		return nil
 	}
 	for _, slug := range u.DelLink {
-		if err := json.Unmarshal(s.m[slug], &sh2); err != nil {
+		if err := json.Unmarshal(i.m[slug], &sh2); err != nil {
 			continue
 		}
 		sh2.Del = true
@@ -64,19 +64,19 @@ func (s *InMemory) Delete(ctx context.Context, u *entity.User) error {
 		if err != nil {
 			return fmt.Errorf("delete error in memory marshal: %e", err)
 		}
-		s.m[slug] = obj
+		i.m[slug] = obj
 	}
 	return nil
 }
-func (s *InMemory) Put(ctx context.Context, sh *entity.Shorturl) error {
-	return s.Post(ctx, sh)
+func (i *InMemory) Put(ctx context.Context, sh *entity.Shorturl) error {
+	return i.Post(ctx, sh)
 }
 
-func (s *InMemory) Post(ctx context.Context, sh *entity.Shorturl) error {
-	s.lock.Lock()
-	defer s.lock.Unlock()
+func (i *InMemory) Post(ctx context.Context, sh *entity.Shorturl) error {
+	i.lock.Lock()
+	defer i.lock.Unlock()
 
-	if _, ok := s.m[sh.Slug]; ok {
+	if _, ok := i.m[sh.Slug]; ok {
 		return ErrAlreadyExists
 	}
 
@@ -84,7 +84,7 @@ func (s *InMemory) Post(ctx context.Context, sh *entity.Shorturl) error {
 	if err != nil {
 		return ErrNotFound
 	}
-	s.m[sh.Slug] = obj
+	i.m[sh.Slug] = obj
 	return nil
 }
 func (i *InMemory) Read() error {
