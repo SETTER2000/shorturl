@@ -53,6 +53,7 @@ func (s *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, er
 func (s *InMemory) Put(ctx context.Context, sh *entity.Shorturl) error {
 	ln := len(s.m[sh.UserID])
 	if ln < 1 {
+		s.Post(ctx, sh)
 		return nil
 	}
 	for j := 0; j < ln; j++ {

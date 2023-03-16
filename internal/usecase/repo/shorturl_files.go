@@ -77,6 +77,7 @@ func (i *InFiles) Post(ctx context.Context, sh *entity.Shorturl) error {
 func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
 	ln := len(i.m[sh.UserID])
 	if ln < 1 {
+		i.Post(ctx, sh)
 		return nil
 	}
 	for j := 0; j < ln; j++ {
