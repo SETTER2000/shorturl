@@ -69,12 +69,23 @@ func (i *InFiles) Post(ctx context.Context, sh *entity.Shorturl) error {
 	return i.post(sh)
 }
 
+//	func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
+//		i.lock.Lock()
+//		defer i.lock.Unlock()
+//		return i.post(sh)
+//	}
 func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
-	i.lock.Lock()
-	defer i.lock.Unlock()
-	return i.post(sh)
+	ln := len(i.m[sh.UserID])
+	if ln < 1 {
+		return nil
+	}
+	for j := 0; j < ln; j++ {
+		if i.m[sh.UserID][j].Slug == sh.Slug {
+			i.m[sh.UserID][j].URL = sh.URL
+		}
+	}
+	return nil
 }
-
 func (p *producer) Close() error {
 	return p.file.Close()
 }

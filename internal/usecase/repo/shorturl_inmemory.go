@@ -2,8 +2,6 @@ package repo
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"sync"
@@ -19,8 +17,8 @@ import (
 // Определяя структуру, в которой мьютекс должен защищать одно или больше значений,
 // помещайте мьютекс выше тех полей, доступ к которым, он будет защищать.
 type InMemory struct {
-	lock sync.Mutex        // <-- этот мьютекс защищает
-	m    map[string][]byte // <-- это поле под ним
+	lock sync.Mutex                  // <-- этот мьютекс защищает
+	m    map[string]entity.Shorturls // <-- это поле под ним
 	cfg  *config.Config
 }
 
@@ -28,65 +26,66 @@ type InMemory struct {
 func NewInMemory(cfg *config.Config) *InMemory {
 	return &InMemory{
 		cfg: cfg,
-		m:   make(map[string][]byte),
+		m:   make(map[string]entity.Shorturls),
 	}
 }
 
 func (s *InMemory) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	s.lock.Lock()
-	sh2 := entity.Shorturl{}
-	defer s.lock.Unlock()
-	if err := json.Unmarshal(s.m[sh.Slug], &sh2); err != nil {
-		panic(err)
+	return s.getSlag(sh)
+}
+
+func (s *InMemory) getSlag(sh *entity.Shorturl) (*entity.Shorturl, error) {
+	for _, short := range s.m[sh.UserID] {
+		if short.Slug == sh.Slug {
+			sh.URL = short.URL
+			sh.UserID = short.UserID
+			sh.Del = short.Del
+			break
+		}
 	}
-	if sh2.URL != "" {
-		return &sh2, nil
-	}
-	return nil, ErrNotFound
+	return sh, nil
 }
 
 func (s *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	return nil, ErrNotFound
 }
-func (s *InMemory) Delete(ctx context.Context, u *entity.User) error {
-	s.lock.Lock()
-	var sh2 entity.Shorturl
-	defer s.lock.Unlock()
-	if len(s.m) < 1 {
+
+func (s *InMemory) Put(ctx context.Context, sh *entity.Shorturl) error {
+	ln := len(s.m[sh.UserID])
+	if ln < 1 {
 		return nil
 	}
-	for _, slug := range u.DelLink {
-		if err := json.Unmarshal(s.m[slug], &sh2); err != nil {
-			continue
+	for j := 0; j < ln; j++ {
+		if s.m[sh.UserID][j].Slug == sh.Slug {
+			s.m[sh.UserID][j].URL = sh.URL
 		}
-		sh2.Del = true
-		obj, err := json.Marshal(sh2)
-		if err != nil {
-			return fmt.Errorf("delete error in memory marshal: %e", err)
-		}
-		s.m[slug] = obj
 	}
 	return nil
-}
-func (s *InMemory) Put(ctx context.Context, sh *entity.Shorturl) error {
-	return s.Post(ctx, sh)
 }
 
 func (s *InMemory) Post(ctx context.Context, sh *entity.Shorturl) error {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
-	if _, ok := s.m[sh.Slug]; ok {
-		return ErrAlreadyExists
-	}
-
-	obj, err := json.Marshal(sh)
-	if err != nil {
-		return ErrNotFound
-	}
-	s.m[sh.Slug] = obj
+	s.m[sh.UserID] = append(s.m[sh.UserID], *sh)
 	return nil
 }
+
+func (s *InMemory) Delete(ctx context.Context, u *entity.User) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	return s.delete(u)
+}
+
+func (s *InMemory) delete(u *entity.User) error {
+	for j := 0; j < len(s.m[u.UserID]); j++ {
+		for _, slug := range u.DelLink {
+			if s.m[u.UserID][j].Slug == slug {
+				// изменяет флаг del на true, в результате url становиться недоступным для пользователя
+				s.m[u.UserID][j].Del = true
+			}
+		}
+	}
+	return nil
+}
+
 func (s *InMemory) Read() error {
 	return nil
 }
