@@ -41,13 +41,14 @@ func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interfac
 
 // @Summary     Return short URL
 // @Description Redirect to long URL
-// @ID          shortLink
+// @ID          ShortLink
 // @Tags  	    shorturl
 // @Accept      text
 // @Produce     text
 // @Success     307 {object} string
 // @Failure     500 {object} response
 // @Router      /{key} [get]
+
 func (r *shorturlRoutes) shortLink(w http.ResponseWriter, req *http.Request) {
 	shorturl := chi.URLParam(req, "key")
 	data := entity.Shorturl{Config: r.cfg}
