@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"sync"
@@ -31,11 +32,25 @@ func NewInMemory(cfg *config.Config) *InMemory {
 }
 
 func (s *InMemory) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	return s.getSlag(sh)
+	var sh2 entity.Shorturl
+	u, err := s.getSlag(sh)
+	if err != nil {
+		return nil, ErrNotFound
+	}
+
+	sh2.URL = u.URL
+	sh2.UserID = u.UserID
+	sh2.Slug = u.Slug
+	sh2.Del = u.Del
+	fmt.Println("URL check:  ", sh2.URL)
+	return &sh2, nil
 }
 
 func (s *InMemory) getSlag(sh *entity.Shorturl) (*entity.Shorturl, error) {
-	for _, short := range s.m[sh.UserID] {
+	shorts := s.m[sh.UserID]
+	fmt.Printf("Len shorts: %d\n", len(shorts))
+	for _, short := range shorts {
+		fmt.Printf("Iteration short.URL: %v\n", short.URL)
 		if short.Slug == sh.Slug {
 			sh.URL = short.URL
 			sh.UserID = short.UserID
@@ -43,6 +58,9 @@ func (s *InMemory) getSlag(sh *entity.Shorturl) (*entity.Shorturl, error) {
 			break
 		}
 	}
+
+	fmt.Printf("Iteration sh.Slug: %v\n", sh.Slug)
+	fmt.Printf("Iteration sh.URL: %v\n", sh.URL)
 	return sh, nil
 }
 
@@ -61,7 +79,7 @@ func (s *InMemory) Put(ctx context.Context, sh *entity.Shorturl) error {
 			s.m[sh.UserID][j].URL = sh.URL
 		}
 	}
-	return nil
+	return s.Post(ctx, sh)
 }
 
 func (s *InMemory) Post(ctx context.Context, sh *entity.Shorturl) error {

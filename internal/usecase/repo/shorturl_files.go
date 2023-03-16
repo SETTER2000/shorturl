@@ -71,17 +71,16 @@ func (i *InFiles) Post(ctx context.Context, sh *entity.Shorturl) error {
 
 func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
 	ln := len(i.m[sh.UserID])
-	num := 0
+	if ln < 1 {
+		i.Post(ctx, sh)
+		return nil
+	}
 	for j := 0; j < ln; j++ {
 		if i.m[sh.UserID][j].Slug == sh.Slug {
 			i.m[sh.UserID][j].URL = sh.URL
-			num++
 		}
 	}
-	if num < 1 {
-		return i.Post(ctx, sh)
-	}
-	return nil
+	return i.Post(ctx, sh)
 }
 func (p *producer) Close() error {
 	return p.file.Close()
