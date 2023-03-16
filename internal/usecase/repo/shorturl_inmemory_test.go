@@ -11,7 +11,7 @@ import (
 
 func TestInMemory_Put(t *testing.T) {
 	type fields struct {
-		lock sync.Mutex
+		lock *sync.Mutex
 		m    map[string]entity.Shorturls
 		cfg  *config.Config
 	}
@@ -95,9 +95,9 @@ func TestInMemory_Put(t *testing.T) {
 			if err := s.Put(tt.args.ctx, tt.args.sh); err != nil {
 				t.Errorf("Put() error = %v, countUID %v", err, nil)
 			}
-			cUid := len(s.m)
-			if cUid != tt.countUID {
-				t.Errorf("Len memory = %v, countUID %v\n", cUid, tt.countUID)
+			cUID := len(s.m)
+			if cUID != tt.countUID {
+				t.Errorf("Len memory = %v, countUID %v\n", cUID, tt.countUID)
 			}
 
 			cSh := len(s.m[tt.UID])

@@ -116,8 +116,8 @@ func (i *InFiles) searchUID(sh *entity.Shorturl) (*entity.Shorturl, error) {
 func (i *InFiles) searchBySlug(sh *entity.Shorturl) (*entity.Shorturl, error) {
 	shorts := entity.Shorturls{}
 	for _, uid := range i.m {
-		for _, ar := range uid {
-			shorts = append(shorts, ar)
+		for j := 0; j < len(uid); j++ {
+			shorts = append(shorts, uid[j])
 		}
 	}
 	for _, short := range shorts {
