@@ -2,7 +2,6 @@ package repo
 
 import (
 	"context"
-	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"sync"
@@ -32,25 +31,15 @@ func NewInMemory(cfg *config.Config) *InMemory {
 }
 
 func (s *InMemory) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	var sh2 entity.Shorturl
-	u, err := s.getSlag(sh)
+	u, err := s.searchBySlug(sh)
 	if err != nil {
 		return nil, ErrNotFound
 	}
-
-	sh2.URL = u.URL
-	sh2.UserID = u.UserID
-	sh2.Slug = u.Slug
-	sh2.Del = u.Del
-	fmt.Println("URL check:  ", sh2.URL)
-	return &sh2, nil
+	return u, nil
 }
 
-func (s *InMemory) getSlag(sh *entity.Shorturl) (*entity.Shorturl, error) {
-	shorts := s.m[sh.UserID]
-	fmt.Printf("Len shorts: %d\n", len(shorts))
-	for _, short := range shorts {
-		fmt.Printf("Iteration short.URL: %v\n", short.URL)
+func (s *InMemory) searchUID(sh *entity.Shorturl) (*entity.Shorturl, error) {
+	for _, short := range s.m[sh.UserID] {
 		if short.Slug == sh.Slug {
 			sh.URL = short.URL
 			sh.UserID = short.UserID
@@ -58,9 +47,25 @@ func (s *InMemory) getSlag(sh *entity.Shorturl) (*entity.Shorturl, error) {
 			break
 		}
 	}
+	return sh, nil
+}
 
-	fmt.Printf("Iteration sh.Slug: %v\n", sh.Slug)
-	fmt.Printf("Iteration sh.URL: %v\n", sh.URL)
+// search by slug
+func (s *InMemory) searchBySlug(sh *entity.Shorturl) (*entity.Shorturl, error) {
+	shorts := entity.Shorturls{}
+	for _, uid := range s.m {
+		for _, ar := range uid {
+			shorts = append(shorts, ar)
+		}
+	}
+	for _, short := range shorts {
+		if short.Slug == sh.Slug {
+			sh.URL = short.URL
+			sh.UserID = short.UserID
+			sh.Del = short.Del
+			break
+		}
+	}
 	return sh, nil
 }
 

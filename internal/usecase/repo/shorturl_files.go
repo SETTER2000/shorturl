@@ -96,10 +96,10 @@ func NewConsumer(cfg *config.Config) *consumer {
 }
 
 func (i *InFiles) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	return i.getSlag(sh)
+	return i.searchBySlug(sh)
 }
 
-func (i *InFiles) getSlag(sh *entity.Shorturl) (*entity.Shorturl, error) {
+func (i *InFiles) searchUID(sh *entity.Shorturl) (*entity.Shorturl, error) {
 	for _, short := range i.m[sh.UserID] {
 		if short.Slug == sh.Slug {
 			sh.URL = short.URL
@@ -112,6 +112,24 @@ func (i *InFiles) getSlag(sh *entity.Shorturl) (*entity.Shorturl, error) {
 	return sh, nil
 }
 
+// search by slug
+func (i *InFiles) searchBySlug(sh *entity.Shorturl) (*entity.Shorturl, error) {
+	shorts := entity.Shorturls{}
+	for _, uid := range i.m {
+		for _, ar := range uid {
+			shorts = append(shorts, ar)
+		}
+	}
+	for _, short := range shorts {
+		if short.Slug == sh.Slug {
+			sh.URL = short.URL
+			sh.UserID = short.UserID
+			sh.Del = short.Del
+			break
+		}
+	}
+	return sh, nil
+}
 func (i *InFiles) getAll() error {
 	sh := &entity.Shorturl{}
 	for {
