@@ -69,11 +69,6 @@ func (i *InFiles) Post(ctx context.Context, sh *entity.Shorturl) error {
 	return i.post(sh)
 }
 
-//	func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
-//		i.lock.Lock()
-//		defer i.lock.Unlock()
-//		return i.post(sh)
-//	}
 func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
 	ln := len(i.m[sh.UserID])
 	num := 0
