@@ -74,7 +74,6 @@ func Run(cfg *config.Config) {
 
 func cleanup() {
 	fmt.Print("Hang on! I'm closing some DBs, wiping some trails..")
-
 	time.Sleep(1 * time.Second)
 	fmt.Println("  Done...")
 }
