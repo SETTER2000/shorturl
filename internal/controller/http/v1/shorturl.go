@@ -131,7 +131,6 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 			shorturl = sh.Slug
 			res.Header().Set("Content-Type", http.DetectContentType(body))
 			res.WriteHeader(http.StatusConflict)
-
 		} else {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
