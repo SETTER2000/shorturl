@@ -76,13 +76,15 @@ func (i *InFiles) Post(ctx context.Context, sh *entity.Shorturl) error {
 //	}
 func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
 	ln := len(i.m[sh.UserID])
+	num := 0
 	for j := 0; j < ln; j++ {
 		if i.m[sh.UserID][j].Slug == sh.Slug {
 			i.m[sh.UserID][j].URL = sh.URL
-		} else {
-			i.Post(ctx, sh)
-			return nil
+			num++
 		}
+	}
+	if num < 1 {
+		return i.Post(ctx, sh)
 	}
 	return nil
 }
