@@ -77,6 +77,8 @@ func (s *InMemory) Put(ctx context.Context, sh *entity.Shorturl) error {
 	for j := 0; j < ln; j++ {
 		if s.m[sh.UserID][j].Slug == sh.Slug {
 			s.m[sh.UserID][j].URL = sh.URL
+			s.m[sh.UserID][j].Del = sh.Del
+			return nil
 		}
 	}
 	return s.Post(ctx, sh)
