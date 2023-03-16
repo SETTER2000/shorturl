@@ -64,9 +64,9 @@ func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	fmt.Println("URL for Location:: ", sh.URL)
-	res.Header().Set("Content-Type", "text/plain")
+	res.Header().Set("Location", sh.URL)
+	res.Header().Add("Content-Type", "text/plain")
 	res.Header().Add("Content-Encoding", "gzip")
-	res.Header().Add("Location", sh.URL)
 	res.WriteHeader(http.StatusTemporaryRedirect)
 }
 

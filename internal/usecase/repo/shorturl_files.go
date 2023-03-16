@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/scripts"
@@ -106,6 +107,7 @@ func (i *InFiles) getSlag(sh *entity.Shorturl) (*entity.Shorturl, error) {
 			sh.URL = short.URL
 			sh.UserID = short.UserID
 			sh.Del = short.Del
+			fmt.Println("НАШЁЛ URL: ", sh.URL)
 			break
 		}
 	}
