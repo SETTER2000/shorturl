@@ -63,7 +63,7 @@ func (r *shorturlRoutes) shortLink(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusGone)
 		return
 	}
-
+	fmt.Println("URL найден: ", sh.URL)
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Add("Content-Encoding", "gzip")
 	w.Header().Add("Location", sh.URL)

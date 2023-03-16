@@ -21,7 +21,7 @@ import (
 )
 
 func Run(cfg *config.Config) {
-	//closer.Bind(cleanup)
+	closer.Bind(cleanup)
 	// logger
 	l := logger.New(cfg.Log.Level)
 	// seed
@@ -72,8 +72,8 @@ func Run(cfg *config.Config) {
 	}
 }
 
-//func cleanup() {
-//	fmt.Print("Hang on! I'm closing some DBs, wiping some trails..")
-//	time.Sleep(1 * time.Second)
-//	fmt.Println("  Done...")
-//}
+func cleanup() {
+	fmt.Print("Hang on! I'm closing some DBs, wiping some trails..")
+	time.Sleep(1 * time.Second)
+	fmt.Println("  Done...")
+}
