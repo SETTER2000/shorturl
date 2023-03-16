@@ -87,3 +87,9 @@ func (s *InMemory) Post(ctx context.Context, sh *entity.Shorturl) error {
 	s.m[sh.Slug] = obj
 	return nil
 }
+func (i *InMemory) Read() error {
+	return nil
+}
+func (i *InMemory) Save() error {
+	return nil
+}

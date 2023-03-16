@@ -176,3 +176,10 @@ CREATE TABLE IF NOT EXISTS public.shorturl
 	}
 	return db
 }
+
+func (i *InSQL) Read() error {
+	return nil
+}
+func (i *InSQL) Save() error {
+	return nil
+}

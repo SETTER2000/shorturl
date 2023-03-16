@@ -3,7 +3,6 @@ package repo
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/scripts"
@@ -19,14 +18,11 @@ const (
 
 type (
 	producer struct {
-		lock sync.Mutex // <-- этот мьютекс защищает
-		file *os.File
-		//encoder *bufio.Writer
+		file    *os.File
 		encoder *json.Encoder
 	}
 
 	consumer struct {
-		lock    sync.Mutex // <-- этот мьютекс защищает
 		file    *os.File
 		cfg     *config.Config
 		decoder *json.Decoder
@@ -34,10 +30,11 @@ type (
 	}
 
 	InFiles struct {
-		cfg *config.Config
-		m   map[string][]byte
-		r   *consumer
-		w   *producer
+		lock sync.Mutex // <-- этот мьютекс защищает
+		m    map[string]entity.Shorturls
+		cfg  *config.Config
+		r    *consumer
+		w    *producer
 	}
 )
 
@@ -45,7 +42,7 @@ type (
 func NewInFiles(cfg *config.Config) *InFiles {
 	return &InFiles{
 		cfg: cfg,
-		m:   make(map[string][]byte),
+		m:   make(map[string]entity.Shorturls),
 		// создаём новый потребитель
 		r: NewConsumer(cfg),
 		// создаём новый производитель
@@ -64,17 +61,18 @@ func NewProducer(cfg *config.Config) *producer {
 }
 
 func (i *InFiles) post(sh *entity.Shorturl) error {
-	return i.w.encoder.Encode(&sh)
+	i.m[sh.UserID] = append(i.m[sh.UserID], *sh)
+	return nil
 }
 func (i *InFiles) Post(ctx context.Context, sh *entity.Shorturl) error {
-	i.w.lock.Lock()
-	defer i.w.lock.Unlock()
+	i.lock.Lock()
+	defer i.lock.Unlock()
 	return i.post(sh)
 }
 
 func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
-	i.w.lock.Lock()
-	defer i.w.lock.Unlock()
+	i.lock.Lock()
+	defer i.lock.Unlock()
 	return i.post(sh)
 }
 
@@ -91,57 +89,12 @@ func NewConsumer(cfg *config.Config) *consumer {
 	}
 }
 
-func (i *InFiles) Get2(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	//i.r.lock.Lock()
-	//defer i.r.lock.Unlock()
-	sh2, err := i.getSlag(ctx, sh)
-	if err != nil {
-		return nil, err
-	}
-	return sh2, nil
-}
 func (i *InFiles) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	short := entity.Shorturl{}
-	var shorts entity.Shorturls
-	//var bufferRead bytes.Buffer
-	defer i.r.file.Seek(0, 0)
-
-	for {
-		if err := i.r.decoder.Decode(&short); err != nil {
-			//io.TeeReader(i.r.decoder.Buffered(), &bufferRead)
-			//fmt.Printf("\nBufferRead: %s\n", &bufferRead)
-			//n, _ := i.r.file.Seek(0, 0)
-			//fmt.Printf("NUM START : %v\n", n)
-			//fmt.Printf("End FILE : %v\n", err)
-			if err == io.EOF {
-				//i.r.decoder.Buffered()
-				break
-			}
-			return nil, err
-		}
-		fmt.Printf("APPEND : %v\n", short.URL)
-
-		shorts = append(shorts, short)
-	}
-
-	for _, s := range shorts {
-		if s.Slug == sh.Slug {
-			sh.URL = s.URL
-			sh.UserID = s.UserID
-			sh.Del = s.Del
-			break
-		}
-	}
-	i.r.file.Seek(0, io.SeekStart)
-	return sh, nil
+	return i.getSlag(sh)
 }
 
-func (i *InFiles) getSlag(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	shorts, err := i.getAll()
-	if err != nil {
-		return nil, err
-	}
-	for _, short := range shorts {
+func (i *InFiles) getSlag(sh *entity.Shorturl) (*entity.Shorturl, error) {
+	for _, short := range i.m[sh.UserID] {
 		if short.Slug == sh.Slug {
 			sh.URL = short.URL
 			sh.UserID = short.UserID
@@ -149,29 +102,27 @@ func (i *InFiles) getSlag(ctx context.Context, sh *entity.Shorturl) (*entity.Sho
 			break
 		}
 	}
+	// short[sh.Slug]
 	return sh, nil
 }
 
-func (i *InFiles) getAll() ([]entity.Shorturl, error) {
+func (i *InFiles) getAll() error {
 	sh := &entity.Shorturl{}
-	var shorts []entity.Shorturl
 	for {
 		if err := i.r.decoder.Decode(&sh); err != nil {
 			if err == io.EOF {
 				break
 			}
-			return nil, err
+			return err
 		}
-		shorts = append(shorts, *sh)
+		i.m[sh.UserID] = append(i.m[sh.UserID], *sh)
 	}
-	return shorts, nil
+
+	return nil
 }
 func (i *InFiles) getAllUserID(u *entity.User) (*entity.User, error) {
 	lst := entity.List{}
-	shorts, err := i.getAll()
-	if err != nil {
-		return nil, err
-	}
+	shorts := i.m[u.UserID]
 	for _, short := range shorts {
 		if short.UserID == u.UserID {
 			lst.URL = short.URL
@@ -182,28 +133,27 @@ func (i *InFiles) getAllUserID(u *entity.User) (*entity.User, error) {
 	return u, nil
 }
 func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
-	i.r.lock.Lock()
-	defer i.r.lock.Unlock()
+	i.lock.Lock()
+	defer i.lock.Unlock()
 	return i.getAllUserID(u)
 }
 
-func (i *InFiles) delete(shorts []entity.Shorturl, u *entity.User) ([]entity.Shorturl, error) {
-	var d []entity.Shorturl
-	for _, v := range shorts {
-		for _, g := range u.DelLink {
-			if v.Slug == g && v.UserID == u.UserID {
-				// изменяет флаг del на true, в результате url становиться недоступным для пользователя
-				v.Del = true
+// Save перезаписать файл с новыми данными
+func (i *InFiles) Read() error {
+	for {
+		if err := i.r.decoder.Decode(&i.m); err != nil {
+			if err == io.EOF {
+				break
 			}
+			return err
 		}
-		// обновлённый слайс данных, с флагом del=true
-		d = append(d, v)
 	}
-	return d, nil
+	//fmt.Printf("Read data for file: %v", i.m)
+	return nil
 }
 
-// rewriteFile перезаписать файл с новыми данными
-func (i *InFiles) rewriteFile(shorts []entity.Shorturl) error {
+// Save перезаписать файл с новыми данными
+func (i *InFiles) Save() error {
 	//переводит курсор в начало файла
 	_, err := i.w.file.Seek(0, io.SeekStart)
 	if err != nil {
@@ -214,28 +164,25 @@ func (i *InFiles) rewriteFile(shorts []entity.Shorturl) error {
 	if err != nil {
 		return err
 	}
-	for _, sh := range shorts {
-		err = i.post(&sh)
-		if err != nil {
-			return err
-		}
-	}
-	i.r.file.Seek(0, 0)
-
-	return nil
+	// пишем из памяти в файл
+	return i.w.encoder.Encode(i.m)
 }
 func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
-	//i.w.lock.Lock()
-	shorts, err := i.getAll()
-	//i.w.lock.Unlock()
-	if err != nil {
-		return err
+	i.lock.Lock()
+	defer i.lock.Unlock()
+	return i.delete(u)
+
+}
+func (i *InFiles) delete(u *entity.User) error {
+	for j := 0; j < len(i.m[u.UserID]); j++ {
+		for _, slug := range u.DelLink {
+			if i.m[u.UserID][j].Slug == slug {
+				// изменяет флаг del на true, в результате url становиться недоступным для пользователя
+				i.m[u.UserID][j].Del = true
+			}
+		}
 	}
-	//// изменяет флаг del на true, в результате url становиться недоступным для пользователя
-	shorts, _ = i.delete(shorts, u)
-	// перезаписать файл с новыми значениями
-	err = i.rewriteFile(shorts)
-	return err
+	return nil
 }
 func (c *consumer) Close() error {
 	return c.file.Close()
