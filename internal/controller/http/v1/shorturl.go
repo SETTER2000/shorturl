@@ -48,26 +48,26 @@ func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interfac
 // @Success     307 {object} string
 // @Failure     500 {object} response
 // @Router      /{key} [get]
-func (r *shorturlRoutes) shortLink(res http.ResponseWriter, req *http.Request) {
+func (r *shorturlRoutes) shortLink(w http.ResponseWriter, req *http.Request) {
 	shorturl := chi.URLParam(req, "key")
 	data := entity.Shorturl{Config: r.cfg}
 	data.Slug = shorturl
 	sh, err := r.s.ShortLink(req.Context(), &data)
 	if err != nil {
 		r.l.Error(err, "http - v1 - shortLink")
-		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
 	// при запросе удалённого URL с помощью хендлера GET /{id} нужно вернуть статус 410 Gone
 	if sh.Del {
-		res.WriteHeader(http.StatusGone)
+		w.WriteHeader(http.StatusGone)
 		return
 	}
-	fmt.Println("URL for Location:: ", sh.URL)
-	res.Header().Set("Location", sh.URL)
-	res.Header().Add("Content-Type", "text/plain")
-	res.Header().Add("Content-Encoding", "gzip")
-	res.WriteHeader(http.StatusTemporaryRedirect)
+	//fmt.Println("URL for Location:: ", sh.URL)
+	w.Header().Set("Location", sh.URL)
+	w.Header().Add("Content-Type", "text/plain")
+	w.Header().Add("Content-Encoding", "gzip")
+	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
 // GET /ping, который при запросе проверяет соединение с базой данных

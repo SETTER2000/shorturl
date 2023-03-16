@@ -9,7 +9,6 @@ import (
 	"github.com/SETTER2000/shorturl/scripts"
 	"io"
 	"os"
-	"sync"
 )
 
 const (
@@ -31,11 +30,11 @@ type (
 	}
 
 	InFiles struct {
-		lock sync.Mutex // <-- этот мьютекс защищает
-		m    map[string]entity.Shorturls
-		cfg  *config.Config
-		r    *consumer
-		w    *producer
+		//lock sync.Mutex // <-- этот мьютекс защищает
+		m   map[string]entity.Shorturls
+		cfg *config.Config
+		r   *consumer
+		w   *producer
 	}
 )
 
@@ -65,8 +64,8 @@ func (i *InFiles) post(sh *entity.Shorturl) error {
 	return nil
 }
 func (i *InFiles) Post(ctx context.Context, sh *entity.Shorturl) error {
-	i.lock.Lock()
-	defer i.lock.Unlock()
+	//i.lock.Lock()
+	//defer i.lock.Unlock()
 	return i.post(sh)
 }
 
@@ -140,8 +139,8 @@ func (i *InFiles) getAllUserID(u *entity.User) (*entity.User, error) {
 	return u, nil
 }
 func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
-	i.lock.Lock()
-	defer i.lock.Unlock()
+	//i.lock.Lock()
+	//defer i.lock.Unlock()
 	return i.getAllUserID(u)
 }
 
@@ -175,8 +174,8 @@ func (i *InFiles) Save() error {
 	return i.w.encoder.Encode(i.m)
 }
 func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
-	i.lock.Lock()
-	defer i.lock.Unlock()
+	//i.lock.Lock()
+	//defer i.lock.Unlock()
 	return i.delete(u)
 }
 func (i *InFiles) delete(u *entity.User) error {
