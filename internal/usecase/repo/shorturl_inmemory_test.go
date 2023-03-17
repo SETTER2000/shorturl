@@ -87,8 +87,7 @@ func TestInMemory_Put(t *testing.T) {
 		},
 	}
 	s := &InMemory{
-		cfg: cfg,
-		m:   make(map[string]entity.Shorturls),
+		m: make(map[string]entity.Shorturls),
 	}
 	for idx, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
