@@ -225,3 +225,9 @@ func TestTrim(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkFibo(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		GenerateString(3)
+	}
+}

@@ -3,17 +3,16 @@ package scripts
 import (
 	"fmt"
 	"github.com/SETTER2000/shorturl/config"
-	"hash/fnv"
 	"math/rand"
 	"os"
 	"time"
 )
 
-func FNV32a(text string) uint32 {
-	algorithm := fnv.New32a()
-	algorithm.Write([]byte(text))
-	return algorithm.Sum32()
-}
+//	func FNV32a(text string) uint32 {
+//		algorithm := fnv.New32a()
+//		algorithm.Write([]byte(text))
+//		return algorithm.Sum32()
+//	}
 func GenerateString(n int) string {
 	// generate string
 	digits := "0123456789"
