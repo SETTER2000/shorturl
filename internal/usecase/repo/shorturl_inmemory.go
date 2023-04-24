@@ -104,7 +104,8 @@ func (s *InMemory) delete(u *entity.User) error {
 	for j := 0; j < len(s.m[u.UserID]); j++ {
 		for _, slug := range u.DelLink {
 			if s.m[u.UserID][j].Slug == slug {
-				// изменяет флаг del на true, в результате url становиться недоступным для пользователя
+				// изменяет флаг del на true, в результате url
+				// становиться недоступным для пользователя
 				s.m[u.UserID][j].Del = true
 			}
 		}

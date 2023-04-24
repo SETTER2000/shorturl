@@ -55,7 +55,6 @@ function retieveAllPublicCrocodiles() {
 }
 
 function validateAuthService() {
-
     const USERNAME = `${randomString(10)}@example.com`;
     const PASSWORD = 'superCroc2021';
 
