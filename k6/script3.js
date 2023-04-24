@@ -43,14 +43,11 @@ function retrieveIndividualCrocodilesInABatch() {
 }
 
 function retieveAllPublicCrocodiles() {
-
     describe('[Crocs service] Fetch a list of crocs', () => {
         let response = session.get('/public/crocodiles');
-
         expect(response.status, "response status").to.equal(200)
         expect(response).to.have.validJsonBody()
         expect(response.json(), 'croc list').to.be.an('array').lengthOf.above(5);
-        ;
     })
 }
 
