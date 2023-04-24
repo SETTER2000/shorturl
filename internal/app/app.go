@@ -2,13 +2,18 @@ package app
 
 import (
 	"fmt"
-	"github.com/SETTER2000/shorturl/scripts"
-	"github.com/go-chi/chi/v5/middleware"
 	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/go-chi/chi/v5/middleware"
+
+	"github.com/SETTER2000/shorturl/scripts"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/xlab/closer"
 
 	"github.com/SETTER2000/shorturl/config"
 	v1 "github.com/SETTER2000/shorturl/internal/controller/http/v1"
@@ -16,8 +21,6 @@ import (
 	"github.com/SETTER2000/shorturl/internal/usecase"
 	"github.com/SETTER2000/shorturl/internal/usecase/repo"
 	"github.com/SETTER2000/shorturl/pkg/log/logger"
-	"github.com/go-chi/chi/v5"
-	"github.com/xlab/closer"
 )
 
 func Run(cfg *config.Config) {

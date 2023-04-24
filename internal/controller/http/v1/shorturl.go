@@ -5,20 +5,22 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/SETTER2000/shorturl/config"
-	"github.com/SETTER2000/shorturl/internal/entity"
-	"github.com/SETTER2000/shorturl/internal/usecase"
-	"github.com/SETTER2000/shorturl/internal/usecase/repo"
-	"github.com/SETTER2000/shorturl/pkg/log/logger"
-	"github.com/SETTER2000/shorturl/scripts"
-	"github.com/go-chi/chi/v5"
-	"github.com/jackc/pgx/v5"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5"
+
+	"github.com/SETTER2000/shorturl/config"
+	"github.com/SETTER2000/shorturl/internal/entity"
+	"github.com/SETTER2000/shorturl/internal/usecase"
+	"github.com/SETTER2000/shorturl/internal/usecase/repo"
+	"github.com/SETTER2000/shorturl/pkg/log/logger"
+	"github.com/SETTER2000/shorturl/scripts"
 )
 
 type shorturlRoutes struct {

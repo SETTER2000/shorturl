@@ -3,9 +3,10 @@ package config
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	"github.com/caarlos0/env/v7"
 	"github.com/ilyakaznacheev/cleanenv"
-	"os"
 )
 
 type (

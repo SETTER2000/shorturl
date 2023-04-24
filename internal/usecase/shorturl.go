@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+
 	"github.com/SETTER2000/shorturl/internal/entity"
 )
 

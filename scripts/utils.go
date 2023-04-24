@@ -2,10 +2,11 @@ package scripts
 
 import (
 	"fmt"
-	"github.com/SETTER2000/shorturl/config"
 	"math/rand"
 	"os"
 	"time"
+
+	"github.com/SETTER2000/shorturl/config"
 )
 
 //	func FNV32a(text string) uint32 {

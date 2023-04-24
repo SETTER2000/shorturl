@@ -2,13 +2,14 @@ package main
 
 import (
 	"flag"
-	"github.com/SETTER2000/shorturl/config"
-	"github.com/SETTER2000/shorturl/internal/app"
 	"log"
 	_ "net/http/pprof" // подключаем пакет pprof
 	"os"
 	"runtime"
 	"runtime/pprof"
+
+	"github.com/SETTER2000/shorturl/config"
+	"github.com/SETTER2000/shorturl/internal/app"
 )
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")

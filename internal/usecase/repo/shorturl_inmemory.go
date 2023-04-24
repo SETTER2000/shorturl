@@ -2,9 +2,10 @@ package repo
 
 import (
 	"context"
+	"sync"
+
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
-	"sync"
 )
 
 // InMemory

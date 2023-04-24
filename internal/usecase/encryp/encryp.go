@@ -9,8 +9,9 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
-	"github.com/SETTER2000/shorturl/scripts"
 	"net/http"
+
+	"github.com/SETTER2000/shorturl/scripts"
 )
 
 const (
