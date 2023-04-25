@@ -16,7 +16,6 @@ type Shorturl struct {
 	UserID         string `json:"user_id,omitempty"`
 	Del            bool   `json:"del"`
 	*config.Config `json:"-"`
-	//*CorrelationOrigin `json:"correlation_origin,omitempty"`
 }
 type List struct {
 	Slug string `json:"short_url" example:"1674872720465761244B_5"`                 // Строковый идентификатор
