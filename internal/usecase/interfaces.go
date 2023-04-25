@@ -1,4 +1,5 @@
-// Package usecase implements application business logic. Each logic group in own file.
+// Package usecase - слой usecase, интерфейсы, реализует бизнес-логику приложения,
+// каждая логическая группа в собственном файле.
 package usecase
 
 import (

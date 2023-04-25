@@ -9,11 +9,6 @@ import (
 	"github.com/SETTER2000/shorturl/config"
 )
 
-//	func FNV32a(text string) uint32 {
-//		algorithm := fnv.New32a()
-//		algorithm.Write([]byte(text))
-//		return algorithm.Sum32()
-//	}
 func GenerateString(n int) string {
 	// generate string
 	digits := "0123456789"
@@ -36,6 +31,9 @@ func GenerateString(n int) string {
 	})
 	return string(buf)
 }
+
+// UniqueString возвращает уникальную строку.
+// Используется как ключ короткого url.
 func UniqueString() string {
 	return fmt.Sprintf("%v%s", time.Now().UnixNano(), GenerateString(3))
 }
@@ -59,31 +57,4 @@ func CheckEnvironFlag(environName string, flagName string) bool {
 		}
 	}
 	return true
-}
-
-// Trim удаляет первый и последний символ в строке s
-// t - удаляется символ переданный в аргумент
-// по умолчанию удаляет символ \n
-func Trim(s string, t string) (string, error) {
-	if s == "" {
-		return s, fmt.Errorf("error arg s empty: %s", s)
-	}
-	sz := len(s)
-	if sz > 0 && t != "" {
-		if string(s[sz-1]) == t {
-			s = s[:sz-1]
-		}
-		if string(s[0]) == t {
-			s = s[1:]
-		}
-	}
-	sz = len(s)
-	if sz > 0 && s[sz-1] == '\n' {
-		s = s[:sz-1]
-	}
-	if sz > 0 && s[0] == '\n' {
-		s = s[1:]
-	}
-
-	return s, nil
 }

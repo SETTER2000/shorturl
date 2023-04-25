@@ -1,3 +1,4 @@
+// Package encryp - middleware, работает с шифрованием cookie аутентификации.
 package encryp
 
 import (

@@ -1,5 +1,5 @@
-// Package entity defines main entities for business logic (services), data base mapping and
-// HTTP response objects if suitable. Each logic group entities in own file.
+// Package entity определяет основные сущности для бизнес-логики (сервисов),
+// сопоставления базы данных и объектов ответа HTTP, если они подходят.
 package entity
 
 import "github.com/SETTER2000/shorturl/config"

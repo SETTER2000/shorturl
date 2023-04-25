@@ -1,3 +1,4 @@
+// Package app - точка входа в проект, запуск сервиса shortener.
 package app
 
 import (

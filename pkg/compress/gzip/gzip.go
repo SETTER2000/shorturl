@@ -1,3 +1,4 @@
+// Package gzip - middleware, сжатие gzip.
 package gzip
 
 import (
@@ -13,12 +14,12 @@ type gzipWriter struct {
 	Writer io.Writer
 }
 
+// Так как http.ResponseWriter указан без имени поля, он встраивается в тип gzipWriter,
+// который содержит все методы этого интерфейса. В противном случае нужно было бы описать
+// методы Header и WriteHeader. В примере для gzipWriter
+// достаточно переопределить метод Write.
 func (w gzipWriter) Write(b []byte) (int, error) {
-	// Так как http.ResponseWriter указан без имени поля, он встраивается в тип gzipWriter,
-	// который содержит все методы этого интерфейса. В противном случае нужно было бы описать
-	// методы Header и WriteHeader. В примере для gzipWriter
-	// достаточно переопределить метод Write.
-	// w.Writer будет отвечать за gzip-сжатие, поэтому пишем в него
+	// Writer будет отвечать за gzip-сжатие, поэтому пишем в него
 	return w.Writer.Write(b)
 }
 

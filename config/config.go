@@ -1,3 +1,4 @@
+// Package config - конфигурация, настройка всего сервиса.
 package config
 
 import (

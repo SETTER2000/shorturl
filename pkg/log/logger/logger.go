@@ -1,3 +1,4 @@
+// Package logger - логирование проекта на основе zerolog.
 package logger
 
 import (

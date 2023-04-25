@@ -1,4 +1,4 @@
-// Package server implements HTTP server.
+// Package server реализует HTTP-сервер.
 package server
 
 import (
