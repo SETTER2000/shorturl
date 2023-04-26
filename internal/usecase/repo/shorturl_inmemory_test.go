@@ -388,3 +388,43 @@ func TestNewInMemory(t *testing.T) {
 		})
 	}
 }
+
+func TestInMemory_GetAll(t *testing.T) {
+	type fields struct {
+		lock *sync.Mutex
+		m    map[string]entity.Shorturls
+		cfg  *config.Config
+	}
+	type args struct {
+		ctx context.Context
+		u   *entity.User
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *entity.User
+		wantErr bool
+	}{
+		{
+			name:    "positive test #1",
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &InMemory{
+				m:   tt.fields.m,
+				cfg: tt.fields.cfg,
+			}
+			got, err := s.GetAll(tt.args.ctx, tt.args.u)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetAll() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetAll() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
