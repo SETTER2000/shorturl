@@ -196,7 +196,7 @@ func TestInMemory_Delete(t *testing.T) {
 
 func TestInMemory_Read(t *testing.T) {
 	type fields struct {
-		lock sync.Mutex
+		lock *sync.Mutex
 		m    map[string]entity.Shorturls
 		cfg  *config.Config
 	}
@@ -212,9 +212,8 @@ func TestInMemory_Read(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &InMemory{
-				lock: tt.fields.lock,
-				m:    tt.fields.m,
-				cfg:  tt.fields.cfg,
+				m:   tt.fields.m,
+				cfg: tt.fields.cfg,
 			}
 			if err := s.Read(); (err != nil) != tt.wantErr {
 				t.Errorf("Read() error = %v, wantErr %v", err, tt.wantErr)
@@ -231,7 +230,7 @@ func TestInMemory_Get(t *testing.T) {
 		Slug: "slug3", UserID: "uid3", URL: "https://example3.com", Del: false,
 	}
 	type fields struct {
-		lock sync.Mutex
+		lock *sync.Mutex
 		m    map[string]entity.Shorturls
 		cfg  *config.Config
 	}
@@ -241,8 +240,7 @@ func TestInMemory_Get(t *testing.T) {
 	}
 
 	fld := fields{
-		lock: sync.Mutex{},
-		m:    make(map[string]entity.Shorturls),
+		m: make(map[string]entity.Shorturls),
 	}
 	fld.m[sh.Slug] = append(fld.m[sh.Slug], sh)
 
@@ -276,9 +274,8 @@ func TestInMemory_Get(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &InMemory{
-				lock: tt.fields.lock,
-				m:    tt.fields.m,
-				cfg:  tt.fields.cfg,
+				m:   tt.fields.m,
+				cfg: tt.fields.cfg,
 			}
 			got, err := s.Get(tt.args.ctx, tt.args.sh)
 			if (err != nil) != tt.wantErr {
@@ -295,48 +292,10 @@ func TestInMemory_Get(t *testing.T) {
 	}
 }
 
-func TestInMemory_GetAll(t *testing.T) {
-	type fields struct {
-		lock sync.Mutex
-		m    map[string]entity.Shorturls
-		cfg  *config.Config
-	}
-	type args struct {
-		ctx context.Context
-		u   *entity.User
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    *entity.User
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &InMemory{
-				lock: tt.fields.lock,
-				m:    tt.fields.m,
-				cfg:  tt.fields.cfg,
-			}
-			got, err := s.GetAll(tt.args.ctx, tt.args.u)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetAll() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetAll() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestInMemory_Post(t *testing.T) {
 
 	type fields struct {
-		lock sync.Mutex
+		lock *sync.Mutex
 		m    map[string]entity.Shorturls
 		cfg  *config.Config
 	}
@@ -353,8 +312,7 @@ func TestInMemory_Post(t *testing.T) {
 		{
 			name: "positive test #1",
 			fields: fields{
-				lock: sync.Mutex{},
-				m:    make(map[string]entity.Shorturls),
+				m: make(map[string]entity.Shorturls),
 			},
 			args: args{
 				ctx: context.Background(),
@@ -366,9 +324,8 @@ func TestInMemory_Post(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &InMemory{
-				lock: tt.fields.lock,
-				m:    tt.fields.m,
-				cfg:  tt.fields.cfg,
+				m:   tt.fields.m,
+				cfg: tt.fields.cfg,
 			}
 			if err := s.Post(tt.args.ctx, tt.args.sh); (err != nil) != tt.wantErr {
 				t.Errorf("Post() error = %v, wantErr %v", err, tt.wantErr)
@@ -379,7 +336,7 @@ func TestInMemory_Post(t *testing.T) {
 
 func TestInMemory_Save(t *testing.T) {
 	type fields struct {
-		lock sync.Mutex
+		lock *sync.Mutex
 		m    map[string]entity.Shorturls
 		cfg  *config.Config
 	}
@@ -395,9 +352,8 @@ func TestInMemory_Save(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &InMemory{
-				lock: tt.fields.lock,
-				m:    tt.fields.m,
-				cfg:  tt.fields.cfg,
+				m:   tt.fields.m,
+				cfg: tt.fields.cfg,
 			}
 			if err := s.Save(); (err != nil) != tt.wantErr {
 				t.Errorf("Save() error = %v, wantErr %v", err, tt.wantErr)
@@ -406,112 +362,11 @@ func TestInMemory_Save(t *testing.T) {
 	}
 }
 
-func TestInMemory_delete(t *testing.T) {
-	type fields struct {
-		lock sync.Mutex
-		m    map[string]entity.Shorturls
-		cfg  *config.Config
-	}
-	type args struct {
-		u *entity.User
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &InMemory{
-				lock: tt.fields.lock,
-				m:    tt.fields.m,
-				cfg:  tt.fields.cfg,
-			}
-			if err := s.delete(tt.args.u); (err != nil) != tt.wantErr {
-				t.Errorf("delete() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func TestInMemory_searchBySlug(t *testing.T) {
-	type fields struct {
-		lock sync.Mutex
-		m    map[string]entity.Shorturls
-		cfg  *config.Config
-	}
-	type args struct {
-		sh *entity.Shorturl
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    *entity.Shorturl
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &InMemory{
-				lock: tt.fields.lock,
-				m:    tt.fields.m,
-				cfg:  tt.fields.cfg,
-			}
-			got, err := s.searchBySlug(tt.args.sh)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("searchBySlug() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("searchBySlug() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestInMemory_searchUID(t *testing.T) {
-	type fields struct {
-		lock sync.Mutex
-		m    map[string]entity.Shorturls
-		cfg  *config.Config
-	}
-	type args struct {
-		sh *entity.Shorturl
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    *entity.Shorturl
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &InMemory{
-				lock: tt.fields.lock,
-				m:    tt.fields.m,
-				cfg:  tt.fields.cfg,
-			}
-			got, err := s.searchUID(tt.args.sh)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("searchUID() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("searchUID() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestNewInMemory(t *testing.T) {
+	inMem := &InMemory{
+		m:   make(map[string]entity.Shorturls),
+		cfg: cfg,
+	}
 	type args struct {
 		cfg *config.Config
 	}
@@ -520,7 +375,10 @@ func TestNewInMemory(t *testing.T) {
 		args args
 		want *InMemory
 	}{
-		// TODO: Add test cases.
+		{
+			name: "positive test #1",
+			want: inMem,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -181,7 +181,7 @@ func (i *InFiles) Read() error {
 			return err
 		}
 	}
-	//fmt.Printf("Read data for file: %v", i.m)
+
 	return nil
 }
 
