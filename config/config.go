@@ -10,6 +10,12 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
+// Config структура содержит всё окружение проекта
+// App - переменные окружения для приложения.
+// HTTP - окружения для сервераю
+// Storage - окружения для хранилищ.
+// Cookie - окружения для куки
+// Log - окружения для логирования
 type (
 	Config struct {
 		App     `yaml:"app"`
@@ -18,55 +24,70 @@ type (
 		Cookie  `yaml:"cookie"`
 		Log     `yaml:"logger"`
 	}
+
 	App struct {
-		Name    string `env-required:"true" yaml:"name"    env:"APP_NAME"`
+		// Название сервиса
+		Name string `env-required:"true" yaml:"name"    env:"APP_NAME"`
+		// Версия сервиса
 		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
 	}
+
 	HTTP struct {
 		// BASE_URL - базовый адрес результирующего сокращённого URL
 		BaseURL string `env:"BASE_URL"`
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
 		ServerAddress string `env:"SERVER_ADDRESS"`
 	}
+
 	Storage struct {
 		// FILE_STORAGE_PATH путь до файла с сокращёнными URL (директории не создаёт)
 		FileStorage string `env:"FILE_STORAGE_PATH"`
 		// Строка с адресом подключения к БД, например для PostgreSQL (драйвер pgx): postgres://username:password@localhost:5432/database_name
 		ConnectDB string `env:"DATABASE_DSN"`
 	}
+
 	Cookie struct {
+		// ACCESS_TOKEN_NAME - содержит наименование для куки доступа, по умолчанию access_token
+		// Например куки будет выглядеть так:
+		// access_token=5d9470be88997d3a200126e686ac7dab0190db8b341ba40e5c6cccf1e6ba66a08f05717dece9; Path=/;
 		AccessTokenName string `env-required:"true" yaml:"access_token_name" env:"ACCESS_TOKEN_NAME" envDefault:"access_token"`
-		SecretKey       string `env-required:"true" yaml:"secret_key" env:"SECRET_KEY" envDefault:"RtsynerpoGIYdab_s234r"` // cookie encryp application
+		// SECRET_KEY ключ шифрования для куки
+		SecretKey string `env-required:"true" yaml:"secret_key" env:"SECRET_KEY" envDefault:"RtsynerpoGIYdab_s234r"` // cookie encryp application
 		//ExpirationTime  time.Time `env-required:"true" yaml:"expiration_time" env:"EXPIRATION_TIME"`
 	}
+
 	Log struct {
+		// LOG_LEVEL переменная окружения, содержит значение уровня логирования проекта
 		Level string `env-required:"true" yaml:"log_level"  env:"LOG_LEVEL"`
 	}
 )
 
+// Config .
 var instance *Config
 
-// NewConfig returns app config.
+// NewConfig (singleton) возвращает инициализированную структуру конфига.
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
 
-	// yaml
+	// yml
 	err := cleanenv.ReadConfig("./config/config.yml", cfg)
 	if err != nil {
 		return nil, fmt.Errorf("config error: %w", err)
 	}
 
-	// flags
+	// StringVar flags
 	flag.StringVar(&cfg.HTTP.ServerAddress, "a", "localhost:8080", "host to listen on")
 	flag.StringVar(&cfg.HTTP.BaseURL, "b", "http://localhost:8080", "the base address of the resulting shortened URL")
 	flag.StringVar(&cfg.Storage.FileStorage, "f", "storage.txt", "path to file with abbreviated URLs")
 	flag.StringVar(&cfg.Storage.ConnectDB, "d", "", "dsn connect string urlExample PostgreSQL: postgres://username:password@localhost:5432/database_name")
 	flag.StringVar(&cfg.Cookie.SecretKey, "s", "RtsynerpoGIYdab_s234r", "cookie secret key")
+	// Usage .
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Shorturl Version %s %v\nUsage : Project Shorturl - URL Shortener Server\n", os.Args[0], cfg.App.Version)
 		flag.PrintDefaults()
 	}
 
+	// Parse .
 	flag.Parse()
 
 	// environ

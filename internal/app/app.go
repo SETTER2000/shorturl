@@ -24,6 +24,7 @@ import (
 	"github.com/SETTER2000/shorturl/pkg/log/logger"
 )
 
+// Run запуск сервиса
 func Run(cfg *config.Config) {
 	closer.Bind(cleanup)
 	// logger

@@ -14,7 +14,7 @@ type gzipWriter struct {
 	Writer io.Writer
 }
 
-// Так как http.ResponseWriter указан без имени поля, он встраивается в тип gzipWriter,
+// Write - так как http.ResponseWriter указан без имени поля, он встраивается в тип gzipWriter,
 // который содержит все методы этого интерфейса. В противном случае нужно было бы описать
 // методы Header и WriteHeader. В примере для gzipWriter
 // достаточно переопределить метод Write.
@@ -26,16 +26,18 @@ func (w gzipWriter) Write(b []byte) (int, error) {
 // Middleware принимает параметром Handler и возвращает тоже Handler.
 type Middleware func(http.Handler) http.Handler
 
+// Handler .
 type Handler func(w http.ResponseWriter, r *http.Request) error
 
+// ServerHTTP .
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := h(w, r); err != nil {
-		// handle returned error here.
 		w.WriteHeader(500)
 		w.Write([]byte("empty or invalid id"))
 	}
 }
 
+// Conveyor .
 func Conveyor(h http.Handler, middlewares ...Middleware) http.Handler {
 	for _, middleware := range middlewares {
 		h = middleware(h)
@@ -43,6 +45,7 @@ func Conveyor(h http.Handler, middlewares ...Middleware) http.Handler {
 	return h
 }
 
+// CompressGzip .
 func CompressGzip(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//-- компрессия
@@ -66,9 +69,10 @@ func CompressGzip(next http.Handler) http.Handler {
 	})
 }
 
+// DeCompressGzip сжатие gzip
 func DeCompressGzip(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// переменная reader будет равна r.Body или *gzip.Reader
+		// Переменная reader будет равна r.Body или *gzip.Reader
 		if r.Header.Get(`Content-Encoding`) == `gzip` {
 			gz, err := gzip.NewReader(r.Body)
 			if err != nil {

@@ -21,6 +21,7 @@ const (
 	driverName = "pgx"
 )
 
+// InSQL .-
 type (
 	producerSQL struct {
 		db *sqlx.DB
@@ -56,6 +57,7 @@ func NewSQLProducer(cfg *config.Config) *producerSQL {
 	}
 }
 
+// Post - добавляет данные в DB
 func (i *InSQL) Post(ctx context.Context, sh *entity.Shorturl) error {
 	stmt, err := i.w.db.Prepare("INSERT INTO public.shorturl (slug, url, user_id) VALUES ($1,$2,$3)")
 	if err != nil {
@@ -72,6 +74,7 @@ func (i *InSQL) Post(ctx context.Context, sh *entity.Shorturl) error {
 	return nil
 }
 
+// Put - обновляет данные
 func (i *InSQL) Put(ctx context.Context, sh *entity.Shorturl) error {
 	return i.Post(ctx, sh)
 }
@@ -84,6 +87,7 @@ func NewSQLConsumer(cfg *config.Config) *consumerSQL {
 	}
 }
 
+// Get -.
 func (i *InSQL) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
 	var slug, url, id string
 	var del bool
@@ -110,6 +114,7 @@ func (i *InSQL) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl,
 	return sh, nil
 }
 
+// GetAll - получить все данные.
 func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	var slug, url, id string
 	q := `SELECT slug, url, user_id FROM shorturl WHERE user_id=$1 AND del=$2`
@@ -134,6 +139,8 @@ func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error
 	}
 	return u, nil
 }
+
+// Delete -.
 func (i *InSQL) Delete(ctx context.Context, u *entity.User) error {
 	q := `UPDATE shorturl SET del = $1
 	FROM (SELECT unnest($2::text[]) AS slug) AS data_table
@@ -150,6 +157,7 @@ func (i *InSQL) Delete(ctx context.Context, u *entity.User) error {
 	return nil
 }
 
+// Connect - создает структуру DB и возвращает готовое соединение с базой.
 func Connect(cfg *config.Config) (db *sqlx.DB) {
 	db, _ = sqlx.Open(driverName, cfg.ConnectDB)
 	err := db.Ping()
@@ -179,9 +187,12 @@ CREATE TABLE IF NOT EXISTS public.shorturl
 	return db
 }
 
+// Read -.
 func (i *InSQL) Read() error {
 	return nil
 }
+
+// Save -.
 func (i *InSQL) Save() error {
 	return nil
 }

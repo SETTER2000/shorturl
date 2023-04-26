@@ -21,6 +21,7 @@ const (
 
 var x interface{} = "access_token" //прочитать значение можно так: var keyToken string = x.(string)
 
+// Encrypt -.
 type Encrypt struct{}
 
 // EncryptionKeyCookie - middleware, которая устанавливает симметрично подписанную и зашифрованную куку
@@ -154,6 +155,7 @@ func (e *Encrypt) DecryptToken(data string, secretKey string) (string, error) {
 	return string(decrypted), nil
 }
 
+// CheckToken -.
 func CheckToken(msg string) bool {
 	var (
 		data []byte // декодированное сообщение с подписью
@@ -180,12 +182,6 @@ func CheckToken(msg string) bool {
 		return true
 	}
 
-	fmt.Println("Подпись неверна. Где-то ошибкА...")
+	fmt.Println("Подпись неверна. Где-то ошибка...")
 	return false
-	//_, err := EncryptToken(secretSecret)
-	//if err != nil {
-	//	fmt.Printf("CheckToken error: %v\n", err)
-	//	return false
-	//}
-	//
 }

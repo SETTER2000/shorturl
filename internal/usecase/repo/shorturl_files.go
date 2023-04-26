@@ -17,6 +17,7 @@ const (
 	cookieName   = "access_token"
 )
 
+// InFiles -.
 type (
 	producer struct {
 		file    *os.File
@@ -64,12 +65,15 @@ func (i *InFiles) post(sh *entity.Shorturl) error {
 	i.m[sh.UserID] = append(i.m[sh.UserID], *sh)
 	return nil
 }
+
+// Post сохранить данные в файл
 func (i *InFiles) Post(ctx context.Context, sh *entity.Shorturl) error {
 	//i.lock.Lock()
 	//defer i.lock.Unlock()
 	return i.post(sh)
 }
 
+// Put обновить данные в файле
 func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
 	ln := len(i.m[sh.UserID])
 	if ln < 1 {
@@ -83,6 +87,8 @@ func (i *InFiles) Put(ctx context.Context, sh *entity.Shorturl) error {
 	}
 	return i.Post(ctx, sh)
 }
+
+// Close - закрывает открытый файл
 func (p *producer) Close() error {
 	return p.file.Close()
 }
@@ -96,6 +102,7 @@ func NewConsumer(cfg *config.Config) *consumer {
 	}
 }
 
+// Get получить конкретный URL по идентификатору
 func (i *InFiles) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
 	return i.searchBySlug(sh)
 }
@@ -156,13 +163,15 @@ func (i *InFiles) getAllUserID(u *entity.User) (*entity.User, error) {
 	}
 	return u, nil
 }
+
+// GetAll получить все URL пользователя по идентификатору
 func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	//i.lock.Lock()
 	//defer i.lock.Unlock()
 	return i.getAllUserID(u)
 }
 
-// Save перезаписать файл с новыми данными
+// Read - читает данные из файла
 func (i *InFiles) Read() error {
 	for {
 		if err := i.r.decoder.Decode(&i.m); err != nil {
@@ -191,11 +200,14 @@ func (i *InFiles) Save() error {
 	// пишем из памяти в файл
 	return i.w.encoder.Encode(i.m)
 }
+
+// Delete - удаляет URLы переданный в запросе, только если есть права данного пользователя
 func (i *InFiles) Delete(ctx context.Context, u *entity.User) error {
 	//i.lock.Lock()
 	//defer i.lock.Unlock()
 	return i.delete(u)
 }
+
 func (i *InFiles) delete(u *entity.User) error {
 	for j := 0; j < len(i.m[u.UserID]); j++ {
 		for _, slug := range u.DelLink {
@@ -207,6 +219,8 @@ func (i *InFiles) delete(u *entity.User) error {
 	}
 	return nil
 }
+
+// Close закрывает соединение потребителя
 func (c *consumer) Close() error {
 	return c.file.Close()
 }

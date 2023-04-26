@@ -7,6 +7,9 @@ import (
 	"github.com/SETTER2000/shorturl/internal/entity"
 )
 
+// ErrNotFound ошибка в случаи отсутствия данных
+// ErrAlreadyExists ошибка в случаи если данные уже существуют
+// ErrBadRequest ошибка в случаи неправильного формата запроса и т.п.
 var (
 	ErrNotFound      = errors.New("not found")
 	ErrAlreadyExists = errors.New("already exists")
@@ -25,6 +28,7 @@ func New(r ShorturlRepo) *ShorturlUseCase {
 	}
 }
 
+// Shorten .
 func (uc *ShorturlUseCase) Shorten(ctx context.Context, sh *entity.Shorturl) (string, error) {
 	sh.UserID = ctx.Value(sh.Cookie.AccessTokenName).(string)
 	err := uc.repo.Post(ctx, sh)
@@ -72,6 +76,8 @@ func (uc *ShorturlUseCase) UserDelLink(ctx context.Context, u *entity.User) erro
 	}
 	return nil
 }
+
+// SaveService сохраняет данные при выключении сервиса
 func (uc *ShorturlUseCase) SaveService() error {
 	err := uc.repo.Save()
 	if err != nil {
@@ -79,6 +85,8 @@ func (uc *ShorturlUseCase) SaveService() error {
 	}
 	return nil
 }
+
+// ReadService читает данные из хранилища при загрузки сервиса
 func (uc *ShorturlUseCase) ReadService() error {
 	err := uc.repo.Read()
 	if err != nil {
