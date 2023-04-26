@@ -23,6 +23,7 @@ vendor/
 .idea
 .vscode
 shortener
+build
 storage.json
 /internal/usecase/repo/shorturl_files_test.go
 /storage.txt

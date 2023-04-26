@@ -1,3 +1,4 @@
+// Package scripts - вспомогательный функционал
 package scripts
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/SETTER2000/shorturl/config"
 )
 
+// GenerateString генерирует случайную строку, можно указать какой длинны.
 func GenerateString(n int) string {
 	// generate string
 	digits := "0123456789"

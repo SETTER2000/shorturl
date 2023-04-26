@@ -1,10 +1,9 @@
 package scripts
 
 import (
+	"github.com/SETTER2000/shorturl/config"
 	"regexp"
 	"testing"
-
-	"github.com/SETTER2000/shorturl/config"
 )
 
 func TestCheckEnvironFlag(t *testing.T) {

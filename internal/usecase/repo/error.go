@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+// ErrNotFound ошибка в случаи отсутствия данных
+// ErrAlreadyExists ошибка в случаи если данные уже существуют
 var (
 	ErrNotFound      = errors.New("not found")
 	ErrAlreadyExists = errors.New("already exists")
@@ -30,10 +32,13 @@ func NewTimeError(err error) error {
 		Err:  err,
 	}
 }
+
+// Unwrap .
 func (te *TimeError) Unwrap() error {
 	return te.Err
 }
 
+// Is .
 func (te *TimeError) Is(err error) bool {
 	return te.Err == err
 }
@@ -57,10 +62,12 @@ func (le *LabelError) Error() string {
 	return fmt.Sprintf("[%s] %v", le.Label, le.Err)
 }
 
+// Unwrap .
 func (le *LabelError) Unwrap() error {
 	return le.Err
 }
 
+// Is .
 func (le *LabelError) Is(err error) bool {
 	return le.Err == err
 }
@@ -86,10 +93,12 @@ func (ce *ConflictError) Error() string {
 	return fmt.Sprintf("[%s] %s %v", ce.Label, ce.URL, ce.Err)
 }
 
+// Unwrap .
 func (ce *ConflictError) Unwrap() error {
 	return ce.Err
 }
 
+// Is .
 func (ce *ConflictError) Is(err error) bool {
 	return ce.Err == err
 }
