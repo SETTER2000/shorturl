@@ -23,7 +23,7 @@ type InMemory struct {
 	cfg  *config.Config
 }
 
-// NewInMemory слой взаимодействия с хранилищем в памяти
+// NewInMemory слой взаимодействия с хранилищем в памяти.
 func NewInMemory(cfg *config.Config) *InMemory {
 	return &InMemory{
 		cfg: cfg,
@@ -31,25 +31,14 @@ func NewInMemory(cfg *config.Config) *InMemory {
 	}
 }
 
-// Get получить конкретный URL по идентификатору
+// Get получить конкретный URL по идентификатору этого URL и
+// только если этот линк записал текущий пользователь.
 func (s *InMemory) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
 	u, err := s.searchBySlug(sh)
 	if err != nil {
 		return nil, ErrNotFound
 	}
 	return u, nil
-}
-
-func (s *InMemory) searchUID(sh *entity.Shorturl) (*entity.Shorturl, error) {
-	for _, short := range s.m[sh.UserID] {
-		if short.Slug == sh.Slug {
-			sh.URL = short.URL
-			sh.UserID = short.UserID
-			sh.Del = short.Del
-			break
-		}
-	}
-	return sh, nil
 }
 
 // search by slug
@@ -71,12 +60,24 @@ func (s *InMemory) searchBySlug(sh *entity.Shorturl) (*entity.Shorturl, error) {
 	return sh, nil
 }
 
-// GetAll получить все URL пользователя по идентификатору
+func (s *InMemory) searchUID(sh *entity.Shorturl) (*entity.Shorturl, error) {
+	for _, short := range s.m[sh.UserID] {
+		if short.Slug == sh.Slug {
+			sh.URL = short.URL
+			sh.UserID = short.UserID
+			sh.Del = short.Del
+			break
+		}
+	}
+	return sh, nil
+}
+
+// GetAll получить все URL пользователя по идентификатору.
 func (s *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	return nil, ErrNotFound
 }
 
-// Put обновить данные в память
+// Put обновить данные в память.
 func (s *InMemory) Put(ctx context.Context, sh *entity.Shorturl) error {
 	ln := len(s.m[sh.UserID])
 	if ln < 1 {
@@ -93,13 +94,19 @@ func (s *InMemory) Put(ctx context.Context, sh *entity.Shorturl) error {
 	return s.Post(ctx, sh)
 }
 
-// Post сохранить данные в память
+// Post сохранить данные в память.
+//
+//	{
+//		UserID: ShortURL{
+//			UserID: str1
+//		}
+//	}
 func (s *InMemory) Post(ctx context.Context, sh *entity.Shorturl) error {
 	s.m[sh.UserID] = append(s.m[sh.UserID], *sh)
 	return nil
 }
 
-// Delete - удаляет URLы переданный в запросе, только если есть права данного пользователя
+// Delete - удаляет URLы переданный в запросе, только если есть права данного пользователя.
 func (s *InMemory) Delete(ctx context.Context, u *entity.User) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
@@ -119,12 +126,12 @@ func (s *InMemory) delete(u *entity.User) error {
 	return nil
 }
 
-// Read - читает данные из памяти
+// Read - читает данные из памяти.
 func (s *InMemory) Read() error {
 	return nil
 }
 
-// Save - сохраняет данные в памяти
+// Save - сохраняет данные в памяти.
 func (s *InMemory) Save() error {
 	return nil
 }
