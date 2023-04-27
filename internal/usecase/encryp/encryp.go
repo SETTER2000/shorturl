@@ -44,7 +44,7 @@ func (e *Encrypt) Handler(next http.Handler) http.Handler {
 		at, err := r.Cookie("access_token")
 		if err == http.ErrNoCookie {
 			// создать токен
-			token, err := en.EncryptToken(e.cfg.Cookie.SecretKey)
+			token, err := en.EncryptToken()
 			if err != nil {
 				fmt.Printf("Encrypt error: %v\n", err)
 			}
@@ -69,7 +69,7 @@ func (e *Encrypt) Handler(next http.Handler) http.Handler {
 		if err != nil {
 			fmt.Printf("Decrypt token error: %v\n", err)
 			// создать токен
-			token, err := en.EncryptToken(e.cfg.Cookie.SecretKey)
+			token, err := en.EncryptToken()
 			if err != nil {
 				fmt.Printf("Encrypt error: %v\n", err)
 			}
@@ -100,14 +100,14 @@ func (e *Encrypt) Handler(next http.Handler) http.Handler {
 // secretKey - пароль/ключ для шифрования,
 // из него создаётся ключ с помощью которого можно шифровать и расшифровать данные
 // возвращает зашифрованную строку/токен
-func (e *Encrypt) EncryptToken(secretKey string) (string, error) {
-	if secretKey == "" {
+func (e *Encrypt) EncryptToken() (string, error) {
+	if e.cfg.Cookie.SecretKey == "" {
 		return "", ErrEncryptToken
 	}
 	data := scripts.UniqueString()
 	src := []byte(data) // данные, которые хотим зашифровать
 	// ключ шифрования, будем использовать AES256, создав ключ длиной 32 байта (256 бит)
-	key := sha256.Sum256([]byte(secretKey))
+	key := sha256.Sum256([]byte(e.cfg.Cookie.SecretKey))
 	aesblock, err := aes.NewCipher(key[:])
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
