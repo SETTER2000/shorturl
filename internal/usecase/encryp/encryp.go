@@ -25,11 +25,13 @@ type Encrypt struct {
 	cfg *config.Config
 }
 
+// EncryptionCookie Compress is a middleware that sets and encrypts authentication cookies.
 func EncryptionCookie(cfg *config.Config) func(next http.Handler) http.Handler {
 	encrypt := NewEncrypt(cfg)
 	return encrypt.Handler
 }
 
+// NewEncrypt создаёт новый Encrypt, который будет обрабатывать кодированные ответы.
 func NewEncrypt(cfg *config.Config) *Encrypt {
 	return &Encrypt{
 		cfg: cfg,
