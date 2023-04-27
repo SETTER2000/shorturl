@@ -5,19 +5,18 @@ import (
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/hmac"
 	"crypto/sha256"
-	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"github.com/SETTER2000/shorturl/config"
 	"net/http"
 
 	"github.com/SETTER2000/shorturl/scripts"
 )
 
-const (
-	secretSecret = "RtsynerpoGIYdab_s234r"
-)
+//const (
+//	secretSecret = "RtsynerpoGIYdab_s234r"
+//)
 
 var x interface{} = "access_token" //прочитать значение можно так: var keyToken string = x.(string)
 
@@ -28,64 +27,131 @@ type Encrypt struct{}
 // кука устанавливается любому запросу не имеющему соответствующую куку
 // и не прошедшая идентификацию
 // в куке зашифрован, сгенерированный идентификатор пользователя
-func EncryptionKeyCookie(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		en := Encrypt{}
-		idUser := ""
-		at, err := r.Cookie("access_token")
-		if err == http.ErrNoCookie {
-			// создать токен
-			token, err := en.EncryptToken(secretSecret)
-			if err != nil {
-				fmt.Printf("Encrypt error: %v\n", err)
-			}
-			//sessionLifeNanos := 100000000000
-			http.SetCookie(w, &http.Cookie{
-				Name:  "access_token",
-				Path:  "/",
-				Value: token,
-				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
-			})
+func EncryptionKeyCookie(cfg *config.Config) func(next http.Handler) http.Handler {
+	//return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			en := Encrypt{}
+			idUser := ""
+			at, err := r.Cookie("access_token")
+			if err == http.ErrNoCookie {
+				// создать токен
+				token, err := en.EncryptToken(cfg.Cookie.SecretKey)
+				if err != nil {
+					fmt.Printf("Encrypt error: %v\n", err)
+				}
+				//sessionLifeNanos := 100000000000
+				http.SetCookie(w, &http.Cookie{
+					Name:  "access_token",
+					Path:  "/",
+					Value: token,
+					//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
+				})
 
-			idUser, err = en.DecryptToken(token, secretSecret)
-			if err != nil {
-				fmt.Printf(" Decrypt error: %v\n", err)
+				idUser, err = en.DecryptToken(token, cfg.Cookie.SecretKey)
+				if err != nil {
+					fmt.Printf(" Decrypt error: %v\n", err)
+				}
+				ctx = context.WithValue(ctx, x, idUser)
+				next.ServeHTTP(w, r.WithContext(ctx))
+				return
 			}
+
+			idUser, err = en.DecryptToken(at.Value, cfg.Cookie.SecretKey)
+			if err != nil {
+				fmt.Printf("Decrypt token error: %v\n", err)
+				// создать токен
+				token, err := en.EncryptToken(cfg.Cookie.SecretKey)
+				if err != nil {
+					fmt.Printf("Encrypt error: %v\n", err)
+				}
+				//sessionLifeNanos := 100000000000
+				http.SetCookie(w, &http.Cookie{
+					Name:  "access_token",
+					Path:  "/",
+					Value: token,
+					//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
+				})
+
+				idUser, err = en.DecryptToken(token, cfg.Cookie.SecretKey)
+				if err != nil {
+					fmt.Printf(" Decrypt error: %v\n", err)
+				}
+				ctx = context.WithValue(ctx, x, idUser)
+				next.ServeHTTP(w, r.WithContext(ctx))
+				return
+			}
+
 			ctx = context.WithValue(ctx, x, idUser)
 			next.ServeHTTP(w, r.WithContext(ctx))
-			return
 		}
-
-		idUser, err = en.DecryptToken(at.Value, secretSecret)
-		if err != nil {
-			fmt.Printf("Decrypt token error: %v\n", err)
-			// создать токен
-			token, err := en.EncryptToken(secretSecret)
-			if err != nil {
-				fmt.Printf("Encrypt error: %v\n", err)
-			}
-			//sessionLifeNanos := 100000000000
-			http.SetCookie(w, &http.Cookie{
-				Name:  "access_token",
-				Path:  "/",
-				Value: token,
-				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
-			})
-
-			idUser, err = en.DecryptToken(token, secretSecret)
-			if err != nil {
-				fmt.Printf(" Decrypt error: %v\n", err)
-			}
-			ctx = context.WithValue(ctx, x, idUser)
-			next.ServeHTTP(w, r.WithContext(ctx))
-			return
-		}
-
-		ctx = context.WithValue(ctx, x, idUser)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+		return http.HandlerFunc(fn)
+	}
 }
+
+// EncryptionKeyCookie - middleware, которая устанавливает симметрично подписанную и зашифрованную куку
+// кука устанавливается любому запросу не имеющему соответствующую куку
+// и не прошедшая идентификацию
+// в куке зашифрован, сгенерированный идентификатор пользователя
+//func EncryptionKeyCookie(next http.Handler) http.Handler {
+//	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+//		ctx := r.Context()
+//		en := Encrypt{}
+//		idUser := ""
+//		at, err := r.Cookie("access_token")
+//		if err == http.ErrNoCookie {
+//			// создать токен
+//			token, err := en.EncryptToken(secretSecret)
+//			if err != nil {
+//				fmt.Printf("Encrypt error: %v\n", err)
+//			}
+//			//sessionLifeNanos := 100000000000
+//			http.SetCookie(w, &http.Cookie{
+//				Name:  "access_token",
+//				Path:  "/",
+//				Value: token,
+//				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
+//			})
+//
+//			idUser, err = en.DecryptToken(token, secretSecret)
+//			if err != nil {
+//				fmt.Printf(" Decrypt error: %v\n", err)
+//			}
+//			ctx = context.WithValue(ctx, x, idUser)
+//			next.ServeHTTP(w, r.WithContext(ctx))
+//			return
+//		}
+//
+//		idUser, err = en.DecryptToken(at.Value, secretSecret)
+//		if err != nil {
+//			fmt.Printf("Decrypt token error: %v\n", err)
+//			// создать токен
+//			token, err := en.EncryptToken(secretSecret)
+//			if err != nil {
+//				fmt.Printf("Encrypt error: %v\n", err)
+//			}
+//			//sessionLifeNanos := 100000000000
+//			http.SetCookie(w, &http.Cookie{
+//				Name:  "access_token",
+//				Path:  "/",
+//				Value: token,
+//				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
+//			})
+//
+//			idUser, err = en.DecryptToken(token, secretSecret)
+//			if err != nil {
+//				fmt.Printf(" Decrypt error: %v\n", err)
+//			}
+//			ctx = context.WithValue(ctx, x, idUser)
+//			next.ServeHTTP(w, r.WithContext(ctx))
+//			return
+//		}
+//
+//		ctx = context.WithValue(ctx, x, idUser)
+//		next.ServeHTTP(w, r.WithContext(ctx))
+//	})
+//}
 
 // EncryptToken шифрование и подпись
 // data - данные для кодирования
@@ -93,6 +159,9 @@ func EncryptionKeyCookie(next http.Handler) http.Handler {
 // из него создаётся ключ с помощью которого можно шифровать и расшифровать данные
 // возвращает зашифрованную строку/токен
 func (e *Encrypt) EncryptToken(secretKey string) (string, error) {
+	if secretKey == "" {
+		return "", ErrEncryptToken
+	}
 	data := scripts.UniqueString()
 	src := []byte(data) // данные, которые хотим зашифровать
 	// ключ шифрования, будем использовать AES256, создав ключ длиной 32 байта (256 бит)
@@ -156,32 +225,32 @@ func (e *Encrypt) DecryptToken(data string, secretKey string) (string, error) {
 }
 
 // CheckToken -.
-func CheckToken(msg string) bool {
-	var (
-		data []byte // декодированное сообщение с подписью
-		id   uint32 // значение идентификатора
-		sign []byte // HMAC-подпись от идентификатора
-	)
-	data, err := hex.DecodeString(msg)
-	if err != nil {
-		panic(err)
-	}
-	key := []byte(secretSecret)
-	//*****
-	// 2) получите идентификатор из первых четырёх байт,
-	//    используйте функцию binary.BigEndian.Uint32
-	id = binary.BigEndian.Uint32(data[:4])
-	// 3) вычислите HMAC-подпись sign для этих четырёх байт
-	h := hmac.New(sha256.New, key)
-	h.Write(data[:4])
-	sign = h.Sum(nil)
-	fmt.Printf("III-1 %v\n", sign)
-	fmt.Printf("III-2 %v\n", data[4:])
-	if hmac.Equal(sign, data[4:]) {
-		fmt.Println("Подпись подлинная. ID:", id)
-		return true
-	}
-
-	fmt.Println("Подпись неверна. Где-то ошибка...")
-	return false
-}
+//func CheckToken(msg string) bool {
+//	var (
+//		data []byte // декодированное сообщение с подписью
+//		id   uint32 // значение идентификатора
+//		sign []byte // HMAC-подпись от идентификатора
+//	)
+//	data, err := hex.DecodeString(msg)
+//	if err != nil {
+//		panic(err)
+//	}
+//	key := []byte(secretSecret)
+//	//*****
+//	// 2) получите идентификатор из первых четырёх байт,
+//	//    используйте функцию binary.BigEndian.Uint32
+//	id = binary.BigEndian.Uint32(data[:4])
+//	// 3) вычислите HMAC-подпись sign для этих четырёх байт
+//	h := hmac.New(sha256.New, key)
+//	h.Write(data[:4])
+//	sign = h.Sum(nil)
+//	fmt.Printf("III-1 %v\n", sign)
+//	fmt.Printf("III-2 %v\n", data[4:])
+//	if hmac.Equal(sign, data[4:]) {
+//		fmt.Println("Подпись подлинная. ID:", id)
+//		return true
+//	}
+//
+//	fmt.Println("Подпись неверна. Где-то ошибка...")
+//	return false
+//}
