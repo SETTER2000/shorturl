@@ -364,8 +364,7 @@ func TestInMemory_Save(t *testing.T) {
 
 func TestNewInMemory(t *testing.T) {
 	inMem := &InMemory{
-		m:   make(map[string]entity.Shorturls),
-		cfg: cfg,
+		m: make(map[string]entity.Shorturls),
 	}
 	type args struct {
 		cfg *config.Config
