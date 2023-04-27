@@ -104,25 +104,35 @@ func (e *Encrypt) EncryptToken(secretKey string) (string, error) {
 	if secretKey == "" {
 		return "", ErrEncryptToken
 	}
+
 	data := scripts.UniqueString()
+
 	src := []byte(data) // данные, которые хотим зашифровать
-	// ключ шифрования, будем использовать AES256, создав ключ длиной 32 байта (256 бит)
+	// ключ шифрования, будем использовать AES256,
+	// создав ключ длиной 32 байта (256 бит)
 	key := sha256.Sum256([]byte(secretKey))
-	aesblock, err := aes.NewCipher(key[:])
+	aesBlock, _ := e.cipher(key)
+	//aesBlock, err := aes.NewCipher(key[:])
+	//if err != nil {
+	//	return "", ErrNewCipherNotCreated
+	//}
+	aesGSM, err := cipher.NewGCM(aesBlock)
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
-		return "", err
-	}
-	aesgcm, err := cipher.NewGCM(aesblock)
-	if err != nil {
-		fmt.Printf("error: %v\n", err)
-		return "", err
+		return "", ErrNewGCMNotCreated
 	}
 
 	// создаём вектор инициализации
-	nonce := key[len(key)-aesgcm.NonceSize():]
-	dst := aesgcm.Seal(nil, nonce, src, nil) // зашифровываем
+	nonce := key[len(key)-aesGSM.NonceSize():]
+	dst := aesGSM.Seal(nil, nonce, src, nil) // зашифровываем
 	return fmt.Sprintf("%x", dst), nil
+}
+
+func (e *Encrypt) cipher(key [32]byte) (cipher.Block, error) {
+	block, err := aes.NewCipher(key[:])
+	if err != nil {
+		return nil, ErrNewCipherNotCreated
+	}
+	return block, nil
 }
 
 // DecryptToken расшифровать токен
