@@ -18,17 +18,17 @@ var x interface{} = "access_token" //прочитать значение мож�
 
 // Encrypt -.
 type Encrypt struct {
-	cfg *config.Config
+	cfg *config.Cookie
 }
 
 // EncryptionCookie Compress is a middleware that sets and encrypts authentication cookies.
-func EncryptionCookie(cfg *config.Config) func(next http.Handler) http.Handler {
+func EncryptionCookie(cfg *config.Cookie) func(next http.Handler) http.Handler {
 	encrypt := NewEncrypt(cfg)
 	return encrypt.Handler
 }
 
 // NewEncrypt создаёт новый Encrypt, который будет обрабатывать кодированные ответы.
-func NewEncrypt(cfg *config.Config) *Encrypt {
+func NewEncrypt(cfg *config.Cookie) *Encrypt {
 	return &Encrypt{
 		cfg: cfg,
 	}
@@ -44,7 +44,7 @@ func (e *Encrypt) Handler(next http.Handler) http.Handler {
 		at, err := r.Cookie("access_token")
 		if err == http.ErrNoCookie {
 			// создать токен
-			token, err := en.EncryptToken(e.cfg.Cookie.SecretKey)
+			token, err := en.EncryptToken(e.cfg.SecretKey)
 			if err != nil {
 				fmt.Printf("Encrypt error: %v\n", err)
 			}
@@ -56,7 +56,7 @@ func (e *Encrypt) Handler(next http.Handler) http.Handler {
 				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
 			})
 
-			idUser, err = en.DecryptToken(token, e.cfg.Cookie.SecretKey)
+			idUser, err = en.DecryptToken(token, e.cfg.SecretKey)
 			if err != nil {
 				fmt.Printf(" Decrypt error: %v\n", err)
 			}
@@ -65,11 +65,11 @@ func (e *Encrypt) Handler(next http.Handler) http.Handler {
 			return
 		}
 
-		idUser, err = en.DecryptToken(at.Value, e.cfg.Cookie.SecretKey)
+		idUser, err = en.DecryptToken(at.Value, e.cfg.SecretKey)
 		if err != nil {
 			fmt.Printf("Decrypt token error: %v\n", err)
 			// создать токен
-			token, err := en.EncryptToken(e.cfg.Cookie.SecretKey)
+			token, err := en.EncryptToken(e.cfg.SecretKey)
 			if err != nil {
 				fmt.Printf("Encrypt error: %v\n", err)
 			}
@@ -81,7 +81,7 @@ func (e *Encrypt) Handler(next http.Handler) http.Handler {
 				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
 			})
 
-			idUser, err = en.DecryptToken(token, e.cfg.Cookie.SecretKey)
+			idUser, err = en.DecryptToken(token, e.cfg.SecretKey)
 			if err != nil {
 				fmt.Printf(" Decrypt error: %v\n", err)
 			}

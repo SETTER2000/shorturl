@@ -42,7 +42,7 @@ func NewRouter(handler *chi.Mux, l logger.Interface, s usecase.Shorturl, cfg *co
 	handler.Use(middleware.Logger)
 	handler.Use(middleware.Recoverer)
 	handler.Use(render.SetContentType(render.ContentTypePlainText))
-	handler.Use(encryp.EncryptionCookie(cfg))
+	handler.Use(encryp.EncryptionCookie(&cfg.Cookie))
 	handler.Use(gzip.DeCompressGzip)
 	handler.Mount("/debug", middleware.Profiler())
 
