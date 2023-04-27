@@ -21,7 +21,100 @@ import (
 var x interface{} = "access_token" //прочитать значение можно так: var keyToken string = x.(string)
 
 // Encrypt -.
-type Encrypt struct{}
+type Encrypt struct {
+	cfg *config.Config
+}
+
+func EncryptionCookie(cfg *config.Config) func(next http.Handler) http.Handler {
+	encrypt := NewEncrypt(cfg)
+	return encrypt.Handler
+}
+
+func NewEncrypt(cfg *config.Config) *Encrypt {
+	return &Encrypt{
+		cfg: cfg,
+	}
+}
+
+// Handler returns a new middleware that will encode the response based on the
+// current settings.
+func (e *Encrypt) Handler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//encoder, encoding, cleanup := e.selectEncoder(r.Header, w)
+		//
+		//cw := &compressResponseWriter{
+		//	ResponseWriter:   w,
+		//	w:                w,
+		//	contentTypes:     c.allowedTypes,
+		//	contentWildcards: c.allowedWildcards,
+		//	encoding:         encoding,
+		//	compressable:     false, // determined in post-handler
+		//}
+		//if encoder != nil {
+		//	cw.w = encoder
+		//}
+		//// Re-add the encoder to the pool if applicable.
+		//defer cleanup()
+		//defer cw.Close()
+
+		ctx := r.Context()
+		en := Encrypt{}
+		idUser := ""
+		at, err := r.Cookie("access_token")
+		if err == http.ErrNoCookie {
+			// создать токен
+			token, err := en.EncryptToken(e.cfg.Cookie.SecretKey)
+			if err != nil {
+				fmt.Printf("Encrypt error: %v\n", err)
+			}
+			//sessionLifeNanos := 100000000000
+			http.SetCookie(w, &http.Cookie{
+				Name:  "access_token",
+				Path:  "/",
+				Value: token,
+				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
+			})
+
+			idUser, err = en.DecryptToken(token, e.cfg.Cookie.SecretKey)
+			if err != nil {
+				fmt.Printf(" Decrypt error: %v\n", err)
+			}
+			ctx = context.WithValue(ctx, x, idUser)
+			next.ServeHTTP(w, r.WithContext(ctx))
+			return
+		}
+
+		idUser, err = en.DecryptToken(at.Value, e.cfg.Cookie.SecretKey)
+		if err != nil {
+			fmt.Printf("Decrypt token error: %v\n", err)
+			// создать токен
+			token, err := en.EncryptToken(e.cfg.Cookie.SecretKey)
+			if err != nil {
+				fmt.Printf("Encrypt error: %v\n", err)
+			}
+			//sessionLifeNanos := 100000000000
+			http.SetCookie(w, &http.Cookie{
+				Name:  "access_token",
+				Path:  "/",
+				Value: token,
+				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
+			})
+
+			idUser, err = en.DecryptToken(token, e.cfg.Cookie.SecretKey)
+			if err != nil {
+				fmt.Printf(" Decrypt error: %v\n", err)
+			}
+			ctx = context.WithValue(ctx, x, idUser)
+			next.ServeHTTP(w, r.WithContext(ctx))
+			return
+		}
+
+		ctx = context.WithValue(ctx, x, idUser)
+		next.ServeHTTP(w, r.WithContext(ctx))
+
+		//next.ServeHTTP(cw, r)
+	})
+}
 
 // EncryptionKeyCookie - middleware, которая устанавливает симметрично подписанную и зашифрованную куку
 // кука устанавливается любому запросу не имеющему соответствующую куку
