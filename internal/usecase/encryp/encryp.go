@@ -112,15 +112,7 @@ func (e *Encrypt) EncryptToken(secretKey string) (string, error) {
 	// создав ключ длиной 32 байта (256 бит)
 	key := sha256.Sum256([]byte(secretKey))
 	aesBlock, _ := e.cipher(key)
-	//aesBlock, err := aes.NewCipher(key[:])
-	//if err != nil {
-	//	return "", ErrNewCipherNotCreated
-	//}
-	aesGSM, err := cipher.NewGCM(aesBlock)
-	if err != nil {
-		return "", ErrNewGCMNotCreated
-	}
-
+	aesGSM, _ := e.gsm(aesBlock)
 	// создаём вектор инициализации
 	nonce := key[len(key)-aesGSM.NonceSize():]
 	dst := aesGSM.Seal(nil, nonce, src, nil) // зашифровываем
@@ -133,6 +125,14 @@ func (e *Encrypt) cipher(key [32]byte) (cipher.Block, error) {
 		return nil, ErrNewCipherNotCreated
 	}
 	return block, nil
+}
+
+func (e *Encrypt) gsm(aes cipher.Block) (cipher.AEAD, error) {
+	aesGSM, err := cipher.NewGCM(aes)
+	if err != nil {
+		return nil, ErrNewGCMNotCreated
+	}
+	return aesGSM, nil
 }
 
 // DecryptToken расшифровать токен

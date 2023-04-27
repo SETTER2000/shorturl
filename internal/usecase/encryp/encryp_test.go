@@ -96,3 +96,45 @@ func TestEncrypt_cipher(t *testing.T) {
 		})
 	}
 }
+
+func TestEncrypt_gsm(t *testing.T) {
+	e := &Encrypt{}
+	aes, _ := e.cipher(sha256.Sum256([]byte(secretSecret)))
+	type fields struct {
+		cfg *config.Cookie
+	}
+	type args struct {
+		aes cipher.Block
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    cipher.AEAD
+		wantErr interface{}
+	}{
+		{
+			name:    "positive test #1",
+			args:    args{aes: aes},
+			wantErr: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := &Encrypt{
+				cfg: tt.fields.cfg,
+			}
+			got, err := e.gsm(tt.args.aes)
+
+			if (err != nil) != tt.wantErr {
+				//t.Errorf("gsm() error = %v, wantErr %v", err, tt.wantErr)
+				require.IsType(t, err, tt.wantErr, "These two arguments must be of the same type.")
+				require.Nil(t, err, tt.wantErr, "Not two nil.")
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("gsm() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
