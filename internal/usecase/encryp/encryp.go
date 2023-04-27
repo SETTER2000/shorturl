@@ -21,7 +21,7 @@ type Encrypt struct {
 	cfg *config.Config
 }
 
-// EncryptionCookie is a middleware that sets and encrypts authentication cookies.
+// EncryptionCookie Compress is a middleware that sets and encrypts authentication cookies.
 func EncryptionCookie(cfg *config.Config) func(next http.Handler) http.Handler {
 	encrypt := NewEncrypt(cfg)
 	return encrypt.Handler
@@ -34,10 +34,8 @@ func NewEncrypt(cfg *config.Config) *Encrypt {
 	}
 }
 
-// Handler middleware, которая устанавливает симметрично подписанную и зашифрованную куку
-// кука устанавливается любому запросу не имеющему соответствующую куку
-// и не прошедшая идентификацию
-// в куке зашифрован, сгенерированный идентификатор пользователя
+// Handler returns a new middleware that will encode the response based on the
+// current settings.
 func (e *Encrypt) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -46,10 +44,11 @@ func (e *Encrypt) Handler(next http.Handler) http.Handler {
 		at, err := r.Cookie("access_token")
 		if err == http.ErrNoCookie {
 			// создать токен
-			token, err := en.EncryptToken()
+			token, err := en.EncryptToken(e.cfg.Cookie.SecretKey)
 			if err != nil {
 				fmt.Printf("Encrypt error: %v\n", err)
 			}
+
 			http.SetCookie(w, &http.Cookie{
 				Name:  "access_token",
 				Path:  "/",
@@ -57,7 +56,7 @@ func (e *Encrypt) Handler(next http.Handler) http.Handler {
 				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
 			})
 
-			idUser, err = en.DecryptToken(token)
+			idUser, err = en.DecryptToken(token, e.cfg.Cookie.SecretKey)
 			if err != nil {
 				fmt.Printf(" Decrypt error: %v\n", err)
 			}
@@ -66,14 +65,15 @@ func (e *Encrypt) Handler(next http.Handler) http.Handler {
 			return
 		}
 
-		idUser, err = en.DecryptToken(at.Value)
+		idUser, err = en.DecryptToken(at.Value, e.cfg.Cookie.SecretKey)
 		if err != nil {
 			fmt.Printf("Decrypt token error: %v\n", err)
 			// создать токен
-			token, err := en.EncryptToken()
+			token, err := en.EncryptToken(e.cfg.Cookie.SecretKey)
 			if err != nil {
 				fmt.Printf("Encrypt error: %v\n", err)
 			}
+
 			http.SetCookie(w, &http.Cookie{
 				Name:  "access_token",
 				Path:  "/",
@@ -81,7 +81,7 @@ func (e *Encrypt) Handler(next http.Handler) http.Handler {
 				//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
 			})
 
-			idUser, err = en.DecryptToken(token)
+			idUser, err = en.DecryptToken(token, e.cfg.Cookie.SecretKey)
 			if err != nil {
 				fmt.Printf(" Decrypt error: %v\n", err)
 			}
@@ -95,19 +95,86 @@ func (e *Encrypt) Handler(next http.Handler) http.Handler {
 	})
 }
 
+// EncryptionKeyCookie - middleware, которая устанавливает симметрично подписанную и зашифрованную куку
+// кука устанавливается любому запросу не имеющему соответствующую куку
+// и не прошедшая идентификацию
+// в куке зашифрован, сгенерированный идентификатор пользователя
+func EncryptionKeyCookie(cfg *config.Config) func(next http.Handler) http.Handler {
+	//return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			en := Encrypt{}
+			idUser := ""
+			at, err := r.Cookie("access_token")
+			if err == http.ErrNoCookie {
+				// создать токен
+				token, err := en.EncryptToken(cfg.Cookie.SecretKey)
+				if err != nil {
+					fmt.Printf("Encrypt error: %v\n", err)
+				}
+
+				http.SetCookie(w, &http.Cookie{
+					Name:  "access_token",
+					Path:  "/",
+					Value: token,
+					//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
+				})
+
+				idUser, err = en.DecryptToken(token, cfg.Cookie.SecretKey)
+				if err != nil {
+					fmt.Printf(" Decrypt error: %v\n", err)
+				}
+				ctx = context.WithValue(ctx, x, idUser)
+				next.ServeHTTP(w, r.WithContext(ctx))
+				return
+			}
+
+			idUser, err = en.DecryptToken(at.Value, cfg.Cookie.SecretKey)
+			if err != nil {
+				fmt.Printf("Decrypt token error: %v\n", err)
+				// создать токен
+				token, err := en.EncryptToken(cfg.Cookie.SecretKey)
+				if err != nil {
+					fmt.Printf("Encrypt error: %v\n", err)
+				}
+
+				http.SetCookie(w, &http.Cookie{
+					Name:  "access_token",
+					Path:  "/",
+					Value: token,
+					//Expires: time.Now().Add(time.Nanosecond * time.Duration(sessionLifeNanos)),
+				})
+
+				idUser, err = en.DecryptToken(token, cfg.Cookie.SecretKey)
+				if err != nil {
+					fmt.Printf(" Decrypt error: %v\n", err)
+				}
+				ctx = context.WithValue(ctx, x, idUser)
+				next.ServeHTTP(w, r.WithContext(ctx))
+				return
+			}
+
+			ctx = context.WithValue(ctx, x, idUser)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		}
+		return http.HandlerFunc(fn)
+	}
+}
+
 // EncryptToken шифрование и подпись
 // data - данные для кодирования
 // secretKey - пароль/ключ для шифрования,
 // из него создаётся ключ с помощью которого можно шифровать и расшифровать данные
 // возвращает зашифрованную строку/токен
-func (e *Encrypt) EncryptToken() (string, error) {
-	if e.cfg.Cookie.SecretKey == "" {
+func (e *Encrypt) EncryptToken(secretKey string) (string, error) {
+	if secretKey == "" {
 		return "", ErrEncryptToken
 	}
 	data := scripts.UniqueString()
 	src := []byte(data) // данные, которые хотим зашифровать
 	// ключ шифрования, будем использовать AES256, создав ключ длиной 32 байта (256 бит)
-	key := sha256.Sum256([]byte(e.cfg.Cookie.SecretKey))
+	key := sha256.Sum256([]byte(secretKey))
 	aesblock, err := aes.NewCipher(key[:])
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
@@ -130,9 +197,9 @@ func (e *Encrypt) EncryptToken() (string, error) {
 // secretKey - пароль/ключ для шифрования,
 // ключ с помощью которого шифровались данные
 // возвращает расшифрованную строку
-func (e *Encrypt) DecryptToken(data string) (string, error) {
+func (e *Encrypt) DecryptToken(data string, secretKey string) (string, error) {
 	// 1) получите ключ из password, используя sha256.Sum256
-	key := sha256.Sum256([]byte(e.cfg.Cookie.SecretKey))
+	key := sha256.Sum256([]byte(secretKey))
 
 	// 2) создайте aesblock и aesgcm
 	aesblock, err := aes.NewCipher(key[:])
