@@ -38,6 +38,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/swaggo/files v1.0.0 // indirect
 	github.com/swaggo/swag v1.8.10 // indirect
 	golang.org/x/crypto v0.6.0 // indirect

@@ -29,7 +29,7 @@ func New(r ShorturlRepo) *ShorturlUseCase {
 }
 
 // Shorten .
-func (uc *ShorturlUseCase) Shorten(ctx context.Context, sh *entity.Shorturl) (string, error) {
+func (uc *ShorturlUseCase) Post(ctx context.Context, sh *entity.Shorturl) (string, error) {
 	sh.UserID = ctx.Value(sh.Cookie.AccessTokenName).(string)
 	err := uc.repo.Post(ctx, sh)
 	if err != nil {

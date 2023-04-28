@@ -195,7 +195,7 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 	//data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
-	resp.URL, err = r.s.Shorten(ctx, &data)
+	resp.URL, err = r.s.Post(ctx, &data)
 
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
@@ -242,7 +242,7 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 	for _, bt := range CorrelationOrigin {
 		data.URL = bt.URL
 		data.Slug = bt.Slug
-		_, err = r.s.Shorten(ctx, &data)
+		_, err = r.s.Post(ctx, &data)
 		if err != nil {
 			if errors.Is(err, repo.ErrAlreadyExists) {
 				res.WriteHeader(http.StatusConflict)

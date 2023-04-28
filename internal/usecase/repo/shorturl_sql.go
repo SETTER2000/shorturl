@@ -89,17 +89,20 @@ func (i *InSQL) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl,
 	rows, err := i.w.db.Query("SELECT slug, url, user_id, del FROM shorturl WHERE slug = $1 OR url = $2 ", sh.Slug, sh.URL)
 	if err != nil {
 		log.Fatal(err)
+		return nil, fmt.Errorf("err from shorturl_repository: %s", err.Error())
 	}
 	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&slug, &url, &id, &del)
 		if err != nil {
 			log.Fatal(err)
+			return nil, fmt.Errorf("err from shorturl_repository: %s", err.Error())
 		}
 	}
 	err = rows.Err()
 	if err != nil {
 		log.Fatal(err)
+		return nil, fmt.Errorf("err from shorturl_repository: %s", err.Error())
 	}
 	//sh := entity.Shorturl{}
 	sh.Slug = slug

@@ -12,7 +12,7 @@ import (
 
 // Shorturl - интерфейс обработчиков.
 type Shorturl interface {
-	Shorten(context.Context, *entity.Shorturl) (string, error)
+	Post(context.Context, *entity.Shorturl) (string, error)
 	LongLink(context.Context, *entity.Shorturl) (string, error)
 	ShortLink(context.Context, *entity.Shorturl) (*entity.Shorturl, error)
 	UserAllLink(ctx context.Context, u *entity.User) (*entity.User, error)
