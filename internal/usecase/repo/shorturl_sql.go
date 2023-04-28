@@ -157,7 +157,7 @@ func New(cfg *config.Config) (*sqlx.DB, error) {
 	db, _ := sqlx.Open(driverName, cfg.ConnectDB)
 	err := db.Ping()
 	if err != nil {
-		return nil, fmt.Errorf("unable to create connection pool: %v\n", err)
+		return nil, fmt.Errorf("unable to create connection pool: %v", err)
 	}
 	n := 100
 	db.SetMaxIdleConns(n)
