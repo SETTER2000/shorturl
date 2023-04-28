@@ -3,14 +3,12 @@ package repo
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
-
 	"github.com/jackc/pgerrcode"
 	_ "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
+	"log"
 
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
@@ -39,21 +37,19 @@ type (
 )
 
 // NewInSQL слой взаимодействия с db в данном случаи с postgresql
-func NewInSQL(cfg *config.Config) *InSQL {
+func NewInSQL(db *sqlx.DB) *InSQL {
 	return &InSQL{
-		cfg: cfg,
 		// создаём новый потребитель
-		r: NewSQLConsumer(cfg),
+		r: NewSQLConsumer(db),
 		// создаём новый производитель
-		w: NewSQLProducer(cfg),
+		w: NewSQLProducer(db),
 	}
 }
 
 // NewSQLProducer производитель
-func NewSQLProducer(cfg *config.Config) *producerSQL {
-	connect := Connect(cfg)
+func NewSQLProducer(db *sqlx.DB) *producerSQL {
 	return &producerSQL{
-		db: connect,
+		db: db,
 	}
 }
 
@@ -80,10 +76,9 @@ func (i *InSQL) Put(ctx context.Context, sh *entity.Shorturl) error {
 }
 
 // NewSQLConsumer потребитель
-func NewSQLConsumer(cfg *config.Config) *consumerSQL {
-	connect := Connect(cfg)
+func NewSQLConsumer(db *sqlx.DB) *consumerSQL {
 	return &consumerSQL{
-		db: connect,
+		db: db,
 	}
 }
 
@@ -157,13 +152,12 @@ func (i *InSQL) Delete(ctx context.Context, u *entity.User) error {
 	return nil
 }
 
-// Connect - создает структуру DB и возвращает готовое соединение с базой.
-func Connect(cfg *config.Config) (db *sqlx.DB) {
-	db, _ = sqlx.Open(driverName, cfg.ConnectDB)
+// New - создает instance DB, возвращает готовое соединение.
+func New(cfg *config.Config) (*sqlx.DB, error) {
+	db, _ := sqlx.Open(driverName, cfg.ConnectDB)
 	err := db.Ping()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		os.Exit(1)
+		return nil, fmt.Errorf("unable to create connection pool: %v\n", err)
 	}
 	n := 100
 	db.SetMaxIdleConns(n)
@@ -184,7 +178,7 @@ CREATE TABLE IF NOT EXISTS public.shorturl
 	if err != nil {
 		panic(err)
 	}
-	return db
+	return db, nil
 }
 
 // Read -.
