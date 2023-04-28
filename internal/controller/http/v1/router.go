@@ -54,7 +54,6 @@ func NewRouter(handler *chi.Mux, l logger.Interface, s usecase.Shorturl, cfg *co
 	sr := &shorturlRoutes{s, l, cfg}
 
 	handler.Route("/", func(handler chi.Router) {
-		//handler.Handle("/", gzip.DeCompressGzip(http.HandlerFunc(sr.longLink)))
 		handler.Post("/", sr.longLink)
 		handler.Get("/{key}", sr.shortLink)
 		handler.Get("/ping", sr.connect)
