@@ -1,23 +1,29 @@
 # Для Win7
 CC7=shortenertest-windows-amd64.exe
+# Наименование бинарника
+BIN_NAME=shortener.exe
 # Бинарник для windows
-BUILD_BIN7=build/shortener.exe
+BUILD_BIN=build
+
+# Путь где создать бинарник
+BIN_PATH=cmd/shortener
+
 # Покрытие тестами
 COVER_OUT=profiles/coverage.out
 
 # Запустить сервис shorturl (shortener) in Memory
 short_m:
-	go build -o build/shortener.exe cmd/shortener/main.go
-	D:\__PROJECTS\GoProjects\Y.Praktikum\Projects\shorturl/build/shortener -f=
+	go build -o $(BIN_PATH)/$(BIN_NAME) cmd/shortener/main.go
+	D:\__PROJECTS\GoProjects\Y.Praktikum\Projects\shorturl/$(BIN_PATH)/shortener -f=
 
 # Запустить сервис shorturl (shortener) in File
 short_f:
-	go build -o build/shortener.exe cmd/shortener/main.go
+	go build -o cmd/shortener/shortener.exe cmd/shortener/main.go
 	D:\__PROJECTS\GoProjects\Y.Praktikum\Projects\shorturl/build/shortener -f=storage.txt
 
 # Запустить сервис shorturl (shortener) in DB
 short_db:
-	go build -o build/shortener.exe cmd/shortener/main.go
+	go build -o cmd/shortener/shortener.exe cmd/shortener/main.go
 	D:\__PROJECTS\GoProjects\Y.Praktikum\Projects\shorturl/build/shortener -d postgres://postgres:123456@localhost:5432/postgres
 
 cover7:

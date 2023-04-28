@@ -31,12 +31,7 @@ func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
 	// seed
 	rand.Seed(time.Now().UnixNano())
-	// DB
-	db, err := repo.New(cfg)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%e\n", err)
-		os.Exit(1)
-	}
+
 	// Use case
 	var shorturlUseCase usecase.Shorturl
 	if !scripts.CheckEnvironFlag("DATABASE_DSN", cfg.Storage.ConnectDB) {
@@ -51,6 +46,12 @@ func Run(cfg *config.Config) {
 			}
 		}
 	} else {
+		// DB
+		db, err := repo.New(cfg)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%e\n", err)
+			os.Exit(1)
+		}
 		l.Info("DB SQL - is work...")
 		shorturlUseCase = usecase.New(repo.NewInSQL(db))
 	}
@@ -77,7 +78,7 @@ func Run(cfg *config.Config) {
 
 	closer.Hold()
 
-	err = httpServer.Shutdown()
+	err := httpServer.Shutdown()
 	if err != nil {
 		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
 	}
