@@ -175,9 +175,9 @@ CREATE TABLE IF NOT EXISTS public.shorturl
 );
 `
 	db.MustExec(schema)
-	if err != nil {
-		panic(err)
-	}
+	//if err != nil {
+	//	panic(err)
+	//}
 	return db, nil
 }
 
