@@ -58,6 +58,7 @@ func (i *InSQL) Post(ctx context.Context, sh *entity.Shorturl) error {
 	stmt, err := i.w.db.Prepare("INSERT INTO public.shorturl (slug, url, user_id) VALUES ($1,$2,$3)")
 	if err != nil {
 		log.Fatal(err)
+		return fmt.Errorf("error repo post sql: %e", err)
 	}
 
 	_, err = stmt.Exec(sh.Slug, sh.URL, sh.UserID)

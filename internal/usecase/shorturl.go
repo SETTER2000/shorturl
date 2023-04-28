@@ -28,14 +28,13 @@ func New(r ShorturlRepo) *ShorturlUseCase {
 	}
 }
 
-// Shorten .
-func (uc *ShorturlUseCase) Post(ctx context.Context, sh *entity.Shorturl) (string, error) {
+// Post .
+func (uc *ShorturlUseCase) Post(ctx context.Context, sh *entity.Shorturl) error {
 	sh.UserID = ctx.Value(sh.Cookie.AccessTokenName).(string)
-	err := uc.repo.Post(ctx, sh)
-	if err != nil {
-		return "", err
+	if err := uc.repo.Post(ctx, sh); err != nil {
+		return err
 	}
-	return sh.Slug, nil
+	return nil
 }
 
 // LongLink принимает длинный URL и возвращает короткий (PUT /api)

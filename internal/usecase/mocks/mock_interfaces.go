@@ -50,6 +50,20 @@ func (mr *MockShorturlMockRecorder) LongLink(arg0, arg1 interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LongLink", reflect.TypeOf((*MockShorturl)(nil).LongLink), arg0, arg1)
 }
 
+// Post mocks base method.
+func (m *MockShorturl) Post(arg0 context.Context, arg1 *entity.Shorturl) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Post", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Post indicates an expected call of Post.
+func (mr *MockShorturlMockRecorder) Post(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Post", reflect.TypeOf((*MockShorturl)(nil).Post), arg0, arg1)
+}
+
 // ReadService mocks base method.
 func (m *MockShorturl) ReadService() error {
 	m.ctrl.T.Helper()
@@ -91,21 +105,6 @@ func (m *MockShorturl) ShortLink(arg0 context.Context, arg1 *entity.Shorturl) (*
 func (mr *MockShorturlMockRecorder) ShortLink(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShortLink", reflect.TypeOf((*MockShorturl)(nil).ShortLink), arg0, arg1)
-}
-
-// Post mocks base method.
-func (m *MockShorturl) Post(arg0 context.Context, arg1 *entity.Shorturl) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Post", arg0, arg1)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Post indicates an expected call of Post.
-func (mr *MockShorturlMockRecorder) Post(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Post", reflect.TypeOf((*MockShorturl)(nil).Post), arg0, arg1)
 }
 
 // UserAllLink mocks base method.
