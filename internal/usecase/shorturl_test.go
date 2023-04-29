@@ -170,3 +170,49 @@ func TestShorturlUseCase_Post(t *testing.T) {
 		})
 	}
 }
+
+//func TestShorturlUseCase_ShortLink(t *testing.T) {
+//	shorturlRepo := mocks.NewIShorturlRepo(t)
+//	type fields struct {
+//		repo IShorturlRepo
+//	}
+//	type args struct {
+//		ctx context.Context
+//		sh  *entity.Shorturl
+//	}
+//	tests := []struct {
+//		name    string
+//		fields  fields
+//		args    args
+//		want    *entity.Shorturl
+//		wantErr bool
+//	}{
+//		{
+//			name:   "positive test ShortLink #1",
+//			fields: fields{repo: shorturlRepo},
+//			args: args{
+//				ctx: context.Background(),
+//				sh: &entity.Shorturl{
+//					Slug:   "1",
+//					URL:    "http://xxzz",
+//					UserID: "1",
+//					Del:    false,
+//				}},
+//		},
+//	}
+//	for _, tt := range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			uc := &ShorturlUseCase{
+//				repo: tt.fields.repo,
+//			}
+//			got, err := uc.ShortLink(tt.args.ctx, tt.args.sh)
+//			if (err != nil) != tt.wantErr {
+//				t.Errorf("ShortLink() error = %v, wantErr %v", err, tt.wantErr)
+//				return
+//			}
+//			if !reflect.DeepEqual(got, tt.want) {
+//				t.Errorf("ShortLink() got = %v, want %v", got, tt.want)
+//			}
+//		})
+//	}
+//}

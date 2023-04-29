@@ -50,7 +50,8 @@ func (uc *ShorturlUseCase) LongLink(ctx context.Context, sh *entity.Shorturl) (s
 
 // ShortLink принимает короткий URL и возвращает длинный (GET /api/{key})
 func (uc *ShorturlUseCase) ShortLink(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	sh.UserID = ctx.Value("access_token").(string)
+	//sh.UserID = ctx.Value("access_token").(string)
+
 	sh, err := uc.repo.Get(ctx, sh)
 	if err == nil {
 		return sh, nil

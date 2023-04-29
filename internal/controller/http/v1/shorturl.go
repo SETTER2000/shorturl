@@ -122,7 +122,11 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	shorturl, err := r.s.LongLink(ctx, &data)
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
-			data2 := entity.Shorturl{Config: r.cfg, URL: data.URL}
+			data2 := entity.Shorturl{
+				Config: r.cfg,
+				URL:    data.URL,
+				UserID: data.UserID}
+
 			sh, err := r.s.ShortLink(ctx, &data2)
 			if err != nil {
 				r.l.Error(err, "http - v2 - shortLink")
@@ -200,15 +204,18 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	resp.URL = scripts.GetHost(r.cfg.HTTP, data.Slug)
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
-			data2 := entity.Shorturl{Config: r.cfg}
-			data2.URL = data.URL
-			data2.UserID = data.UserID
+			data2 := entity.Shorturl{
+				Config: r.cfg,
+				URL:    data.URL,
+				UserID: data.UserID}
+
 			sh, err := r.s.ShortLink(ctx, &data2)
 			if err != nil {
 				http.Error(res, err.Error(), http.StatusBadRequest)
 			}
-
+			// return shorturl
 			resp.URL = scripts.GetHost(r.cfg.HTTP, sh.Slug)
+
 			res.Header().Set("Content-Type", "application/json")
 			res.WriteHeader(http.StatusConflict)
 		} else {
