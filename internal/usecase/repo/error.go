@@ -12,6 +12,7 @@ import (
 var (
 	ErrNotFound      = errors.New("not found")
 	ErrAlreadyExists = errors.New("already exists")
+	ErrBadRequest    = errors.New("bad request")
 )
 
 // TimeError предназначен для ошибок с фиксацией времени возникновения.

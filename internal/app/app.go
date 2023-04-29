@@ -33,7 +33,7 @@ func Run(cfg *config.Config) {
 	rand.Seed(time.Now().UnixNano())
 
 	// Use case
-	var shorturlUseCase usecase.Shorturl
+	var shorturlUseCase usecase.IShorturl
 	if !scripts.CheckEnvironFlag("DATABASE_DSN", cfg.Storage.ConnectDB) {
 		if cfg.FileStorage == "" {
 			l.Warn("In memory storage!!!")

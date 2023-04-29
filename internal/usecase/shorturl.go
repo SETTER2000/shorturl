@@ -18,11 +18,11 @@ var (
 
 // ShorturlUseCase -.
 type ShorturlUseCase struct {
-	repo ShorturlRepo
+	repo IShorturlRepo
 }
 
 // New -.
-func New(r ShorturlRepo) *ShorturlUseCase {
+func New(r IShorturlRepo) *ShorturlUseCase {
 	return &ShorturlUseCase{
 		repo: r,
 	}
@@ -30,7 +30,7 @@ func New(r ShorturlRepo) *ShorturlUseCase {
 
 // Post .
 func (uc *ShorturlUseCase) Post(ctx context.Context, sh *entity.Shorturl) error {
-	sh.UserID = ctx.Value(sh.Cookie.AccessTokenName).(string)
+	//sh.UserID = ctx.Value(sh.Cookie.AccessTokenName).(string)
 	if err := uc.repo.Post(ctx, sh); err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (uc *ShorturlUseCase) Post(ctx context.Context, sh *entity.Shorturl) error 
 // LongLink принимает длинный URL и возвращает короткий (PUT /api)
 func (uc *ShorturlUseCase) LongLink(ctx context.Context, sh *entity.Shorturl) (string, error) {
 	//sh.Slug = scripts.UniqueString()
-	sh.UserID = ctx.Value("access_token").(string)
+	//sh.UserID = ctx.Value("access_token").(string)
 	err := uc.repo.Put(ctx, sh)
 	if err != nil {
 		return "", err

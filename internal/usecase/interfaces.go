@@ -8,10 +8,10 @@ import (
 	"github.com/SETTER2000/shorturl/internal/entity"
 )
 
-//go:generate mockgen -source=interfaces.go -destination=mocks/mock.go
-
-// Shorturl - интерфейс обработчиков.
-type Shorturl interface {
+// IShorturl - интерфейс обработчиков.
+//
+//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=IShorturl
+type IShorturl interface {
 	Post(context.Context, *entity.Shorturl) error
 	LongLink(context.Context, *entity.Shorturl) (string, error)
 	ShortLink(context.Context, *entity.Shorturl) (*entity.Shorturl, error)
@@ -21,8 +21,10 @@ type Shorturl interface {
 	SaveService() error
 }
 
-// ShorturlRepo - интерфейс DB.
-type ShorturlRepo interface {
+// IShorturlRepo - интерфейс DB.
+//
+//go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=IShorturlRepo
+type IShorturlRepo interface {
 	Post(context.Context, *entity.Shorturl) error
 	Put(context.Context, *entity.Shorturl) error
 	Get(context.Context, *entity.Shorturl) (*entity.Shorturl, error)

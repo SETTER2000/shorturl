@@ -24,12 +24,12 @@ import (
 )
 
 type shorturlRoutes struct {
-	s   usecase.Shorturl
+	s   usecase.IShorturl
 	l   logger.Interface
 	cfg *config.Config
 }
 
-func newShorturlRoutes(handler chi.Router, s usecase.Shorturl, l logger.Interface, cfg *config.Config) {
+func newShorturlRoutes(handler chi.Router, s usecase.IShorturl, l logger.Interface, cfg *config.Config) {
 	sr := &shorturlRoutes{s, l, cfg}
 	handler.Route("/user", func(r chi.Router) {
 		r.Get("/urls", sr.urls)
@@ -55,22 +55,21 @@ func (r *shorturlRoutes) shortLink(w http.ResponseWriter, req *http.Request) {
 	shorturl := chi.URLParam(req, "key")
 	data := entity.Shorturl{Config: r.cfg}
 	data.Slug = shorturl
-	sh, err := r.s.ShortLink(req.Context(), &data)
-	if err != nil {
-		r.l.Error(err, "http - v1 - shortLink")
-		http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
-		return
-	}
-	// При запросе удалённого URL с помощью хендлера GET /{id} нужно вернуть статус 410 Gone
-	if sh.Del {
-		w.WriteHeader(http.StatusGone)
-		return
-	}
+	//sh, err := r.s.ShortLink(req.Context(), &data)
+	//if err != nil {
+	//	r.l.Error(err, "http - v1 - shortLink")
+	//	http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
+	//	return
+	//}
+	//	w.WriteHeader(http.StatusGone)
+	//	return
+	//}
+	//// При запросе удалённого URL с помощью хендлера GET /{id} нужно вернуть статус 410 Gone
+	//if sh.Del {
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Add("Content-Encoding", "gzip")
-	w.Header().Set("Location", sh.URL)
-	w.WriteHeader(http.StatusTemporaryRedirect)
+	w.Header().Set("Location", "http://google.com")
 }
 
 // GET /ping, который при запросе проверяет соединение с базой данных
@@ -118,6 +117,7 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 	data := entity.Shorturl{Config: r.cfg}
 	data.URL = string(body)
 	data.Slug = scripts.UniqueString()
+	data.UserID = ctx.Value("access_token").(string)
 	shorturl, err := r.s.LongLink(ctx, &data)
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
@@ -194,7 +194,7 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
 	}
-	//data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
+	data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
 	err = r.s.Post(ctx, &data)
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
@@ -238,9 +238,12 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 
 	var rs entity.Response
 	var sr entity.ShortenResponse
+	UserID := ctx.Value(r.cfg.Cookie.AccessTokenName).(string)
+	fmt.Printf("USER_IDDD: %v\n", UserID)
 	for _, bt := range CorrelationOrigin {
 		data.URL = bt.URL
 		data.Slug = bt.Slug
+		data.UserID = UserID
 		err = r.s.Post(ctx, &data)
 		if err != nil {
 			if errors.Is(err, repo.ErrAlreadyExists) {

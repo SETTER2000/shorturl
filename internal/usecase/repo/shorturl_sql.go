@@ -3,16 +3,16 @@ package repo
 import (
 	"context"
 	"fmt"
+	"github.com/SETTER2000/shorturl/config"
+	"github.com/SETTER2000/shorturl/internal/entity"
+	"github.com/SETTER2000/shorturl/scripts"
 	"github.com/jackc/pgerrcode"
 	_ "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 	"log"
-
-	"github.com/SETTER2000/shorturl/config"
-	"github.com/SETTER2000/shorturl/internal/entity"
-	"github.com/SETTER2000/shorturl/scripts"
+	"strings"
 )
 
 const (
@@ -55,6 +55,10 @@ func NewSQLProducer(db *sqlx.DB) *producerSQL {
 
 // Post - добавляет данные в DB
 func (i *InSQL) Post(ctx context.Context, sh *entity.Shorturl) error {
+	if len(strings.TrimSpace(sh.UserID)) < 1 {
+		return ErrBadRequest
+	}
+
 	stmt, err := i.w.db.Prepare("INSERT INTO public.shorturl (slug, url, user_id) VALUES ($1,$2,$3)")
 	if err != nil {
 		log.Fatal(err)

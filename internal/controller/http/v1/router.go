@@ -22,7 +22,7 @@ import (
 // @version     0.1.0
 // @host        localhost:8080
 // @BasePath    /
-func NewRouter(handler *chi.Mux, l logger.Interface, s usecase.Shorturl, cfg *config.Config) {
+func NewRouter(handler *chi.Mux, l logger.Interface, s usecase.IShorturl, cfg *config.Config) {
 	headerTypes := []string{
 		"application/javascript",
 		"application/x-gzip",

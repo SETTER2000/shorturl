@@ -16,9 +16,9 @@ BIN_NAME=shortener
 # Покрытие тестами
 COVER_OUT=profiles/coverage.out
 
-.PHONY: gen
-gen:
-	mockgen -source=internal/usecase/interfaces.go -destination=internal/usecase/mocks/mock_interfaces.go
+#.PHONY: gen
+#gen:
+#	mockgen -source=internal/usecase/interfaces.go -destination=internal/usecase/mocks/mock_interfaces.go
 
 # Запустить сервис shorturl (shortener) in Memory
 short_m:
@@ -43,7 +43,7 @@ cover:
 
 cover1:
 	go test -v -count 1  -coverpkg=./... -coverprofile=cover.out.tmp ./...
-	cat cover.out.tmp | grep -v "mock_interfaces.go" > $(COVER_OUT)
+	cat cover.out.tmp | grep -v "mocks/ShorturlRepo.go" > $(COVER_OUT)
 	rm cover.out.tmp
 	go tool cover -func $(COVER_OUT)
 	go tool cover -html=$(COVER_OUT)
