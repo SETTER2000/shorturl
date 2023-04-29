@@ -55,21 +55,22 @@ func (r *shorturlRoutes) shortLink(w http.ResponseWriter, req *http.Request) {
 	shorturl := chi.URLParam(req, "key")
 	data := entity.Shorturl{Config: r.cfg}
 	data.Slug = shorturl
-	//sh, err := r.s.ShortLink(req.Context(), &data)
-	//if err != nil {
-	//	r.l.Error(err, "http - v1 - shortLink")
-	//	http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
-	//	return
-	//}
-	//	w.WriteHeader(http.StatusGone)
-	//	return
-	//}
-	//// При запросе удалённого URL с помощью хендлера GET /{id} нужно вернуть статус 410 Gone
-	//if sh.Del {
+	sh, err := r.s.ShortLink(req.Context(), &data)
+	if err != nil {
+		r.l.Error(err, "http - v1 - shortLink")
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
+		return
+	}
+	// При запросе удалённого URL с помощью хендлера GET /{id} нужно вернуть статус 410 Gone
+	if sh.Del {
+		w.WriteHeader(http.StatusGone)
+		return
+	}
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Add("Content-Encoding", "gzip")
-	w.Header().Set("Location", "http://google.com")
+	w.Header().Set("Location", sh.URL)
+	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
 // GET /ping, который при запросе проверяет соединение с базой данных
@@ -196,15 +197,18 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	}
 	data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
 	err = r.s.Post(ctx, &data)
+	resp.URL = scripts.GetHost(r.cfg.HTTP, data.Slug)
 	if err != nil {
 		if errors.Is(err, repo.ErrAlreadyExists) {
 			data2 := entity.Shorturl{Config: r.cfg}
 			data2.URL = data.URL
+			data2.UserID = data.UserID
 			sh, err := r.s.ShortLink(ctx, &data2)
 			if err != nil {
 				http.Error(res, err.Error(), http.StatusBadRequest)
 			}
-			resp.URL = sh.Slug
+
+			resp.URL = scripts.GetHost(r.cfg.HTTP, sh.Slug)
 			res.Header().Set("Content-Type", "application/json")
 			res.WriteHeader(http.StatusConflict)
 		} else {
@@ -212,7 +216,7 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 	}
-	resp.URL = scripts.GetHost(r.cfg.HTTP, resp.URL)
+
 	obj, err := json.Marshal(resp)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
