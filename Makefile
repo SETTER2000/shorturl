@@ -43,7 +43,7 @@ cover:
 
 cover1:
 	go test -v -count 1  -coverpkg=./... -coverprofile=cover.out.tmp ./...
-	cat cover.out.tmp | grep -v "mocks/ShorturlRepo.go" > $(COVER_OUT)
+	cat cover.out.tmp | grep -v mocks/* > $(COVER_OUT)
 	rm cover.out.tmp
 	go tool cover -func $(COVER_OUT)
 	go tool cover -html=$(COVER_OUT)
