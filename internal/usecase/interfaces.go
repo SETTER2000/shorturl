@@ -10,6 +10,7 @@ import (
 
 // IShorturl - интерфейс обработчиков.
 //
+//go:generate mockgen -source=interfaces.go -destination=mocks/mock.go
 //go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=IShorturl
 type IShorturl interface {
 	Post(context.Context, *entity.Shorturl) error

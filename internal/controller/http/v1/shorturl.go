@@ -162,19 +162,19 @@ func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	obj, err := json.Marshal(user.Urls)
+	encoded, err := json.Marshal(user.Urls)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	log.Printf("%v", len(obj))
+	log.Printf("%v", len(encoded))
 	res.Header().Set("Content-Type", "application/json")
-	if string(obj) == "null" {
+	if string(encoded) == "null" {
 		res.WriteHeader(http.StatusNoContent)
 	} else {
 		res.WriteHeader(http.StatusOK)
 	}
-	res.Write(obj)
+	res.Write(encoded)
 }
 
 // @Summary     Return JSON short URL
@@ -224,14 +224,14 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	obj, err := json.Marshal(resp)
+	encoded, err := json.Marshal(resp)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
-	res.Write(obj)
+	res.Write(encoded)
 }
 
 func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
@@ -269,14 +269,14 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 		rs = append(rs, sr)
 	}
 
-	obj, err := json.Marshal(rs)
+	encoded, err := json.Marshal(rs)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
-	res.Write(obj)
+	res.Write(encoded)
 }
 
 // Асинхронный (КАБУДА!) хендлер DELETE /api/user/urls,

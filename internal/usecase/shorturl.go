@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-
 	"github.com/SETTER2000/shorturl/internal/entity"
 )
 
@@ -30,7 +29,6 @@ func New(r IShorturlRepo) *ShorturlUseCase {
 
 // Post .
 func (uc *ShorturlUseCase) Post(ctx context.Context, sh *entity.Shorturl) error {
-	//sh.UserID = ctx.Value(sh.Cookie.AccessTokenName).(string)
 	if err := uc.repo.Post(ctx, sh); err != nil {
 		return err
 	}
@@ -39,8 +37,6 @@ func (uc *ShorturlUseCase) Post(ctx context.Context, sh *entity.Shorturl) error 
 
 // LongLink принимает длинный URL и возвращает короткий (PUT /api)
 func (uc *ShorturlUseCase) LongLink(ctx context.Context, sh *entity.Shorturl) (string, error) {
-	//sh.Slug = scripts.UniqueString()
-	//sh.UserID = ctx.Value("access_token").(string)
 	err := uc.repo.Put(ctx, sh)
 	if err != nil {
 		return "", err
@@ -50,8 +46,6 @@ func (uc *ShorturlUseCase) LongLink(ctx context.Context, sh *entity.Shorturl) (s
 
 // ShortLink принимает короткий URL и возвращает длинный (GET /api/{key})
 func (uc *ShorturlUseCase) ShortLink(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	//sh.UserID = ctx.Value("access_token").(string)
-
 	sh, err := uc.repo.Get(ctx, sh)
 	if err == nil {
 		return sh, nil

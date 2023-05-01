@@ -43,12 +43,12 @@ cover:
 
 cover1:
 	go test -v -count 1  -coverpkg=./... -coverprofile=cover.out.tmp ./...
-	cat cover.out.tmp | grep -v mocks/* > $(COVER_OUT)
-	rm cover.out.tmp
+	cat cover.out.tmp | grep -v mocks/*  > cover.out2.tmp
+	cat cover.out2.tmp | grep -v log/*  > $(COVER_OUT)
 	go tool cover -func $(COVER_OUT)
 	go tool cover -html=$(COVER_OUT)
+	rm cover.out.tmp cover.out2.tmp
 	rm $(COVER_OUT)
-
 
 
 ####################################
