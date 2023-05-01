@@ -35,6 +35,10 @@ short_d:
 	go build -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/*.go
 	./$(BIN_PATH)/$(BIN_NAME) -d postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
 
+short:
+	go build -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/*.go
+	./$(BIN_PATH)/$(BIN_NAME)
+
 cover:
 	go test -v -count 1 -race -coverpkg=./... -coverprofile=$(COVER_OUT) ./...
 	go tool cover -func $(COVER_OUT)
