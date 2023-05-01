@@ -15,6 +15,7 @@
 cmd/shortener/main
 cmd/shortener/shortener
 internal/usecase/repo/files/
+cover.out.tmp
 
 # Dependency directories (remove the comment below to include it)
 vendor/

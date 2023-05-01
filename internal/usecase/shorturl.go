@@ -10,9 +10,10 @@ import (
 // ErrAlreadyExists ошибка в случаи если данные уже существуют
 // ErrBadRequest ошибка в случаи неправильного формата запроса и т.п.
 var (
-	ErrNotFound      = errors.New("not found")
-	ErrAlreadyExists = errors.New("already exists")
-	ErrBadRequest    = errors.New("bad request")
+	ErrNotFound       = errors.New("not found")
+	ErrAlreadyExists  = errors.New("already exists")
+	ErrBadRequest     = errors.New("bad request")
+	ErrUserIDRequired = errors.New("user id required")
 )
 
 // ShorturlUseCase -.
@@ -55,6 +56,9 @@ func (uc *ShorturlUseCase) ShortLink(ctx context.Context, sh *entity.Shorturl) (
 
 // UserAllLink принимает короткий URL и возвращает длинный (GET /user/urls)
 func (uc *ShorturlUseCase) UserAllLink(ctx context.Context, u *entity.User) (*entity.User, error) {
+	//if len(u.UserID) < 1 {
+	//	return nil, ErrUserIDRequired
+	//}
 	u, err := uc.repo.GetAll(ctx, u)
 	if err == nil {
 		return u, nil

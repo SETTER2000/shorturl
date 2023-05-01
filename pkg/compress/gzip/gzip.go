@@ -3,10 +3,8 @@ package gzip
 
 import (
 	"compress/gzip"
-	"fmt"
 	"io"
 	"net/http"
-	"strings"
 )
 
 type gzipWriter struct {
@@ -37,38 +35,6 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Conveyor .
-func Conveyor(h http.Handler, middlewares ...Middleware) http.Handler {
-	for _, middleware := range middlewares {
-		h = middleware(h)
-	}
-	return h
-}
-
-// CompressGzip .
-func CompressGzip(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//-- компрессия
-		// проверяем, что клиент поддерживает gzip-сжатие
-		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
-			// если gzip не поддерживается, передаём управление дальше без изменений
-			fmt.Printf("Accept-Encoding::: Not using!")
-			next.ServeHTTP(w, r)
-			return
-		}
-		// создаём gzip.Writer поверх текущего w
-		gz, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
-		if err != nil {
-			io.WriteString(w, err.Error())
-			return
-		}
-		defer gz.Close()
-		w.Header().Set("Content-Encoding", "gzip")
-		// передаём обработчику страницы переменную типа gzipWriter для вывода данных
-		next.ServeHTTP(gzipWriter{ResponseWriter: w, Writer: gz}, r)
-	})
-}
-
 // DeCompressGzip сжатие gzip
 func DeCompressGzip(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -85,3 +51,35 @@ func DeCompressGzip(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+// Conveyor .
+//func Conveyor(h http.Handler, middlewares ...Middleware) http.Handler {
+//	for _, middleware := range middlewares {
+//		h = middleware(h)
+//	}
+//	return h
+//}
+//
+//// CompressGzip .
+//func CompressGzip(next http.Handler) http.Handler {
+//	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+//		//-- компрессия
+//		// проверяем, что клиент поддерживает gzip-сжатие
+//		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+//			// если gzip не поддерживается, передаём управление дальше без изменений
+//			fmt.Printf("Accept-Encoding::: Not using!")
+//			next.ServeHTTP(w, r)
+//			return
+//		}
+//		// создаём gzip.Writer поверх текущего w
+//		gz, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
+//		if err != nil {
+//			io.WriteString(w, err.Error())
+//			return
+//		}
+//		defer gz.Close()
+//		w.Header().Set("Content-Encoding", "gzip")
+//		// передаём обработчику страницы переменную типа gzipWriter для вывода данных
+//		next.ServeHTTP(gzipWriter{ResponseWriter: w, Writer: gz}, r)
+//	})
+//}
