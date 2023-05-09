@@ -60,18 +60,6 @@ func (s *InMemory) searchBySlug(sh *entity.Shorturl) (*entity.Shorturl, error) {
 	return sh, nil
 }
 
-//func (s *InMemory) searchUID(sh *entity.Shorturl) (*entity.Shorturl, error) {
-//	for _, short := range s.m[sh.UserID] {
-//		if short.Slug == sh.Slug {
-//			sh.URL = short.URL
-//			sh.UserID = short.UserID
-//			sh.Del = short.Del
-//			break
-//		}
-//	}
-//	return sh, nil
-//}
-
 // GetAll получить все URL пользователя по идентификатору.
 func (s *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	return nil, ErrNotFound

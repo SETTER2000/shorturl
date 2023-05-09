@@ -3,6 +3,7 @@ package app
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -25,7 +26,13 @@ import (
 )
 
 // Run запуск сервиса
-func Run(cfg *config.Config) {
+func Run() {
+	// Configuration
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatalf("Config error: %s", err)
+	}
+
 	closer.Bind(cleanup)
 	// logger
 	l := logger.New(cfg.Log.Level)
@@ -41,17 +48,17 @@ func Run(cfg *config.Config) {
 		} else {
 			l.Info("File storage - is work...")
 			shorturlUseCase = usecase.New(repo.NewInFiles(cfg))
-			if err := shorturlUseCase.ReadService(); err != nil {
+			if err = shorturlUseCase.ReadService(); err != nil {
 				l.Error(fmt.Errorf("app - Read - shorturlUseCase.ReadService: %w", err))
 			}
 		}
 	} else {
 		// DB
-		db, err := repo.New(cfg)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%e\n", err)
-			os.Exit(1)
-		}
+		db, _ := repo.New(cfg)
+		//if err != nil {
+		//	fmt.Fprintf(os.Stderr, "%e\n", err)
+		//	os.Exit(1)
+		//}
 		l.Info("DB SQL - is work...")
 		shorturlUseCase = usecase.New(repo.NewInSQL(db))
 	}
@@ -68,17 +75,17 @@ func Run(cfg *config.Config) {
 
 	select {
 	case s := <-interrupt:
-		if err := shorturlUseCase.SaveService(); err != nil {
+		if err = shorturlUseCase.SaveService(); err != nil {
 			l.Error(fmt.Errorf("app - Save - shorturlUseCase.SaveService: %w", err))
 		}
 		l.Info("app - Run - signal: " + s.String())
-	case err := <-httpServer.Notify():
+	case err = <-httpServer.Notify():
 		l.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
 	}
 
 	closer.Hold()
 
-	err := httpServer.Shutdown()
+	err = httpServer.Shutdown()
 	if err != nil {
 		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
 	}

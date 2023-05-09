@@ -13,7 +13,6 @@ import (
 	"runtime"
 	"runtime/pprof"
 
-	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/app"
 )
 
@@ -21,14 +20,7 @@ var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
 var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
 
 func main() {
-	// Configuration
-	cfg, err := config.NewConfig()
-	if err != nil {
-		log.Fatalf("Config error: %s", err)
-		//os.Exit(1)
-	}
 
-	//flag.Parse()
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
 		if err != nil {
@@ -44,7 +36,7 @@ func main() {
 	// ... rest of the program ...
 
 	// Run
-	app.Run(cfg)
+	app.Run()
 
 	if *memprofile != "" {
 		f, err := os.Create(*memprofile)

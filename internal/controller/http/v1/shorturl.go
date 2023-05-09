@@ -79,7 +79,7 @@ func (r *shorturlRoutes) shortLink(w http.ResponseWriter, req *http.Request) {
 func (r *shorturlRoutes) connect(res http.ResponseWriter, req *http.Request) {
 	dsn, ok := os.LookupEnv("DATABASE_DSN")
 	if !ok || dsn == "" {
-		dsn = r.cfg.Storage.ConnectDB
+		dsn = r.cfg.ConnectDB
 		if dsn == "" {
 			r.l.Info("connect DSN string is empty: %v\n", dsn)
 			res.WriteHeader(http.StatusInternalServerError)
@@ -199,7 +199,7 @@ func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	if err := json.Unmarshal(body, &data); err != nil {
 		panic(err)
 	}
-	data.UserID = req.Context().Value(r.cfg.Cookie.AccessTokenName).(string)
+	data.UserID = req.Context().Value(r.cfg.AccessTokenName).(string)
 	err = r.s.Post(ctx, &data)
 	resp.URL = scripts.GetHost(r.cfg.HTTP, data.Slug)
 	if err != nil {
@@ -249,7 +249,7 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 
 	var rs entity.Response
 	var sr entity.ShortenResponse
-	UserID := ctx.Value(r.cfg.Cookie.AccessTokenName).(string)
+	UserID := ctx.Value(r.cfg.AccessTokenName).(string)
 	fmt.Printf("USER_IDDD: %v\n", UserID)
 	for _, bt := range CorrelationOrigin {
 		data.URL = bt.URL

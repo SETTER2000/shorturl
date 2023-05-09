@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/internal/usecase/mocks"
@@ -340,7 +339,7 @@ func TestShorturlUseCase_UserAllLink(t *testing.T) {
 
 			uc := New(shorturlRepo)
 			got, err := uc.UserAllLink(tt.args.ctx, tt.args.u)
-			fmt.Printf("err: %s tt.wantErr: %v got: %v tt.want: %v\n", err, tt.wantErr, got, tt.want)
+
 			if (err != nil) && (err != tt.wantErr) {
 				t.Errorf("UserAllLink() error = %v, wantErr %v", err, tt.wantErr)
 				return
