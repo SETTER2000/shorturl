@@ -8,6 +8,16 @@
 make short
 ```
 
+### AST проверка проекта
+```
+go vet -vettool=$(which cmd/staticlint/staticlint) ./...
+```
+
+### Генерация AST в графическом представлении  
+```
+./cmd/staticlint/ast4 cmd/shortener/main.go | dot -Tsvg -o shorturl.svg
+```
+
 # Обновление шаблона
 
 Чтобы иметь возможность получать обновления автотестов и других частей шаблона выполните следующую команды:
