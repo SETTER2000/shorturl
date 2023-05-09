@@ -39,6 +39,10 @@ short:
 	go build -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/*.go
 	./$(BIN_PATH)/$(BIN_NAME)
 
+short2:
+	go run -ldflags "-X main.Version=v1.0.1 -X 'main.BuildTime=$(date +'%Y/%m/%d %H:%M:%S')'" $(BIN_PATH)/main.go
+
+
 cover:
 	go test -v -count 1 -race -coverpkg=./... -coverprofile=$(COVER_OUT) ./...
 	go tool cover -func $(COVER_OUT)
