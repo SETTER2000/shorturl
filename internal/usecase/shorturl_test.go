@@ -31,9 +31,9 @@ func TestNew(t *testing.T) {
 		r IShorturlRepo
 	}
 	tests := []struct {
-		name string
 		args args
 		want *ShorturlUseCase
+		name string
 	}{
 		{
 			name: "checking ShorturlUsecase Layer creation, test #1",
@@ -66,10 +66,10 @@ func TestShorturlUseCase_Post(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
 		args    args
 		want    interface{}
 		wantErr error
+		name    string
 	}{
 		{
 			name: "positive test #1",
@@ -130,10 +130,10 @@ func TestShorturlUseCase_LongLink(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
 		args    args
 		want    interface{}
 		wantErr error
+		name    string
 	}{
 		{
 			name: "positive test #1",
@@ -198,11 +198,11 @@ func TestShorturlUseCase_ShortLink(t *testing.T) {
 		sh  *entity.Shorturl
 	}
 	tests := []struct {
-		name    string
 		fields  fields
 		args    args
 		want    *entity.Shorturl
 		wantErr interface{}
+		name    string
 	}{
 		{
 			name:   "positive test ShortLink #1",
@@ -251,11 +251,11 @@ func TestShorturlUseCase_ShortLinkError(t *testing.T) {
 		sh  *entity.Shorturl
 	}
 	tests := []struct {
-		name    string
 		fields  fields
 		args    args
 		want    *entity.Shorturl
 		wantErr interface{}
+		name    string
 	}{
 		{
 			name:   "negative test ShortLink #1",
@@ -297,10 +297,10 @@ func TestShorturlUseCase_UserAllLink(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
 		args    args
 		want    *entity.User
 		wantErr error
+		name    string
 	}{
 		{
 			name: "positive test #1",
@@ -356,10 +356,10 @@ func TestShorturlUseCase_UserDelLink(t *testing.T) {
 		u   *entity.User
 	}
 	tests := []struct {
-		name    string
 		args    args
 		want    *entity.User
 		wantErr error
+		name    string
 	}{
 		{
 			name: "positive test #1",
@@ -406,10 +406,10 @@ func TestShorturlUseCase_SaveService(t *testing.T) {
 		u   *entity.User
 	}
 	tests := []struct {
-		name    string
 		args    args
 		want    *entity.User
 		wantErr error
+		name    string
 	}{
 		{
 			name: "positive test #1",
@@ -455,10 +455,10 @@ func TestShorturlUseCase_ReadService(t *testing.T) {
 		u   *entity.User
 	}
 	tests := []struct {
-		name    string
 		args    args
 		want    *entity.User
 		wantErr error
+		name    string
 	}{
 		{
 			name: "positive test #1",

@@ -7,6 +7,11 @@ import (
 
 func ExampleGenerateString() {
 	// Выполняет генерацию случайной строки, используется для идентификации объектов системы.
-	s := scripts.GenerateString(13)
+	s := scripts.GenerateString(5)
+	fmt.Println(s)
+}
+
+func ExampleUniqueString() {
+	s := scripts.UniqueString()
 	fmt.Println(s)
 }

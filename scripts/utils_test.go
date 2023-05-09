@@ -112,45 +112,45 @@ func TestGetHost(t *testing.T) {
 }
 
 func TestGenerateString(t *testing.T) {
-	type args struct {
-		n int
-	}
+	//type args struct {
+	//	n int
+	//}
 	tests := []struct {
 		name    string
-		args    args
 		pattern string
+		n       int
 		want    bool
 	}{
 		{
 			name:    "positive test #1",
-			args:    args{n: 10},
+			n:       10,
 			pattern: `[_0-9a-zA-Z]`,
 			want:    true,
 		}, {
 			name:    "positive test #2",
-			args:    args{n: 1},
+			n:       1,
 			pattern: `[_0-9a-zA-Z]{3}`,
 			want:    true,
 		}, {
 			name:    "positive test #3",
-			args:    args{n: 5},
+			n:       5,
 			pattern: `[_0-9a-zA-Z]{5}`,
 			want:    true,
 		}, {
 			name:    "positive test #4",
-			args:    args{n: 0},
+			n:       0,
 			pattern: `[_0-9a-zA-Z]{3}`,
 			want:    true,
 		}, {
 			name:    "negative test #1",
-			args:    args{n: -1},
+			n:       -1,
 			pattern: `[_0-9a-zA-Z]`,
 			want:    false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := GenerateString(tt.args.n)
+			got := GenerateString(tt.n)
 			if match, _ := regexp.MatchString(tt.pattern, got); !match {
 				t.Errorf("GenerateString() = %v, want %v", got, tt.want)
 			}

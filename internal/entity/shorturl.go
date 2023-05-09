@@ -17,9 +17,9 @@ type Shorturls []Shorturl
 type Shorturl struct {
 	Slug           string `json:"slug,omitempty" example:"1674872720465761244B_5"`             // Строковый идентификатор
 	URL            string `json:"url,omitempty" example:"https://example.com/go/to/home.html"` // URL для сокращения
+	*config.Config `json:"-"`
 	UserID         string `json:"user_id,omitempty"`
 	Del            bool   `json:"del"`
-	*config.Config `json:"-"`
 }
 
 // List -.
@@ -31,8 +31,8 @@ type List struct {
 // User -.
 type User struct {
 	UserID  string `json:"user_id" example:"1674872720465761244B_5"`
-	Urls    []List
 	DelLink []string
+	Urls    []List
 }
 
 // ShorturlResponse -.

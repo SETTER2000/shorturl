@@ -41,10 +41,11 @@ func (e *Encrypt) Handler(next http.Handler) http.Handler {
 		ctx := r.Context()
 		en := Encrypt{}
 		idUser := ""
+		token := ""
 		at, err := r.Cookie("access_token")
 		if err == http.ErrNoCookie {
 			// создать токен
-			token, err := en.EncryptToken(e.cfg.SecretKey)
+			token, err = en.EncryptToken(e.cfg.SecretKey)
 			if err != nil {
 				fmt.Printf("Encrypt error: %v\n", err)
 			}

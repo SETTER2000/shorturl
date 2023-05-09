@@ -18,9 +18,9 @@ import (
 // Определяя структуру, в которой мьютекс должен защищать одно или больше значений,
 // помещайте мьютекс выше тех полей, доступ к которым, он будет защищать.
 type InMemory struct {
-	lock sync.Mutex                  // <-- этот мьютекс защищает
-	m    map[string]entity.Shorturls // <-- это поле под ним
 	cfg  *config.Config
+	m    map[string]entity.Shorturls // <-- это поле под ним
+	lock sync.Mutex                  // <-- этот мьютекс защищает
 }
 
 // NewInMemory слой взаимодействия с хранилищем в памяти.

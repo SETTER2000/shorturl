@@ -46,8 +46,8 @@ func (te *TimeError) Is(err error) bool {
 
 // LabelError описывает ошибку с дополнительной меткой.
 type LabelError struct {
-	Label string // метка должна быть в верхнем регистре
 	Err   error
+	Label string // метка должна быть в верхнем регистре
 }
 
 // NewLabelError упаковывает ошибку err в тип LabelError.
@@ -75,9 +75,9 @@ func (le *LabelError) Is(err error) bool {
 
 // ConflictError описывает ошибку с дополнительной меткой и значением.
 type ConflictError struct {
+	Err   error
 	Label string // метка должна быть в верхнем регистре
 	URL   string // уже имеющийся сокращённый URL
-	Err   error
 }
 
 // NewConflictError упаковывает ошибку err в тип LabelError.

@@ -98,7 +98,7 @@ func (i *InSQL) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl,
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&slug, &url, &id, &del)
+		err = rows.Scan(&slug, &url, &id, &del)
 		if err != nil {
 			log.Fatal(err)
 			return nil, fmt.Errorf("err from shorturl_repository: %s", err.Error())

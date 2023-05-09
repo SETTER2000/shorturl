@@ -15,22 +15,22 @@ type wantErr interface{}
 
 func TestInMemory_Put(t *testing.T) {
 	type fields struct {
-		lock *sync.Mutex
-		m    map[string]entity.Shorturls
 		cfg  *config.Config
+		m    map[string]entity.Shorturls
+		lock *sync.Mutex
 	}
 	type args struct {
 		ctx context.Context
 		sh  *entity.Shorturl
 	}
 	tests := []struct {
-		name       string
 		fields     fields
+		name       string
 		args       args
-		countUID   int
-		countShort int
 		UID        string
 		url        string
+		countShort int
+		countUID   int
 		del        bool
 	}{
 		{
@@ -133,22 +133,22 @@ func TestInMemory_Delete(t *testing.T) {
 	user.Urls = append(user.Urls, lst)
 
 	type fields struct {
-		lock *sync.Mutex
-		m    map[string]entity.Shorturls
 		cfg  *config.Config
+		m    map[string]entity.Shorturls
+		lock *sync.Mutex
 	}
 	type args struct {
 		ctx context.Context
 		u   *entity.User
 	}
 	tests := []struct {
-		name       string
 		fields     fields
+		name       string
 		args       args
-		countUID   int
-		countShort int
 		UID        string
 		url        string
+		countShort int
+		countUID   int
 		del        bool
 	}{
 		{
@@ -196,14 +196,14 @@ func TestInMemory_Delete(t *testing.T) {
 
 func TestInMemory_Read(t *testing.T) {
 	type fields struct {
-		lock *sync.Mutex
-		m    map[string]entity.Shorturls
 		cfg  *config.Config
+		m    map[string]entity.Shorturls
+		lock *sync.Mutex
 	}
 	tests := []struct {
-		name    string
 		fields  fields
 		wantErr wantErr
+		name    string
 	}{
 		{
 			wantErr: false,
@@ -245,10 +245,10 @@ func TestInMemory_Get(t *testing.T) {
 	fld.m[sh.Slug] = append(fld.m[sh.Slug], sh)
 
 	tests := []struct {
-		name    string
+		want    *entity.Shorturl
 		fields  fields
 		args    args
-		want    *entity.Shorturl
+		name    string
 		wantErr bool
 	}{
 		{
@@ -295,18 +295,18 @@ func TestInMemory_Get(t *testing.T) {
 func TestInMemory_Post(t *testing.T) {
 
 	type fields struct {
-		lock *sync.Mutex
-		m    map[string]entity.Shorturls
 		cfg  *config.Config
+		m    map[string]entity.Shorturls
+		lock *sync.Mutex
 	}
 	type args struct {
 		ctx context.Context
 		sh  *entity.Shorturl
 	}
 	tests := []struct {
-		name    string
 		fields  fields
 		args    args
+		name    string
 		wantErr bool
 	}{
 		{
@@ -336,13 +336,13 @@ func TestInMemory_Post(t *testing.T) {
 
 func TestInMemory_Save(t *testing.T) {
 	type fields struct {
-		lock *sync.Mutex
-		m    map[string]entity.Shorturls
 		cfg  *config.Config
+		m    map[string]entity.Shorturls
+		lock *sync.Mutex
 	}
 	tests := []struct {
-		name    string
 		fields  fields
+		name    string
 		wantErr bool
 	}{
 		{
@@ -370,9 +370,9 @@ func TestNewInMemory(t *testing.T) {
 		cfg *config.Config
 	}
 	tests := []struct {
-		name string
 		args args
 		want *InMemory
+		name string
 	}{
 		{
 			name: "positive test #1",
@@ -390,19 +390,19 @@ func TestNewInMemory(t *testing.T) {
 
 func TestInMemory_GetAll(t *testing.T) {
 	type fields struct {
-		lock *sync.Mutex
-		m    map[string]entity.Shorturls
 		cfg  *config.Config
+		m    map[string]entity.Shorturls
+		lock *sync.Mutex
 	}
 	type args struct {
-		ctx context.Context
 		u   *entity.User
+		ctx context.Context
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
 		want    *entity.User
+		args    args
+		fields  fields
+		name    string
 		wantErr bool
 	}{
 		{

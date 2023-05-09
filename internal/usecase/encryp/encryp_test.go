@@ -19,10 +19,10 @@ func TestEncrypt_EncryptToken(t *testing.T) {
 		secretKey string
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    string
 		wantErr interface{}
+		args    args
+		name    string
+		want    string
 	}{
 		{
 			name: "positive test #1 should return string",
@@ -64,11 +64,11 @@ func TestEncrypt_cipher(t *testing.T) {
 		key [32]byte
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    cipher.Block
 		wantErr interface{}
+		want    cipher.AEAD
+		fields  fields
+		name    string
+		args    args
 	}{
 		{
 			name:    "positive test #1",
@@ -107,11 +107,11 @@ func TestEncrypt_gsm(t *testing.T) {
 		aes cipher.Block
 	}
 	tests := []struct {
-		name    string
+		wantErr interface{}
 		fields  fields
 		args    args
 		want    cipher.AEAD
-		wantErr interface{}
+		name    string
 	}{
 		{
 			name:    "positive test #1",
