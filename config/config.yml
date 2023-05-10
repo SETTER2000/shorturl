@@ -1,6 +1,6 @@
 app:
   name: 'shorturl'
-  version: '0.17.0'
+  version: '0.19.0'
   access_token_name: 'user_id'
   expiration_time: '2023-07-31T15:04:05Z'
 cookie:

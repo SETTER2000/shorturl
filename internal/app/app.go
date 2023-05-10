@@ -25,6 +25,12 @@ import (
 	"github.com/SETTER2000/shorturl/pkg/log/logger"
 )
 
+var (
+	versionString = "N/A" // version app
+	dateString    = "N/A" // date build
+	commitString  = "N/A" // id commit
+)
+
 // Run запуск сервиса
 func Run() {
 	// Configuration
@@ -54,14 +60,19 @@ func Run() {
 		}
 	} else {
 		// DB
-		db, _ := repo.New(cfg)
-		//if err != nil {
-		//	fmt.Fprintf(os.Stderr, "%e\n", err)
-		//	os.Exit(1)
-		//}
+		db, err := repo.New(cfg)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%e\n", err)
+			//os.Exit(1)
+		}
 		l.Info("DB SQL - is work...")
 		shorturlUseCase = usecase.New(repo.NewInSQL(db))
 	}
+
+	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", versionString, dateString, commitString)
+	//fmt.Println("Build version:", versionString)
+	//fmt.Println("Build date:", dateString)
+	//fmt.Println("Build commit:", commitString)
 
 	// HTTP Server
 	handler := chi.NewRouter()

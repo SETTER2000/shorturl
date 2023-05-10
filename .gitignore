@@ -13,7 +13,7 @@
 
 # Binaries
 cmd/shortener/main
-cmd/shortener/shortener
+#cmd/shortener/shortener
 internal/usecase/repo/files/
 cover.out.tmp
 
@@ -26,5 +26,4 @@ vendor/
 shortener
 build
 storage.json
-/internal/usecase/repo/shorturl_files_test.go
 /storage.txt

@@ -16,6 +16,10 @@ BIN_NAME=shortener
 # Покрытие тестами
 COVER_OUT=profiles/coverage.out
 
+# Подключение к базе данных
+DB=postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
+
+
 #.PHONY: gen
 #gen:
 #	mockgen -source=internal/usecase/interfaces.go -destination=internal/usecase/mocks/mock_interfaces.go
@@ -30,17 +34,16 @@ short_f:
 	go build -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/*.go
 	./$(BIN_PATH)/$(BIN_NAME) -f=storage.txt -d=
 
-# Запустить сервис shorturl (shortener) in DB
+# Скомпилировать и запустить бинарник сервиса shorturl (shortener) с подключением к DB
 short_d:
-	go build -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/*.go
-	./$(BIN_PATH)/$(BIN_NAME) -d postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
+	#go build -tags pro -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/*.go
+	#./$(BIN_PATH)/$(BIN_NAME) -d postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
+	go build -ldflags "-X 'github.com/SETTER2000/shorturl/internal/app.dateString=`date`' -X 'github.com/SETTER2000/shorturl/internal/app.versionString=v0.19.0 (beta)' -X 'github.com/SETTER2000/shorturl/internal/app.commitString=`git rev-parse HEAD`'" -o cmd/shortener/shortener cmd/shortener/main.go
+	./$(BIN_PATH)/$(BIN_NAME) -d $(DB)
 
-short:
-	go build -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/*.go
-	./$(BIN_PATH)/$(BIN_NAME)
-
-short2:
-	go run -ldflags "-X main.Version=v1.0.1 -X 'main.BuildTime=$(date +'%Y/%m/%d %H:%M:%S')'" $(BIN_PATH)/main.go
+# Запустить запечённый бинарник сервиса shorturl (shortener) с подключением к DB
+run:
+	./$(BIN_PATH)/$(BIN_NAME) -d $(DB)
 
 
 cover:
