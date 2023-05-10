@@ -40,6 +40,7 @@ func Run() {
 	}
 
 	closer.Bind(cleanup)
+
 	// logger
 	l := logger.New(cfg.Log.Level)
 	// seed
@@ -70,9 +71,6 @@ func Run() {
 	}
 
 	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", versionString, dateString, commitString)
-	//fmt.Println("Build version:", versionString)
-	//fmt.Println("Build date:", dateString)
-	//fmt.Println("Build commit:", commitString)
 
 	// HTTP Server
 	handler := chi.NewRouter()

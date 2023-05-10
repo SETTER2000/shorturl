@@ -7,6 +7,10 @@ test100:
 race:
 	go test -v -race -count 1 ./...
 
+# Название файла с точкой входа
+MAIN=main.go
+
+
 # Путь где создать бинарник
 BIN_PATH=cmd/shortener
 
@@ -26,25 +30,28 @@ DB=postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
 
 # Запустить сервис shorturl (shortener) in Memory
 short_m:
-	go build -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/*.go
+	go build -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/$(MAIN)
 	./$(BIN_PATH)/$(BIN_NAME) -f= -d=
 
 # Запустить сервис shorturl (shortener) in File
 short_f:
-	go build -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/*.go
+	go build -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/$(MAIN)
 	./$(BIN_PATH)/$(BIN_NAME) -f=storage.txt -d=
 
 # Скомпилировать и запустить бинарник сервиса shorturl (shortener) с подключением к DB
 short_d:
-	#go build -tags pro -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/*.go
-	#./$(BIN_PATH)/$(BIN_NAME) -d postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
-	go build -ldflags "-X 'github.com/SETTER2000/shorturl/internal/app.dateString=`date`' -X 'github.com/SETTER2000/shorturl/internal/app.versionString=v0.19.0 (beta)' -X 'github.com/SETTER2000/shorturl/internal/app.commitString=`git rev-parse HEAD`'" -o cmd/shortener/shortener cmd/shortener/main.go
-	./$(BIN_PATH)/$(BIN_NAME) -d $(DB)
+	go build -tags pro -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/*.go
+	./$(BIN_PATH)/$(BIN_NAME) -d postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
 
-# Запустить запечённый бинарник сервиса shorturl (shortener) с подключением к DB
+
+# Запустить бинарник сервиса shorturl (shortener) с подключением к DB
 run:
 	./$(BIN_PATH)/$(BIN_NAME) -d $(DB)
 
+# Скомпилировать и запустить бинарник сервиса shorturl (shortener) с подключением к DB и запечёнными аргументами сборки
+short:
+	go build -ldflags "-X 'github.com/SETTER2000/shorturl/internal/app.dateString=`date`' -X 'github.com/SETTER2000/shorturl/internal/app.versionString=v0.19.0 (beta)' -X 'github.com/SETTER2000/shorturl/internal/app.commitString=`git rev-parse HEAD`'" -o cmd/shortener/shortener cmd/shortener/$(MAIN)
+	./$(BIN_PATH)/$(BIN_NAME) -d $(DB)
 
 cover:
 	go test -v -count 1 -race -coverpkg=./... -coverprofile=$(COVER_OUT) ./...
@@ -69,15 +76,15 @@ BIN_NAME_WIN=shortener.exe
 
 # Запустить сервис shorturl (shortener) in Memory
 short7_m:
-	go build -o $(BIN_PATH)/$(BIN_NAME_WIN) cmd/shortener/main.go
+	go build -o $(BIN_PATH)/$(BIN_NAME_WIN) cmd/shortener/$(MAIN)
 	D:\__PROJECTS\GoProjects\Y.Praktikum\Projects\shorturl/$(BIN_PATH)/shortener -f=
 
 # Запустить сервис shorturl (shortener) in File
 short7_f:
-	go build -o $(BIN_PATH)/$(BIN_NAME_WIN) cmd/shortener/main.go
+	go build -o $(BIN_PATH)/$(BIN_NAME_WIN) cmd/shortener/$(MAIN)
 	D:\__PROJECTS\GoProjects\Y.Praktikum\Projects\shorturl/$(BIN_PATH)/shortener -f=storage.txt
 
 # Запустить сервис shorturl (shortener) in DB
 short7_d:
-	go build -o $(BIN_PATH)/$(BIN_NAME_WIN) cmd/shortener/main.go
+	go build -o $(BIN_PATH)/$(BIN_NAME_WIN) cmd/shortener/$(MAIN)
 	D:\__PROJECTS\GoProjects\Y.Praktikum\Projects\shorturl/$(BIN_PATH)/shortener -d postgres://postgres:123456@localhost:5432/postgres
