@@ -23,7 +23,7 @@ vendor/
 # IDEs directories
 .idea
 .vscode
-shortener
 build
 storage.json
 /storage.txt
+cmd/shortener/gen.go
