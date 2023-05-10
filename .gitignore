@@ -24,6 +24,7 @@ vendor/
 .idea
 .vscode
 build
+shortener
 storage.json
 /storage.txt
 cmd/shortener/gen.go
