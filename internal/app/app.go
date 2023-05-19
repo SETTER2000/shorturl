@@ -76,8 +76,16 @@ func Run() {
 	handler := chi.NewRouter()
 	handler.Use(middleware.AllowContentEncoding("deflate", "gzip"))
 	v1.NewRouter(handler, l, shorturlUseCase, cfg)
-	httpServer := server.New(handler, server.Host(cfg.HTTP.ServerAddress))
 
+	httpServer := server.New(handler,
+		server.Host(cfg.HTTP.ServerAddress),
+		//// на чтение предел
+		//server.ReadTimeout(30*time.Second),
+		//// на запись предел
+		//server.WriteTimeout(60*time.Second),
+		// опция подключения HTTPS
+		server.EnableHTTPS(&cfg.HTTP),
+	)
 	// waiting signal
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)

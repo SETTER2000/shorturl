@@ -33,10 +33,18 @@ type (
 	}
 
 	HTTP struct {
+		// При передаче флага -s или переменной окружения ENABLE_HTTPS сервер запуститься с
+		// помощью метода http.ListenAndServeTLS или tls.Listen.
+		EnableHTTPS bool `env:"ENABLE_HTTPS"`
 		// BASE_URL - базовый адрес результирующего сокращённого URL
 		BaseURL string `env:"BASE_URL"`
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
 		ServerAddress string `env:"SERVER_ADDRESS"`
+		// SERVER_DOMAIN - доменное имя сервера
+		ServerDomain string `env:"SERVER_DOMAIN"`
+		CertsDir     string `env:"CERTS_DIR"`
+		CertFile     string `env:"CERT_NAME_FILE"`
+		KeyFile      string `env:"CERT_KEY_FILE"`
 	}
 
 	Storage struct {
@@ -78,9 +86,14 @@ func NewConfig() (*Config, error) {
 	// StringVar flags
 	flag.StringVar(&cfg.HTTP.ServerAddress, "a", "localhost:8080", "host to listen on")
 	flag.StringVar(&cfg.HTTP.BaseURL, "b", "http://localhost:8080", "the base address of the resulting shortened URL")
-	flag.StringVar(&cfg.Storage.FileStorage, "f", "storage.txt", "path to file with abbreviated URLs")
+	flag.StringVar(&cfg.Cookie.SecretKey, "c", "RtsynerpoGIYdab_s234r", "cookie secret key")
 	flag.StringVar(&cfg.Storage.ConnectDB, "d", "", "dsn connect string urlExample PostgreSQL: postgres://username:password@localhost:5432/database_name")
-	flag.StringVar(&cfg.Cookie.SecretKey, "s", "RtsynerpoGIYdab_s234r", "cookie secret key")
+	flag.StringVar(&cfg.Storage.FileStorage, "f", "storage.txt", "path to file with abbreviated URLs")
+	flag.BoolVar(&cfg.HTTP.EnableHTTPS, "s", false, "start server with https protocol")
+	flag.StringVar(&cfg.HTTP.CertsDir, "cd", "certs", "certificate directory")
+	flag.StringVar(&cfg.HTTP.CertFile, "cc", "dev.crt", "name file certificate")
+	flag.StringVar(&cfg.HTTP.KeyFile, "ck", "dev_rsa.key", "name file key certificate")
+	flag.StringVar(&cfg.HTTP.ServerDomain, "dm", "rooder.ru", "server domain name")
 	// Usage .
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Shorturl Version %s %v\nUsage : Project Shorturl - URL Shortener Server\n", os.Args[0], cfg.App.Version)

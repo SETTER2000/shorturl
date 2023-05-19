@@ -54,7 +54,7 @@ func CheckEnvironFlag(environName string, flagName string) bool {
 	if !ok || dsn == "" {
 		dsn = flagName
 		if dsn == "" {
-			fmt.Printf("connect DSN string is empty: %v\n", dsn)
+			fmt.Printf("connect environName string is empty: %v\n", environName)
 			return false
 		}
 	}
