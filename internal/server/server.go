@@ -13,6 +13,9 @@ const (
 	_defaultWriteTimeout    = 50 * time.Second
 	_defaultAddr            = ":80"
 	_defaultShutdownTimeout = 3 * time.Second
+	_defaultHTTPS           = false
+	_defaultCertFile        = ""
+	_defaultKeyFile         = ""
 )
 
 // Server -.
@@ -39,6 +42,9 @@ func New(handler http.Handler, opts ...Option) *Server {
 		server:          httpServer,
 		notify:          make(chan error, 1),
 		shutdownTimeout: _defaultShutdownTimeout,
+		isHTTPS:         _defaultHTTPS,
+		certFile:        _defaultCertFile,
+		keyFile:         _defaultKeyFile,
 	}
 
 	// Custom options
@@ -52,10 +58,32 @@ func New(handler http.Handler, opts ...Option) *Server {
 }
 
 func (s *Server) start() {
-	go func() {
-		s.notify <- s.server.ListenAndServe()
-		close(s.notify)
-	}()
+	//go func() {
+	//	s.notify <- s.server.ListenAndServe()
+	//	close(s.notify)
+	//}()
+	switch s.isHTTPS {
+	case true:
+		go func() {
+			s.notify <- s.server.ListenAndServeTLS(s.certFile, s.keyFile)
+			close(s.notify)
+		}()
+		//go func() {
+		//	if err := s.server.Serve(listen); err != nil {
+		//		log.Fatal(err)
+		//	}
+		//}()
+	case false:
+		go func() {
+			s.notify <- s.server.ListenAndServe()
+			close(s.notify)
+		}()
+		//go func() {
+		//	if err := s.Serve(listen); err != nil {
+		//		log.Fatal(err)
+		//	}
+		//}()
+	}
 }
 
 // Notify -.
