@@ -44,16 +44,17 @@ short_d:
 	./$(BIN_PATH)/$(BIN_NAME) -d postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
 
 
-# Запустить бинарник сервиса shorturl (shortener) с подключением к DB
+# Запустить сервис shorturl с подключением к DB
 run:
 	./$(BIN_PATH)/$(BIN_NAME) -d $(DB)
 
+# Запустить сервис shorturl с подключением к DB и с протоколом HTTPS
 hs:
 	sudo ./$(BIN_PATH)/$(BIN_NAME) -d $(DB) -s
 # Скомпилировать и запустить бинарник сервиса shorturl (shortener) с подключением к DB и запечёнными аргументами сборки
 short:
 	go build -ldflags "-X 'github.com/SETTER2000/shorturl/internal/app.dateString=`date`' -X 'github.com/SETTER2000/shorturl/internal/app.versionString=v0.20.0' -X 'github.com/SETTER2000/shorturl/internal/app.commitString=`git rev-parse HEAD`'" -o cmd/shortener/shortener cmd/shortener/$(MAIN)
-	./$(BIN_PATH)/$(BIN_NAME) -d $(DB)
+	./$(BIN_PATH)/$(BIN_NAME)
 
 cover:
 	go test -v -count 1 -race -coverpkg=./... -coverprofile=$(COVER_OUT) ./...

@@ -3,9 +3,86 @@
 --
 # Начало работы
 
-### Запуск
+
+## Compile
+```azure
+go build -o cmd/httpscon/serv cmd/shortener/main.go
 ```
+
+## Run
+Запуск сервера без поддержки https. 
+
+В этом случаи сервер будет доступен 
+только в 
+локальной сети на порте :8080 
+```azure
+./cmd/shortener/shortener
+```
+Запрос со второго терминала
+```azure
+curl http://localhost:8080
+```
+Запуск сервера с поддержкой https
+```azure
+sudo ./cmd/shortener/shortener -s
+```
+Запрос по сети
+```azure
+curl https://rooder.ru
+```
+
+## Генерация сертификата SSL/TLS
+1. Генерим RSA ключи
+```azure
+mkdir certs && openssl genrsa -out certs/dev_rsa.key 4096
+```
+2. Генерим CSR (certificate signing request) 
+(что указывать - не имеет значения):
+```azure
+openssl req -new -key certs/dev_rsa.key -out certs/dev.csr
+```
+3. Генерим self-signed сертификат
+```azure
+openssl x509 -req -days 365 -in certs/dev.csr -signkey certs/dev_rsa.key -out certs/dev.crt
+```
+4. Получаем инфо сертификата (опционально)
+```azure
+openssl x509 -in certs/dev.crt -text -noout
+```
+5. Загружаем .crt и .key в go
+```azure
+server.ListenAndServeTLS("dev.crt", "dev_rsa.key")
+```
+
+### Make
+Для удобства на сервер установить make
+```azure
+sudo apt-get update && sudo apt-get install make
+```
+
+#### Compile
+```azure
 make short
+```
+
+#### Run
+Запустить сервис shorturl
+```azure
+make run 
+```
+
+#### Hs
+Запустить сервис shorturl с подключением к DB и с протоколом HTTPS
+```azure
+make hs
+```
+
+### Check ports
+************************
+Проверить порты открытые на удалённом сервере
+в данном примере это сервер mo.ru
+```azure
+nc -zv rooder.ru 1-9999 2>&1 | grep succeeded!
 ```
 
 ### AST проверка проекта
