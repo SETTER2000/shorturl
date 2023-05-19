@@ -28,3 +28,10 @@ shortener
 storage.json
 /storage.txt
 cmd/shortener/gen.go
+
+# ssl/tls
+certs
+*.crt
+*.key
+*.csr
+cache_dir
