@@ -6,7 +6,7 @@
 
 ## Compile
 ```azure
-go build -o cmd/httpscon/serv cmd/shortener/main.go
+go build -o cmd/shortener/shortener cmd/shortener/main.go
 ```
 
 ## Run
