@@ -22,16 +22,10 @@ go build -o cmd/shortener/shortener cmd/shortener/main.go
 ```azure
 curl http://localhost:8080
 ```
-Запуск сервера с поддержкой https
-```azure
-sudo ./cmd/shortener/shortener -s
-```
-Запрос по сети
-```azure
-curl https://rooder.ru
-```
+## Запуск сервера с поддержкой https
+Для начала нужно сгенерировать серификат
 
-## Генерация сертификата SSL/TLS
+### Генерация сертификата SSL/TLS
 1. Генерим RSA ключи
 ```azure
 mkdir certs && openssl genrsa -out certs/dev_rsa.key 4096
@@ -49,10 +43,16 @@ openssl x509 -req -days 365 -in certs/dev.csr -signkey certs/dev_rsa.key -out ce
 ```azure
 openssl x509 -in certs/dev.crt -text -noout
 ```
-5. Загружаем .crt и .key в go
+5. Компилируем и запускаем
 ```azure
-server.ListenAndServeTLS("dev.crt", "dev_rsa.key")
+go build -o cmd/shortener/shortener cmd/shortener/main.go && sudo ./cmd/shortener/shortener -s
 ```
+Запрос по сети
+```azure
+curl https://rooder.ru
+```
+
+
 
 ### Make
 Для удобства на сервер установить make
@@ -71,8 +71,8 @@ make short
 make run 
 ```
 
-#### Hs
-Запустить сервис shorturl с подключением к DB и с протоколом HTTPS
+#### HTTPS
+Запустить сервис shorturl с протоколом HTTPS
 ```azure
 make hs
 ```
