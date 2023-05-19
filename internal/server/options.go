@@ -45,7 +45,7 @@ func ShutdownTimeout(timeout time.Duration) Option {
 
 // EnableHTTPS - опция подключает возможность использования SSL/TLS на сервере.
 func EnableHTTPS(cfg *config.HTTP) Option {
-	log.Printf("log.Printf(cfg.ServerDomain)::%s\n", cfg.ServerDomain)
+	log.Printf("cfg.ServerDomain: %s\n", cfg.ServerDomain)
 	// конструируем менеджер TLS-сертификатов
 	manager := &autocert.Manager{
 		// директория для хранения сертификатов
