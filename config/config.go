@@ -30,6 +30,8 @@ type (
 		Name string `env-required:"true" yaml:"name"    env:"APP_NAME"`
 		// Версия сервиса
 		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
+		// Имя файла конфигурации должно задаваться через флаг -c/-config или переменную окружения CONFIG
+		ConfigFileName string `env-required:"true" yaml:"config" env:"CONFIG"`
 	}
 
 	HTTP struct {
@@ -84,6 +86,7 @@ func NewConfig() (*Config, error) {
 	}
 
 	// StringVar flags
+	flag.StringVar(&cfg.App.ConfigFileName, "config", "", "configuration file name")
 	flag.StringVar(&cfg.HTTP.ServerAddress, "a", "localhost:8080", "host to listen on")
 	flag.StringVar(&cfg.HTTP.BaseURL, "b", "http://localhost:8080", "the base address of the resulting shortened URL")
 	flag.BoolVar(&cfg.HTTP.EnableHTTPS, "s", false, "start server with https protocol")

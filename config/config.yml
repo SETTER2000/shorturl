@@ -3,6 +3,7 @@ app:
   version: '0.20.0'
   access_token_name: 'user_id'
   expiration_time: '2023-07-31T15:04:05Z'
+  config: 'conf.json'
 cookie:
   secret_key: 'erter09gj0f9g'
   access_token_name: 'access_token'
