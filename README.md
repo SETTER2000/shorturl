@@ -22,7 +22,7 @@ POST {{domain}}/shorten
 ### GET
 Получить все свои адреса
 ```azure
-{{domain}}/user/urls
+GET {{domain}}/user/urls
 ```
 
 
