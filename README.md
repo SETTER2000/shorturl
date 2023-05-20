@@ -80,7 +80,12 @@ make run
 ```azure
 make hs
 ```
-
+### Документация
+Запустить сервис с документацией
+Доступен здесь: http://rooder.ru:6060/pkg/github.com/SETTER2000/shorturl/?m=all	
+```azure
+make godoc
+```
 
 ## Флаги
 Включить поддержку HTTPS протокола

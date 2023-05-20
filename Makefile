@@ -71,6 +71,11 @@ cover1:
 	rm cover.out.tmp cover.out2.tmp
 	rm $(COVER_OUT)
 
+# Запустить сервис с документацией
+# Доступен здесь: http://rooder.ru:6060/pkg/github.com/SETTER2000/shorturl/?m=all
+godoc:
+	godoc -http rooder.ru:6060
+
 
 ####################################
 # Для Win7
