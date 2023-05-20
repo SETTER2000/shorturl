@@ -10,7 +10,6 @@ race:
 # Название файла с точкой входа
 MAIN=main.go
 
-
 # Путь где создать бинарник
 BIN_PATH=cmd/shortener
 
@@ -58,7 +57,7 @@ hsf:
 
 # Скомпилировать и запустить бинарник сервиса shorturl (shortener) с подключением к DB и запечёнными аргументами сборки
 short:
-	go build -ldflags "-X 'github.com/SETTER2000/shorturl/internal/app.dateString=`date`' -X 'github.com/SETTER2000/shorturl/internal/app.versionString=v0.20.0' -X 'github.com/SETTER2000/shorturl/internal/app.commitString=`git rev-parse HEAD`'" -o cmd/shortener/shortener cmd/shortener/$(MAIN)
+	go build -ldflags "-X 'github.com/SETTER2000/shorturl/internal/app.dateString=`date`' -X 'github.com/SETTER2000/shorturl/internal/app.commitString=`git rev-parse HEAD`'" -o cmd/shortener/shortener cmd/shortener/$(MAIN)
 	./$(BIN_PATH)/$(BIN_NAME)
 
 cover:

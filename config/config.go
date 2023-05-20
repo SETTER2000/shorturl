@@ -4,6 +4,7 @@ package config
 import (
 	"flag"
 	"fmt"
+	"github.com/SETTER2000/shorturl/pkg/log/logger"
 	"os"
 
 	"github.com/caarlos0/env/v7"
@@ -12,9 +13,9 @@ import (
 
 // Config структура содержит всё окружение проекта
 // App - переменные окружения для приложения.
-// HTTP - окружения для сервераю
+// HTTP - окружения для сервера.
 // Storage - окружения для хранилищ.
-// Cookie - окружения для куки
+// Cookie - окружения для куки.
 // Log - окружения для логирования
 type (
 	Config struct {
@@ -78,7 +79,8 @@ var instance *Config
 // NewConfig (singleton) возвращает инициализированную структуру конфига.
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
-
+	log := logger.New("debug")
+	log.Info("read application configuration")
 	// yml
 	err := cleanenv.ReadConfig("./config/config.yml", cfg)
 	if err != nil {
