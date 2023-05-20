@@ -30,6 +30,8 @@ type (
 		Name string `env-required:"true" yaml:"name"    env:"APP_NAME"`
 		// Версия сервиса
 		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
+		// Имя файла конфигурации должно задаваться через флаг -c/-config или переменную окружения CONFIG
+		Config string `env-required:"true" yaml:"version" env:"CONFIG"`
 	}
 
 	HTTP struct {
@@ -86,14 +88,14 @@ func NewConfig() (*Config, error) {
 	// StringVar flags
 	flag.StringVar(&cfg.HTTP.ServerAddress, "a", "localhost:8080", "host to listen on")
 	flag.StringVar(&cfg.HTTP.BaseURL, "b", "http://localhost:8080", "the base address of the resulting shortened URL")
-	flag.StringVar(&cfg.Cookie.SecretKey, "c", "RtsynerpoGIYdab_s234r", "cookie secret key")
-	flag.StringVar(&cfg.Storage.ConnectDB, "d", "", "dsn connect string urlExample PostgreSQL: postgres://username:password@localhost:5432/database_name")
-	flag.StringVar(&cfg.Storage.FileStorage, "f", "storage.txt", "path to file with abbreviated URLs")
 	flag.BoolVar(&cfg.HTTP.EnableHTTPS, "s", false, "start server with https protocol")
 	flag.StringVar(&cfg.HTTP.CertsDir, "cd", "certs", "certificate directory")
 	flag.StringVar(&cfg.HTTP.CertFile, "cc", "dev.crt", "name file certificate")
 	flag.StringVar(&cfg.HTTP.KeyFile, "ck", "dev_rsa.key", "name file key certificate")
 	flag.StringVar(&cfg.HTTP.ServerDomain, "dm", "rooder.ru", "server domain name")
+	flag.StringVar(&cfg.Cookie.SecretKey, "sk", "RtsynerpoGIYdab_s234r", "cookie secret key")
+	flag.StringVar(&cfg.Storage.ConnectDB, "d", "", "dsn connect string urlExample PostgreSQL: postgres://username:password@localhost:5432/database_name")
+	flag.StringVar(&cfg.Storage.FileStorage, "f", "storage.txt", "path to file with abbreviated URLs")
 	// Usage .
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Shorturl Version %s %v\nUsage : Project Shorturl - URL Shortener Server\n", os.Args[0], cfg.App.Version)
