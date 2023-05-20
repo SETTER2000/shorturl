@@ -48,9 +48,14 @@ short_d:
 run:
 	./$(BIN_PATH)/$(BIN_NAME) -d $(DB)
 
-# Запустить сервис shorturl с подключением к DB и с протоколом HTTPS
+# Запустить сервис shorturl с протоколом HTTPS
 hs:
 	sudo ./$(BIN_PATH)/$(BIN_NAME) -s
+
+# Запустить сервис shorturl и с протоколом HTTPS в фоновом режиме
+hsf:
+	sudo ./$(BIN_PATH)/$(BIN_NAME) -s >/dev/null &
+
 # Скомпилировать и запустить бинарник сервиса shorturl (shortener) с подключением к DB и запечёнными аргументами сборки
 short:
 	go build -ldflags "-X 'github.com/SETTER2000/shorturl/internal/app.dateString=`date`' -X 'github.com/SETTER2000/shorturl/internal/app.versionString=v0.20.0' -X 'github.com/SETTER2000/shorturl/internal/app.commitString=`git rev-parse HEAD`'" -o cmd/shortener/shortener cmd/shortener/$(MAIN)

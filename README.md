@@ -1,4 +1,5 @@
 # shorturl
+
 демо: https://rooder.ru
 --
 
@@ -63,7 +64,7 @@ openssl req -new -key certs/dev_rsa.key -out certs/dev.csr
 ```azure
 openssl x509 -req -days 365 -in certs/dev.csr -signkey certs/dev_rsa.key -out certs/dev.crt
 ```
-4. Получаем инфо сертификата (опционально)
+4. Получаем инфо. сертификата (опционально)
 ```azure
 openssl x509 -in certs/dev.crt -text -noout
 ```
@@ -71,11 +72,15 @@ openssl x509 -in certs/dev.crt -text -noout
 ```azure
 go build -o cmd/shortener/shortener cmd/shortener/main.go && sudo ./cmd/shortener/shortener -s
 ```
-Запрос по сети
+6. Запрос по сети
 ```azure
 curl https://rooder.ru
 ```
 
+### Запустить как сервис
+```azure
+sudo ./cmd/shortener/shortener -s >/dev/null &
+```
 
 
 ### Make
