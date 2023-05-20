@@ -3,6 +3,7 @@ package entity
 
 import "github.com/SETTER2000/shorturl/config"
 
+// Type - содержит все сущности используемые сервисом.
 type (
 
 	// CorrelationOrigin -.
@@ -14,7 +15,7 @@ type (
 	// Shorturls -.
 	Shorturls []Shorturl
 
-	// Shorturl - хранит параметры URL.
+	// Shorturl хранит параметры URL.
 	Shorturl struct {
 		Slug           string `json:"slug,omitempty" example:"1674872720465761244B_5"`             // Строковый идентификатор
 		URL            string `json:"url,omitempty" example:"https://example.com/go/to/home.html"` // URL для сокращения
