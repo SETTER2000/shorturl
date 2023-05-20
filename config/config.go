@@ -30,8 +30,6 @@ type (
 		Name string `env-required:"true" yaml:"name"    env:"APP_NAME"`
 		// Версия сервиса
 		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
-		// Имя файла конфигурации должно задаваться через флаг -c/-config или переменную окружения CONFIG
-		Config string `env-required:"true" yaml:"version" env:"CONFIG"`
 	}
 
 	HTTP struct {
