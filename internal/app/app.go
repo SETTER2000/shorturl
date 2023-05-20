@@ -38,7 +38,10 @@ func Run() {
 	if err != nil {
 		log.Fatalf("Config error: %s", err)
 	}
-	versionString = cfg.App.Version
+
+	// Устанавливает версию сборки, согласно тегу git
+	//cfg.App.Version = versionString
+
 	closer.Bind(cleanup)
 
 	// logger

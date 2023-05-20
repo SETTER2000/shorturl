@@ -1,6 +1,6 @@
 app:
   name: 'shorturl'
-  version: '0.21.1'
+  version: '0.1.0'
   access_token_name: 'user_id'
   expiration_time: '2023-07-31T15:04:05Z'
   config: 'conf.json'
