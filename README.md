@@ -1,6 +1,26 @@
 # shorturl
-
+демо: https://rooder.ru
 --
+
+# API
+* baseurl = https://rooder.ru/
+* domain = {{baseurl}}/api
+### POST
+Отправить текстом длинный url например:  http://example.com/sdg/dfg/dfgh
+```azure
+POST {{baseurl}}/
+```
+или JSON например:
+
+{
+    "url":"http://example.com/sdg/dfg/dfgh"
+}
+```azure
+POST {{domain}}/shorten
+```
+
+
+
 # Начало работы
 
 
@@ -81,8 +101,7 @@ make run
 make hs
 ```
 ### Документация
-Запустить сервис с документацией
-Доступен здесь: http://rooder.ru:6060/pkg/github.com/SETTER2000/shorturl/?m=all	
+Запустить сервис с документацией, доступен здесь: http://rooder.ru:6060/pkg/github.com/SETTER2000/shorturl/?m=all	
 ```azure
 make godoc
 ```
