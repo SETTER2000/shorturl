@@ -3,7 +3,7 @@
 // Приложение чистой архитектуры.
 // Сервис сохраняет URL переданный на его API и возвращает укороченный URL,
 // перейдя по которому получите тот же результат, что и при переходе по-длинному URL.
-
+//
 // Copyright 2023 Developer Team. All rights reserved
 // Use of this source code is governed by a MIT license
 // that can be found in the LICENSE file

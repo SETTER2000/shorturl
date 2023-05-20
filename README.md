@@ -33,6 +33,7 @@ GET {{domain}}/user/urls
 
 # Начало работы
 
+godoc: http://rooder.ru:6060/pkg/github.com/SETTER2000/shorturl/?m=all
 
 ## Compile
 ```azure
