@@ -21,8 +21,8 @@ import (
 	"github.com/SETTER2000/shorturl/internal/app"
 )
 
-var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
-var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
+var cpuprofile = flag.String("cpuprofile", "", "записать профиль процессора в `file`")
+var memprofile = flag.String("memprofile", "", "записать профиль памяти в `file`")
 
 func main() {
 	if *cpuprofile != "" {
@@ -45,12 +45,12 @@ func main() {
 	if *memprofile != "" {
 		f, err := os.Create(*memprofile)
 		if err != nil {
-			log.Fatal("could not create memory profile: ", err)
+			log.Fatal("не удалось создать профиль памяти: ", err)
 		}
-		defer f.Close() // error handling omitted for example
-		runtime.GC()    // get up-to-date statistics
+		defer f.Close()
+		runtime.GC() // получать актуальную статистику
 		if err := pprof.WriteHeapProfile(f); err != nil {
-			log.Fatal("could not write memory profile: ", err)
+			log.Fatal("не удалось записать профиль памяти: ", err)
 		}
 	}
 }

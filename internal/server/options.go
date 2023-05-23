@@ -16,6 +16,7 @@ type Option func(*Server)
 
 // Host -.
 func Host(host string) Option {
+	log.Printf("HOST::: %s", host)
 	return func(s *Server) {
 		domain := strings.Split(host, ":")
 		s.server.Addr = net.JoinHostPort(domain[0], domain[1])

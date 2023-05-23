@@ -27,6 +27,30 @@ DB=postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
 #gen:
 #	mockgen -source=internal/usecase/interfaces.go -destination=internal/usecase/mocks/mock_interfaces.go
 
+# Запустить сервис shorturl сконфигурировав его от файла json (config/config.json)
+conf:
+	./$(BIN_PATH)/$(BIN_NAME) -config=config/config_tt.json
+
+
+
+# Запустить сервис shorturl с протоколом HTTPS
+hs:
+	sudo ./$(BIN_PATH)/$(BIN_NAME) -s
+
+# Запустить сервис shorturl и с протоколом HTTPS в фоновом режиме
+hsf:
+	sudo ./$(BIN_PATH)/$(BIN_NAME) -s >/dev/null &
+
+# Запустить сервис shorturl с подключением к DB
+# FILE_STORAGE_PATH=;DATABASE_DSN=postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
+run:
+	./$(BIN_PATH)/$(BIN_NAME) -d $(DB)
+
+# Скомпилировать и запустить бинарник сервиса shorturl (shortener) с подключением к DB и запечёнными аргументами сборки
+short:
+	go build -ldflags "-X 'github.com/SETTER2000/shorturl/internal/app.dateString=`date`' -X 'github.com/SETTER2000/shorturl/internal/app.versionString=`git describe --tags`' -X 'github.com/SETTER2000/shorturl/internal/app.commitString=`git rev-parse HEAD`'" -o cmd/shortener/shortener cmd/shortener/$(MAIN)
+	./$(BIN_PATH)/$(BIN_NAME)
+
 # Запустить сервис shorturl (shortener) in Memory
 short_m:
 	go build -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/$(MAIN)
@@ -42,23 +66,6 @@ short_d:
 	go build -tags pro -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/*.go
 	./$(BIN_PATH)/$(BIN_NAME) -d postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
 
-
-# Запустить сервис shorturl с подключением к DB
-run:
-	./$(BIN_PATH)/$(BIN_NAME) -d $(DB)
-
-# Запустить сервис shorturl с протоколом HTTPS
-hs:
-	sudo ./$(BIN_PATH)/$(BIN_NAME) -s
-
-# Запустить сервис shorturl и с протоколом HTTPS в фоновом режиме
-hsf:
-	sudo ./$(BIN_PATH)/$(BIN_NAME) -s >/dev/null &
-
-# Скомпилировать и запустить бинарник сервиса shorturl (shortener) с подключением к DB и запечёнными аргументами сборки
-short:
-	go build -ldflags "-X 'github.com/SETTER2000/shorturl/internal/app.dateString=`date`' -X 'github.com/SETTER2000/shorturl/internal/app.versionString=`git describe --tags`' -X 'github.com/SETTER2000/shorturl/internal/app.commitString=`git rev-parse HEAD`'" -o cmd/shortener/shortener cmd/shortener/$(MAIN)
-	./$(BIN_PATH)/$(BIN_NAME)
 
 cover:
 	go test -v -count 1 -race -coverpkg=./... -coverprofile=$(COVER_OUT) ./...

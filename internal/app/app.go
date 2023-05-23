@@ -39,9 +39,6 @@ func Run() {
 		log.Fatalf("Config error: %s", err)
 	}
 
-	// Устанавливает версию сборки, согласно тегу git
-	//cfg.App.Version = versionString
-
 	closer.Bind(cleanup)
 
 	// logger
@@ -58,7 +55,7 @@ func Run() {
 		} else {
 			l.Info("File storage - is work...")
 			shorturlUseCase = usecase.New(repo.NewInFiles(cfg))
-			if err = shorturlUseCase.ReadService(); err != nil {
+			if err := shorturlUseCase.ReadService(); err != nil {
 				l.Error(fmt.Errorf("app - Read - shorturlUseCase.ReadService: %w", err))
 			}
 		}
@@ -95,11 +92,11 @@ func Run() {
 
 	select {
 	case s := <-interrupt:
-		if err = shorturlUseCase.SaveService(); err != nil {
+		if err := shorturlUseCase.SaveService(); err != nil {
 			l.Error(fmt.Errorf("app - Save - shorturlUseCase.SaveService: %w", err))
 		}
 		l.Info("app - Run - signal: " + s.String())
-	case err = <-httpServer.Notify():
+	case err := <-httpServer.Notify():
 		l.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
 	}
 
@@ -112,7 +109,7 @@ func Run() {
 }
 
 func cleanup() {
-	fmt.Print("Hang on! I'm closing some DBs, wiping some trails..")
+	fmt.Println("Hang on! I'm closing some DBs, wiping some trails..")
 	time.Sleep(1 * time.Second)
 	fmt.Println("  Done...")
 }

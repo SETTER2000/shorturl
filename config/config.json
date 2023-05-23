@@ -1,0 +1,24 @@
+{
+  "database_dsn": "",
+  "enable_https": true,
+  "app": {
+    "name": "shorturl",
+    "version": "0.1.0"
+  },
+  "http": {
+    "port": "8080",
+    "base_url": "http://localhost:8080",
+    "server_address": "localhost:8080",
+    "server_domain": "rooder.ru",
+     "file_storage_path": "storage.txt",
+    "database_dsn": "",
+    "enable_https": true
+  },
+  "cookie": {
+    "secret_key": "erter09gj0f9g",
+    "access_token_name": "access_token"
+  },
+  "logger": {
+    "log_level": "debug"
+  }
+}
