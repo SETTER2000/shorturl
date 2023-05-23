@@ -11,7 +11,7 @@ race:
 MAIN=main.go
 
 # Путь где создать бинарник
-BIN_PATH=cmd/shortener
+APP_DIR=cmd/shortener
 
 # Наименование бинарника
 BIN_NAME=shortener
@@ -22,50 +22,42 @@ COVER_OUT=profiles/coverage.out
 # Подключение к базе данных
 DB=postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
 
-
-#.PHONY: gen
-#gen:
-#	mockgen -source=internal/usecase/interfaces.go -destination=internal/usecase/mocks/mock_interfaces.go
-
 # Запустить сервис shorturl сконфигурировав его от файла json (config/config.json)
 conf:
-	./$(BIN_PATH)/$(BIN_NAME) -config=config/config_tt.json
-
-
+	./$(APP_DIR)/$(BIN_NAME) -c config_tt.json
 
 # Запустить сервис shorturl с протоколом HTTPS
 hs:
-	sudo ./$(BIN_PATH)/$(BIN_NAME) -s
+	sudo ./$(APP_DIR)/$(BIN_NAME) -s
 
 # Запустить сервис shorturl и с протоколом HTTPS в фоновом режиме
 hsf:
-	sudo ./$(BIN_PATH)/$(BIN_NAME) -s >/dev/null &
+	sudo ./$(APP_DIR)/$(BIN_NAME) -s >/dev/null &
 
 # Запустить сервис shorturl с подключением к DB
 # FILE_STORAGE_PATH=;DATABASE_DSN=postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
 run:
-	./$(BIN_PATH)/$(BIN_NAME) -d $(DB)
+	./$(APP_DIR)/$(BIN_NAME) -d $(DB)
 
 # Скомпилировать и запустить бинарник сервиса shorturl (shortener) с подключением к DB и запечёнными аргументами сборки
 short:
 	go build -ldflags "-X 'github.com/SETTER2000/shorturl/internal/app.dateString=`date`' -X 'github.com/SETTER2000/shorturl/internal/app.versionString=`git describe --tags`' -X 'github.com/SETTER2000/shorturl/internal/app.commitString=`git rev-parse HEAD`'" -o cmd/shortener/shortener cmd/shortener/$(MAIN)
-	./$(BIN_PATH)/$(BIN_NAME)
+	./$(APP_DIR)/$(BIN_NAME)
 
 # Запустить сервис shorturl (shortener) in Memory
 short_m:
-	go build -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/$(MAIN)
-	./$(BIN_PATH)/$(BIN_NAME) -f= -d=
+	go build -o $(APP_DIR)/$(BIN_NAME) $(APP_DIR)/$(MAIN)
+	./$(APP_DIR)/$(BIN_NAME) -f= -d=
 
 # Запустить сервис shorturl (shortener) in File
 short_f:
-	go build -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/$(MAIN)
-	./$(BIN_PATH)/$(BIN_NAME) -f=storage.txt -d=
+	go build -o $(APP_DIR)/$(BIN_NAME) $(APP_DIR)/$(MAIN)
+	./$(APP_DIR)/$(BIN_NAME) -f=storage.txt -d=
 
 # Скомпилировать и запустить бинарник сервиса shorturl (shortener) с подключением к DB
 short_d:
-	go build -tags pro -o $(BIN_PATH)/$(BIN_NAME) $(BIN_PATH)/*.go
-	./$(BIN_PATH)/$(BIN_NAME) -d postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
-
+	go build -tags pro -o $(APP_DIR)/$(BIN_NAME) $(APP_DIR)/*.go
+	./$(APP_DIR)/$(BIN_NAME) -d postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
 
 cover:
 	go test -v -count 1 -race -coverpkg=./... -coverprofile=$(COVER_OUT) ./...
@@ -95,15 +87,15 @@ BIN_NAME_WIN=shortener.exe
 
 # Запустить сервис shorturl (shortener) in Memory
 short7_m:
-	go build -o $(BIN_PATH)/$(BIN_NAME_WIN) cmd/shortener/$(MAIN)
-	D:\__PROJECTS\GoProjects\Y.Praktikum\Projects\shorturl/$(BIN_PATH)/shortener -f=
+	go build -o $(APP_DIR)/$(BIN_NAME_WIN) cmd/shortener/$(MAIN)
+	D:\__PROJECTS\GoProjects\Y.Praktikum\Projects\shorturl/$(APP_DIR)/shortener -f=
 
 # Запустить сервис shorturl (shortener) in File
 short7_f:
-	go build -o $(BIN_PATH)/$(BIN_NAME_WIN) cmd/shortener/$(MAIN)
-	D:\__PROJECTS\GoProjects\Y.Praktikum\Projects\shorturl/$(BIN_PATH)/shortener -f=storage.txt
+	go build -o $(APP_DIR)/$(BIN_NAME_WIN) cmd/shortener/$(MAIN)
+	D:\__PROJECTS\GoProjects\Y.Praktikum\Projects\shorturl/$(APP_DIR)/shortener -f=storage.txt
 
 # Запустить сервис shorturl (shortener) in DB
 short7_d:
-	go build -o $(BIN_PATH)/$(BIN_NAME_WIN) cmd/shortener/$(MAIN)
-	D:\__PROJECTS\GoProjects\Y.Praktikum\Projects\shorturl/$(BIN_PATH)/shortener -d postgres://postgres:123456@localhost:5432/postgres
+	go build -o $(APP_DIR)/$(BIN_NAME_WIN) cmd/shortener/$(MAIN)
+	D:\__PROJECTS\GoProjects\Y.Praktikum\Projects\shorturl/$(APP_DIR)/shortener -d postgres://postgres:123456@localhost:5432/postgres
