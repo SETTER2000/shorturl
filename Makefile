@@ -19,12 +19,14 @@ BIN_NAME=shortener
 # Покрытие тестами
 COVER_OUT=profiles/coverage.out
 
+# Запечь версию и время создания сборки
+BAKING="-X 'github.com/SETTER2000/shorturl/internal/app.dateString=`date`' -X 'github.com/SETTER2000/shorturl/internal/app.versionString=`git describe --tags`' -X 'github.com/SETTER2000/shorturl/internal/app.commitString=`git rev-parse HEAD`'"
 # Подключение к базе данных
 DB=postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
 
 # Запустить сервис shorturl сконфигурировав его от файла json (config/config.json)
 conf:
-	./$(APP_DIR)/$(BIN_NAME) -c config_tt.json
+	./$(APP_DIR)/$(BIN_NAME) -c config/config_tt.json
 
 # Запустить сервис shorturl с протоколом HTTPS
 hs:
@@ -41,22 +43,22 @@ run:
 
 # Скомпилировать и запустить бинарник сервиса shorturl (shortener) с подключением к DB и запечёнными аргументами сборки
 short:
-	go build -ldflags "-X 'github.com/SETTER2000/shorturl/internal/app.dateString=`date`' -X 'github.com/SETTER2000/shorturl/internal/app.versionString=`git describe --tags`' -X 'github.com/SETTER2000/shorturl/internal/app.commitString=`git rev-parse HEAD`'" -o cmd/shortener/shortener cmd/shortener/$(MAIN)
+	go build -ldflags $(BAKING) -o cmd/shortener/shortener cmd/shortener/$(MAIN)
 	./$(APP_DIR)/$(BIN_NAME)
 
 # Запустить сервис shorturl (shortener) in Memory
 short_m:
-	go build -o $(APP_DIR)/$(BIN_NAME) $(APP_DIR)/$(MAIN)
+	go build -ldflags $(BAKING) -o $(APP_DIR)/$(BIN_NAME) $(APP_DIR)/$(MAIN)
 	./$(APP_DIR)/$(BIN_NAME) -f= -d=
 
 # Запустить сервис shorturl (shortener) in File
 short_f:
-	go build -o $(APP_DIR)/$(BIN_NAME) $(APP_DIR)/$(MAIN)
+	go build -ldflags $(BAKING) -o $(APP_DIR)/$(BIN_NAME) $(APP_DIR)/$(MAIN)
 	./$(APP_DIR)/$(BIN_NAME) -f=storage.txt -d=
 
 # Скомпилировать и запустить бинарник сервиса shorturl (shortener) с подключением к DB
 short_d:
-	go build -tags pro -o $(APP_DIR)/$(BIN_NAME) $(APP_DIR)/*.go
+	go build -tags pro -ldflags $(BAKING) -o $(APP_DIR)/$(BIN_NAME) $(APP_DIR)/$(MAIN)
 	./$(APP_DIR)/$(BIN_NAME) -d postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable
 
 cover:
