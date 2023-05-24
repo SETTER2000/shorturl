@@ -96,7 +96,6 @@ func NewConfig() (*Config, error) {
 		confFileName = cfName
 	}
 	defaultConfFileName := fmt.Sprintf("%s/%s", dirConf, confFileName)
-	fmt.Printf("CONFIG FILE: %s\n", defaultConfFileName)
 
 	// ReadConfig делает следующее:
 	// разобрать файл конфигурации в соответствии с форматом
@@ -135,8 +134,6 @@ func NewConfig() (*Config, error) {
 	// Parse .
 	flag.Parse()
 	restartApp(configFileName)
-	fmt.Printf("ServerAddress 2: %s\n", cfg.HTTP.ServerAddress)
-	fmt.Printf("ConfigFileName 2: %s\n", cfg.App.ConfigFileName)
 
 	return cfg, nil
 }
@@ -146,8 +143,6 @@ func restartApp(confFileName *string) {
 	if len(*confFileName) == 0 || len(env) > 0 {
 		return
 	}
-	fmt.Printf("configFileName - NOT EMPTY. %v\n", confFileName)
-	fmt.Printf("CONFIG=%s\r\n", env)
 
 	// получаем имя приложения
 	name, err := os.Executable()
