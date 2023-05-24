@@ -21,12 +21,12 @@ const (
 // Server -.
 type Server struct {
 	isHTTPS         bool
-	server          *http.Server
-	cfg             *config.HTTP
 	notify          chan error
 	certFile        string
-	shutdownTimeout time.Duration
 	keyFile         string
+	shutdownTimeout time.Duration
+	server          *http.Server
+	cfg             *config.HTTP
 }
 
 // New -.

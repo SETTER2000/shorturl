@@ -17,14 +17,6 @@ import (
 // Cookie - окружения для куки.
 // Log - окружения для логирования
 type (
-	//Config struct {
-	//	App     `yaml:"app"`
-	//	HTTP    `yaml:"http"`
-	//	Storage `yaml:"storage"`
-	//	Cookie  `yaml:"cookie"`
-	//	Log     `yaml:"logger"`
-	//}
-
 	Config struct {
 		App     `json:"app"`
 		HTTP    `json:"http"`
@@ -88,33 +80,11 @@ func NewConfig() (*Config, error) {
 	cfg := &Config{}
 	log := logger.New("debug")
 	log.Info("read application configuration")
-	dirConf := "config"
-	confFileName := "config.json"
-
-	cfName, ok := os.LookupEnv("CONFIG")
-	if ok {
-		confFileName = cfName
-	}
-	defaultConfFileName := fmt.Sprintf("%s/%s", dirConf, confFileName)
-
-	// ReadConfig делает следующее:
-	// разобрать файл конфигурации в соответствии с форматом
-	// YAML | JSON (yaml тег в данном случае);
-	// читает переменные среды и перезаписывает значения из файла
-	// значениями, которые были найдены в среде (env тег);
-	// если на первых двух шагах значение не найдено,
-	// поле будет заполнено значением по умолчанию (env-default тег), если оно задано.
-	err := cleanenv.ReadConfig(defaultConfFileName, cfg)
-	if err != nil {
-		return nil, fmt.Errorf("config error: %w", err)
-	}
-	fmt.Printf("ServerAddress 1: %s\n", cfg.HTTP.ServerAddress)
-	fmt.Printf("ConfigFileName 1: %s\n", cfg.App.ConfigFileName)
-
-	configFileName := flag.String("c", "", "configuration file name")
+	cfg.App.ConfigFileName = "config/config.json"
+	checkConfigFile(&cfg.App.ConfigFileName, cfg)
 
 	// StringVar flags
-	//flag.StringVar(&cfg.App.ConfigFileName, "c", cfg.App.ConfigFileName, "configuration file name")
+	flag.StringVar(&cfg.App.ConfigFileName, "c", "", "configuration file name")
 	flag.StringVar(&cfg.HTTP.BaseURL, "b", cfg.HTTP.BaseURL, "the base address of the resulting shortened URL")
 	flag.StringVar(&cfg.Storage.ConnectDB, "d", "", "dsn connect string urlExample PostgreSQL: postgres://username:password@localhost:5432/database_name")
 	flag.StringVar(&cfg.Storage.FileStorage, "f", "storage.txt", "path to file with abbreviated URLs")
@@ -131,37 +101,29 @@ func NewConfig() (*Config, error) {
 		fmt.Fprintf(flag.CommandLine.Output(), "Shorturl Version %s %v\nUsage : Project Shorturl - URL Shortener Server\n", os.Args[0], cfg.App.Version)
 		flag.PrintDefaults()
 	}
+
 	// Parse .
 	flag.Parse()
-	restartApp(configFileName)
+	checkConfigFile(&cfg.App.ConfigFileName, cfg)
 
 	return cfg, nil
 }
 
-func restartApp(confFileName *string) {
+func checkConfigFile(path *string, cfg interface{}) {
 	env := os.Getenv("CONFIG")
-	if len(*confFileName) == 0 || len(env) > 0 {
+	if len(env) < 1 && len(*path) > 0 {
+		env = *path
+	} else if len(env) < 1 {
 		return
 	}
-
-	// получаем имя приложения
-	name, err := os.Executable()
-	if err != nil {
+	// ReadConfig делает следующее:
+	// разобрать файл конфигурации в соответствии с форматом
+	// YAML | JSON (yaml тег в данном случае);
+	// читает переменные среды и перезаписывает значения из файла
+	// значениями, которые были найдены в среде (env тег);
+	// если на первых двух шагах значение не найдено,
+	// поле будет заполнено значением по умолчанию (env-default тег), если оно задано.
+	if err := cleanenv.ReadConfig(env, cfg); err != nil {
 		panic(err)
 	}
-	var procAttr os.ProcAttr
-	// передаём при запуске переменную окружения CONFIG
-	procAttr.Env = []string{"CONFIG=" + *confFileName}
-	procAttr.Files = []*os.File{os.Stdin, os.Stdout, os.Stderr}
-	// запускаем приложение
-	proc, err := os.StartProcess(name, []string{name}, &procAttr)
-	if err != nil {
-		panic(err)
-	}
-	// ждём окончания работы запущенного приложения
-	state, err := proc.Wait()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("ExitCode", state.ExitCode())
 }
