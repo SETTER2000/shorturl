@@ -24,9 +24,9 @@ type Server struct {
 	notify          chan error
 	certFile        string
 	keyFile         string
-	shutdownTimeout time.Duration
 	server          *http.Server
 	cfg             *config.HTTP
+	shutdownTimeout time.Duration
 }
 
 // New -.
