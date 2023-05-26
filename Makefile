@@ -81,6 +81,9 @@ cover1:
 godoc:
 	godoc -http rooder.ru:6060
 
+# Запустить сервис с документацией в фоновом режиме
+doc:
+	godoc -http=rooder.ru:6060  -play >/dev/null &
 
 ####################################
 # Для Win7
