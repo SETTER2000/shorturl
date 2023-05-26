@@ -116,7 +116,7 @@ make run
 make hs
 ```
 ### Документация
-Запустить сервис с документацией, доступен здесь: http://rooder.ru:6060/pkg/github.com/SETTER2000/shorturl/?m=all	
+Запустить сервис с документацией, доступна здесь: http://rooder.ru:6060/pkg/github.com/SETTER2000/shorturl/?m=all	
 ```azure
 make godoc
 ```
