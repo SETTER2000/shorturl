@@ -166,11 +166,15 @@ func (i *InFiles) getAllUserID(u *entity.User) (*entity.User, error) {
 
 // GetAllUrls получить все URL
 func (i *InFiles) GetAllUrls() (entity.CountURLs, error) {
-	return entity.CountURLs(len(i.m)), nil
+	var c int
+	for _, item := range i.m {
+		c += len(item)
+	}
+
+	return entity.CountURLs(c), nil
 }
 
 // GetAllUsers получить всех пользователей
-// TODO не правильно работает, переделать
 func (i *InFiles) GetAllUsers() (entity.CountUsers, error) {
 	return entity.CountUsers(len(i.m)), nil
 }
