@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"github.com/SETTER2000/shorturl/scripts"
 	"sync"
 
 	"github.com/SETTER2000/shorturl/config"
@@ -62,7 +63,12 @@ func (s *InMemory) searchBySlug(sh *entity.Shorturl) (*entity.Shorturl, error) {
 
 // GetAllUrls получить все URL
 func (s *InMemory) GetAllUrls() (entity.CountURLs, error) {
-	return entity.CountURLs(len(s.m)), nil
+	var c int
+	for _, item := range s.m {
+		c += len(item)
+	}
+
+	return entity.CountURLs(c), nil
 }
 
 // GetAllUsers получить всех пользователей
@@ -73,7 +79,14 @@ func (s *InMemory) GetAllUsers() (entity.CountUsers, error) {
 
 // GetAll получить все URL пользователя по идентификатору.
 func (s *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
-	return nil, ErrNotFound
+	l := entity.List{}
+	for _, i := range s.m[u.UserID] {
+
+		l.URL = i.URL
+		l.Slug = scripts.GetHost(s.cfg.HTTP, i.Slug)
+		u.Urls = append(u.Urls, l)
+	}
+	return u, nil
 }
 
 // Put обновить данные в память.
