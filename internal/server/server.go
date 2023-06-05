@@ -58,31 +58,17 @@ func New(handler http.Handler, opts ...Option) *Server {
 }
 
 func (s *Server) start() {
-	//go func() {
-	//	s.notify <- s.server.ListenAndServe()
-	//	close(s.notify)
-	//}()
 	switch s.isHTTPS {
 	case true:
 		go func() {
 			s.notify <- s.server.ListenAndServeTLS(s.certFile, s.keyFile)
 			close(s.notify)
 		}()
-		//go func() {
-		//	if err := s.server.Serve(listen); err != nil {
-		//		log.Fatal(err)
-		//	}
-		//}()
 	case false:
 		go func() {
 			s.notify <- s.server.ListenAndServe()
 			close(s.notify)
 		}()
-		//go func() {
-		//	if err := s.Serve(listen); err != nil {
-		//		log.Fatal(err)
-		//	}
-		//}()
 	}
 }
 
