@@ -1,6 +1,4 @@
 {
-  "database_dsn": "",
-  "enable_https": true,
   "app": {
     "name": "shorturl",
     "version": "0.1.0"
@@ -12,7 +10,8 @@
     "server_domain": "rooder.ru",
      "file_storage_path": "storage.txt",
     "database_dsn": "",
-    "enable_https": true
+    "enable_https": true,
+    "trusted_subnet": ""
   },
   "cookie": {
     "secret_key": "erter09gj0f9g",

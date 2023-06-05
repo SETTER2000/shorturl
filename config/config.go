@@ -38,6 +38,8 @@ type (
 		// При передаче флага -s или переменной окружения ENABLE_HTTPS сервер запуститься с
 		// помощью метода http.ListenAndServeTLS или tls.Listen.
 		EnableHTTPS bool `env:"ENABLE_HTTPS"`
+		// передать строковое представление бесклассовой адресации (CIDR)
+		TrustedSubnet string `env:"TRUSTED_SUBNET"`
 		// BASE_URL - базовый адрес результирующего сокращённого URL
 		BaseURL string `json:"base_url" env:"BASE_URL" `
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
@@ -90,6 +92,7 @@ func NewConfig() (*Config, error) {
 	flag.StringVar(&cfg.Storage.FileStorage, "f", "storage.txt", "path to file with abbreviated URLs")
 	flag.StringVar(&cfg.HTTP.ServerAddress, "a", cfg.HTTP.ServerAddress, "host to listen on")
 	flag.BoolVar(&cfg.HTTP.EnableHTTPS, "s", false, "start server with https protocol")
+	flag.StringVar(&cfg.HTTP.TrustedSubnet, "t", "", "you can pass Classless Addressing Representation (CIDR) strings")
 	flag.StringVar(&cfg.HTTP.CertsDir, "cd", "certs", "certificate directory")
 	flag.StringVar(&cfg.HTTP.CertFile, "cc", "dev.crt", "name file certificate")
 	flag.StringVar(&cfg.HTTP.KeyFile, "ck", "dev_rsa.key", "name file key certificate")

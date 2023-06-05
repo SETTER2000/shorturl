@@ -4,6 +4,7 @@ package usecase
 
 import (
 	"context"
+	"github.com/SETTER2000/shorturl/internal/usecase/repo"
 
 	"github.com/SETTER2000/shorturl/internal/entity"
 )
@@ -33,3 +34,14 @@ type IShorturlRepo interface {
 	Read() error
 	Save() error
 }
+
+// строка ниже не несёт функциональной нагрузки
+// её можно убрать без последствий для работы программы
+// это отладочная строка
+// в этой строке приведением типов проверяем,
+// реализует ли структура *batchPostProvider интерфейс BatchPostProvider —
+// если нет или если методы прописаны неверно,
+// то компилятор выдаст на этой строке ошибку типизации
+var _ IShorturlRepo = (*repo.InMemory)(nil)
+var _ IShorturlRepo = (*repo.InFiles)(nil)
+var _ IShorturlRepo = (*repo.InSQL)(nil)
