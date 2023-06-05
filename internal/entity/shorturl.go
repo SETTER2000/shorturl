@@ -57,9 +57,15 @@ type (
 	// Short -.
 	Short interface{}
 
+	// CountUsers кол-во пользователей в сервисе
+	CountUsers int
+
+	// CountURLs кол-во сокращённых URL в сервисе
+	CountURLs int
+
 	// Static -.
 	Static struct {
-		CountURLs  int `json:"urls,omitempty"`  // кол-во сокращённых URL в сервисе
-		CountUsers int `json:"users,omitempty"` // кол-во пользователей в сервисе
+		CountURLs  `json:"urls,omitempty"`  // кол-во сокращённых URL в сервисе
+		CountUsers `json:"users,omitempty"` // кол-во пользователей в сервисе
 	}
 )

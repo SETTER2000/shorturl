@@ -60,6 +60,11 @@ func (s *InMemory) searchBySlug(sh *entity.Shorturl) (*entity.Shorturl, error) {
 	return sh, nil
 }
 
+// GetAllUrls получить все URL
+func (s *InMemory) GetAllUrls() (entity.CountURLs, error) {
+	return entity.CountURLs(len(s.m)), nil
+}
+
 // GetAll получить все URL пользователя по идентификатору.
 func (s *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	return nil, ErrNotFound

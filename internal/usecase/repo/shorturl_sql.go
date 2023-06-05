@@ -143,6 +143,17 @@ func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error
 	return u, nil
 }
 
+// GetAllUrls - получить все url-адреса не зависимо от авторизации.
+func (i *InSQL) GetAllUrls() (entity.CountURLs, error) {
+	var c int
+
+	if err := i.w.db.Get(&c, "SELECT count(*) FROM shorturl"); err != nil {
+		return -1, err
+	}
+
+	return entity.CountURLs(c), nil
+}
+
 // Delete -.
 func (i *InSQL) Delete(ctx context.Context, u *entity.User) error {
 	q := `UPDATE shorturl SET del = $1

@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
-	"github.com/SETTER2000/shorturl/internal/usecase/mocks"
 	"github.com/stretchr/testify/mock"
 	"reflect"
 	"testing"
@@ -26,7 +25,7 @@ var cfg = &config.Config{
 }
 
 func TestNew(t *testing.T) {
-	shorturlRepo := mocks.NewIShorturlRepo(t)
+	shorturlRepo := NewMockIShorturlRepo(t)
 	type args struct {
 		r IShorturlRepo
 	}
@@ -90,7 +89,7 @@ func TestShorturlUseCase_Post(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			shorturlRepo := mocks.NewIShorturlRepo(t)
+			shorturlRepo := NewMockIShorturlRepo(t)
 			shorturlRepo.
 				On("Post", mock.Anything, tt.args.sh).
 				Once().            // выполняется один раз
@@ -165,7 +164,7 @@ func TestShorturlUseCase_LongLink(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			shorturlRepo := mocks.NewIShorturlRepo(t)
+			shorturlRepo := NewMockIShorturlRepo(t)
 
 			shorturlRepo.
 				On("Put", mock.Anything, tt.args.sh).
@@ -189,7 +188,7 @@ func TestShorturlUseCase_LongLink(t *testing.T) {
 }
 
 func TestShorturlUseCase_ShortLink(t *testing.T) {
-	shorturlRepo := mocks.NewIShorturlRepo(t)
+	shorturlRepo := NewMockIShorturlRepo(t)
 	type fields struct {
 		repo IShorturlRepo
 	}
@@ -242,7 +241,7 @@ func TestShorturlUseCase_ShortLink(t *testing.T) {
 	}
 }
 func TestShorturlUseCase_ShortLinkError(t *testing.T) {
-	shorturlRepo := mocks.NewIShorturlRepo(t)
+	shorturlRepo := NewMockIShorturlRepo(t)
 	type fields struct {
 		repo IShorturlRepo
 	}
@@ -331,7 +330,7 @@ func TestShorturlUseCase_UserAllLink(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			shorturlRepo := mocks.NewIShorturlRepo(t)
+			shorturlRepo := NewMockIShorturlRepo(t)
 			shorturlRepo.
 				On("GetAll", tt.args.ctx, tt.args.u).
 				Times(1). // выполняется один раз
@@ -381,7 +380,7 @@ func TestShorturlUseCase_UserDelLink(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			shorturlRepo := mocks.NewIShorturlRepo(t)
+			shorturlRepo := NewMockIShorturlRepo(t)
 			shorturlRepo.
 				On("Delete", mock.Anything, tt.args.u).
 				Once(). // выполняется один раз
@@ -430,7 +429,7 @@ func TestShorturlUseCase_SaveService(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			shorturlRepo := mocks.NewIShorturlRepo(t)
+			shorturlRepo := NewMockIShorturlRepo(t)
 			shorturlRepo.
 				On("Save").
 				Once(). // выполняется один раз
@@ -479,7 +478,7 @@ func TestShorturlUseCase_ReadService(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			shorturlRepo := mocks.NewIShorturlRepo(t)
+			shorturlRepo := NewMockIShorturlRepo(t)
 			shorturlRepo.
 				On("Read").
 				Once(). // выполняется один раз

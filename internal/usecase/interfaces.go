@@ -17,10 +17,13 @@ type IShorturl interface {
 	LongLink(context.Context, *entity.Shorturl) (string, error)
 	ShortLink(context.Context, *entity.Shorturl) (*entity.Shorturl, error)
 	UserAllLink(ctx context.Context, u *entity.User) (*entity.User, error)
+	AllLink() (entity.CountURLs, error)
 	UserDelLink(ctx context.Context, u *entity.User) error
 	ReadService() error
 	SaveService() error
 }
+
+//AllUsers(ctx context.Context) (entity.CountUsers, error)
 
 // IShorturlRepo - интерфейс DB.
 //
@@ -30,6 +33,7 @@ type IShorturlRepo interface {
 	Put(context.Context, *entity.Shorturl) error
 	Get(context.Context, *entity.Shorturl) (*entity.Shorturl, error)
 	GetAll(context.Context, *entity.User) (*entity.User, error)
+	GetAllUrls() (entity.CountURLs, error)
 	Delete(context.Context, *entity.User) error
 	Read() error
 	Save() error

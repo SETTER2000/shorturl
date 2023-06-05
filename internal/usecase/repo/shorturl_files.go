@@ -164,6 +164,11 @@ func (i *InFiles) getAllUserID(u *entity.User) (*entity.User, error) {
 	return u, nil
 }
 
+// GetAllUrls получить все URL
+func (i *InFiles) GetAllUrls() (entity.CountURLs, error) {
+	return entity.CountURLs(len(i.m)), nil
+}
+
 // GetAll получить все URL пользователя по идентификатору
 func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	//i.lock.Lock()

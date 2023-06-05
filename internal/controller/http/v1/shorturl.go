@@ -39,6 +39,9 @@ func newShorturlRoutes(handler chi.Router, s usecase.IShorturl, l logger.Interfa
 		r.Post("/", sr.shorten) // POST /
 		r.Post("/batch", sr.batch)
 	})
+	handler.Route("/internal", func(r chi.Router) {
+		r.Get("/stats", sr.stats)
+	})
 }
 
 // @Summary     Return short URL
@@ -129,7 +132,7 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 
 			sh, err := r.s.ShortLink(ctx, &data2)
 			if err != nil {
-				r.l.Error(err, "http - v2 - shortLink")
+				r.l.Error(err, "http - v1 - longLink")
 				http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
 				return
 			}
@@ -157,7 +160,7 @@ func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
 	u.UserID = fmt.Sprintf("%s", userID)
 	user, err := r.s.UserAllLink(req.Context(), &u)
 	if err != nil {
-		r.l.Error(err, "http - v1 - shortLink")
+		r.l.Error(err, "http - v1 - urls")
 		http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
@@ -175,6 +178,39 @@ func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusOK)
 	}
 	res.Write(encoded)
+}
+
+// GET /api/internal/stats
+func (r *shorturlRoutes) stats(w http.ResponseWriter, req *http.Request) {
+	Static := &entity.Static{}
+	urls, err := r.s.AllLink()
+	if err != nil {
+		r.l.Error(err, "http - v1 - stats")
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
+		return
+	}
+	//users, err := r.s.AllUsers(req.Context())
+	//if err != nil {
+	//	r.l.Error(err, "http - v1 - stats")
+	//	http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
+	//	return
+	//}
+	Static.CountURLs = urls
+	fmt.Println(Static)
+	//static.CountUsers = users
+	encoded, err := json.Marshal(&Static)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if string(encoded) == "null" {
+		w.WriteHeader(http.StatusNoContent)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+	w.Write(encoded)
 }
 
 // @Summary     Return JSON short URL
