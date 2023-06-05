@@ -136,7 +136,6 @@ func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error
 		}
 		l.URL = url
 		l.Slug = scripts.GetHost(i.cfg.HTTP, slug)
-		//l.Slug = scripts.GetHost(i.cfg.HTTP, slug)
 		u.Urls = append(u.Urls, l)
 	}
 	if err = rows.Err(); err != nil {
@@ -148,7 +147,6 @@ func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error
 // GetAllUrls - получить все url-адреса не зависимо от авторизации.
 func (i *InSQL) GetAllUrls() (entity.CountURLs, error) {
 	var c int
-
 	err := i.w.db.Get(&c, "SELECT count(*) FROM shorturl")
 	if err != nil {
 		return 0, err
@@ -160,8 +158,7 @@ func (i *InSQL) GetAllUrls() (entity.CountURLs, error) {
 // GetAllUsers - получить все url-адреса не зависимо от авторизации.
 func (i *InSQL) GetAllUsers() (entity.CountUsers, error) {
 	var c int
-
-	err := i.w.db.Get(&c, "SELECT count(*) FROM user")
+	err := i.w.db.Get(&c, "SELECT COUNT(DISTINCT user_id) FROM shorturl")
 	if err != nil {
 		return 0, err
 	}
@@ -188,7 +185,6 @@ func (i *InSQL) Delete(ctx context.Context, u *entity.User) error {
 
 // New - создает instance DB, возвращает готовое соединение.
 func New(cfg *config.Config) (*sqlx.DB, error) {
-	log.Printf("CONNECT DSN: %v", cfg.Storage.ConnectDB)
 	db, _ := sqlx.Open(driverName, cfg.Storage.ConnectDB)
 	err := db.Ping()
 	if err != nil {

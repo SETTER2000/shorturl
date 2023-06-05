@@ -285,7 +285,6 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 	var rs entity.Response
 	var sr entity.ShortenResponse
 	UserID := ctx.Value(r.cfg.AccessTokenName).(string)
-	fmt.Printf("USER_IDDD: %v\n", UserID)
 	for _, bt := range CorrelationOrigin {
 		data.URL = bt.URL
 		data.Slug = bt.Slug
