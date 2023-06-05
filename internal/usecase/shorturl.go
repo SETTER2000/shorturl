@@ -68,14 +68,22 @@ func (uc *ShorturlUseCase) UserAllLink(ctx context.Context, u *entity.User) (*en
 
 // AllLink принимает короткий URL и возвращает длинный (GET /user/urls)
 func (uc *ShorturlUseCase) AllLink() (entity.CountURLs, error) {
-	//if len(u.UserID) < 1 {
-	//	return nil, ErrUserIDRequired
-	//}
 	c, err := uc.repo.GetAllUrls()
-	if err == nil {
-		return 0, nil
+	if err != nil {
+		return 0, ErrBadRequest
 	}
-	return c, ErrBadRequest
+
+	return c, nil
+}
+
+// AllUsers принимает короткий URL и возвращает длинный (GET /user/urls)
+func (uc *ShorturlUseCase) AllUsers() (entity.CountUsers, error) {
+	c, err := uc.repo.GetAllUsers()
+	if err != nil {
+		return 0, ErrBadRequest
+	}
+
+	return c, nil
 }
 
 // UserDelLink принимает короткий URL и возвращает длинный (DELETE /api/user/urls)

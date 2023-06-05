@@ -226,6 +226,57 @@ func (_c *MockIShorturlRepo_GetAllUrls_Call) RunAndReturn(run func() (entity.Cou
 	return _c
 }
 
+// GetAllUsers provides a mock function with given fields:
+func (_m *MockIShorturlRepo) GetAllUsers() (entity.CountUsers, error) {
+	ret := _m.Called()
+
+	var r0 entity.CountUsers
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (entity.CountUsers, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() entity.CountUsers); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(entity.CountUsers)
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockIShorturlRepo_GetAllUsers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAllUsers'
+type MockIShorturlRepo_GetAllUsers_Call struct {
+	*mock.Call
+}
+
+// GetAllUsers is a helper method to define mock.On call
+func (_e *MockIShorturlRepo_Expecter) GetAllUsers() *MockIShorturlRepo_GetAllUsers_Call {
+	return &MockIShorturlRepo_GetAllUsers_Call{Call: _e.mock.On("GetAllUsers")}
+}
+
+func (_c *MockIShorturlRepo_GetAllUsers_Call) Run(run func()) *MockIShorturlRepo_GetAllUsers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockIShorturlRepo_GetAllUsers_Call) Return(_a0 entity.CountUsers, _a1 error) *MockIShorturlRepo_GetAllUsers_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockIShorturlRepo_GetAllUsers_Call) RunAndReturn(run func() (entity.CountUsers, error)) *MockIShorturlRepo_GetAllUsers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Post provides a mock function with given fields: _a0, _a1
 func (_m *MockIShorturlRepo) Post(_a0 context.Context, _a1 *entity.Shorturl) error {
 	ret := _m.Called(_a0, _a1)

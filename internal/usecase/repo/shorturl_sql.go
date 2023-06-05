@@ -147,11 +147,24 @@ func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error
 func (i *InSQL) GetAllUrls() (entity.CountURLs, error) {
 	var c int
 
-	if err := i.w.db.Get(&c, "SELECT count(*) FROM shorturl"); err != nil {
-		return -1, err
+	err := i.w.db.Get(&c, "SELECT count(*) FROM shorturl")
+	if err != nil {
+		return 0, err
 	}
 
 	return entity.CountURLs(c), nil
+}
+
+// GetAllUsers - получить все url-адреса не зависимо от авторизации.
+func (i *InSQL) GetAllUsers() (entity.CountUsers, error) {
+	var c int
+
+	err := i.w.db.Get(&c, "SELECT count(*) FROM user")
+	if err != nil {
+		return 0, err
+	}
+
+	return entity.CountUsers(c), nil
 }
 
 // Delete -.

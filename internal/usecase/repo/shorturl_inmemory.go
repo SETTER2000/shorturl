@@ -65,6 +65,12 @@ func (s *InMemory) GetAllUrls() (entity.CountURLs, error) {
 	return entity.CountURLs(len(s.m)), nil
 }
 
+// GetAllUsers получить всех пользователей
+// TODO не правильно работает, переделать
+func (s *InMemory) GetAllUsers() (entity.CountUsers, error) {
+	return entity.CountUsers(len(s.m)), nil
+}
+
 // GetAll получить все URL пользователя по идентификатору.
 func (s *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	return nil, ErrNotFound

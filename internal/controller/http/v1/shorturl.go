@@ -189,15 +189,14 @@ func (r *shorturlRoutes) stats(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
 		return
 	}
-	//users, err := r.s.AllUsers(req.Context())
-	//if err != nil {
-	//	r.l.Error(err, "http - v1 - stats")
-	//	http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
-	//	return
-	//}
+	users, err := r.s.AllUsers()
+	if err != nil {
+		r.l.Error(err, "http - v1 - stats")
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
+		return
+	}
 	Static.CountURLs = urls
-	fmt.Println(Static)
-	//static.CountUsers = users
+	Static.CountUsers = users
 	encoded, err := json.Marshal(&Static)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

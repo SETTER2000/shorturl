@@ -73,6 +73,57 @@ func (_c *MockIShorturl_AllLink_Call) RunAndReturn(run func() (entity.CountURLs,
 	return _c
 }
 
+// AllUsers provides a mock function with given fields:
+func (_m *MockIShorturl) AllUsers() (entity.CountUsers, error) {
+	ret := _m.Called()
+
+	var r0 entity.CountUsers
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (entity.CountUsers, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() entity.CountUsers); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(entity.CountUsers)
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockIShorturl_AllUsers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AllUsers'
+type MockIShorturl_AllUsers_Call struct {
+	*mock.Call
+}
+
+// AllUsers is a helper method to define mock.On call
+func (_e *MockIShorturl_Expecter) AllUsers() *MockIShorturl_AllUsers_Call {
+	return &MockIShorturl_AllUsers_Call{Call: _e.mock.On("AllUsers")}
+}
+
+func (_c *MockIShorturl_AllUsers_Call) Run(run func()) *MockIShorturl_AllUsers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockIShorturl_AllUsers_Call) Return(_a0 entity.CountUsers, _a1 error) *MockIShorturl_AllUsers_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockIShorturl_AllUsers_Call) RunAndReturn(run func() (entity.CountUsers, error)) *MockIShorturl_AllUsers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // LongLink provides a mock function with given fields: _a0, _a1
 func (_m *MockIShorturl) LongLink(_a0 context.Context, _a1 *entity.Shorturl) (string, error) {
 	ret := _m.Called(_a0, _a1)

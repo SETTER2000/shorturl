@@ -169,6 +169,12 @@ func (i *InFiles) GetAllUrls() (entity.CountURLs, error) {
 	return entity.CountURLs(len(i.m)), nil
 }
 
+// GetAllUsers получить всех пользователей
+// TODO не правильно работает, переделать
+func (i *InFiles) GetAllUsers() (entity.CountUsers, error) {
+	return entity.CountUsers(len(i.m)), nil
+}
+
 // GetAll получить все URL пользователя по идентификатору
 func (i *InFiles) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	//i.lock.Lock()
