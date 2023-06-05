@@ -56,9 +56,6 @@ func (uc *ShorturlUseCase) ShortLink(ctx context.Context, sh *entity.Shorturl) (
 
 // UserAllLink принимает короткий URL и возвращает длинный (GET /user/urls)
 func (uc *ShorturlUseCase) UserAllLink(ctx context.Context, u *entity.User) (*entity.User, error) {
-	//if len(u.UserID) < 1 {
-	//	return nil, ErrUserIDRequired
-	//}
 	u, err := uc.repo.GetAll(ctx, u)
 	if err == nil {
 		return u, nil

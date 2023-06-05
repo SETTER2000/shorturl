@@ -37,8 +37,9 @@ type (
 )
 
 // NewInSQL слой взаимодействия с db в данном случаи с postgresql
-func NewInSQL(db *sqlx.DB) *InSQL {
+func NewInSQL(db *sqlx.DB, c *config.Config) *InSQL {
 	return &InSQL{
+		cfg: c,
 		// создаём новый потребитель
 		r: NewSQLConsumer(db),
 		// создаём новый производитель
@@ -121,7 +122,7 @@ func (i *InSQL) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl,
 func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
 	var slug, url, id string
 	q := `SELECT slug, url, user_id FROM shorturl WHERE user_id=$1 AND del=$2`
-	rows, err := i.w.db.Queryx(q, u.UserID, false)
+	rows, err := i.r.db.Queryx(q, u.UserID, false)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -135,6 +136,7 @@ func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error
 		}
 		l.URL = url
 		l.Slug = scripts.GetHost(i.cfg.HTTP, slug)
+		//l.Slug = scripts.GetHost(i.cfg.HTTP, slug)
 		u.Urls = append(u.Urls, l)
 	}
 	if err = rows.Err(); err != nil {
@@ -186,7 +188,8 @@ func (i *InSQL) Delete(ctx context.Context, u *entity.User) error {
 
 // New - создает instance DB, возвращает готовое соединение.
 func New(cfg *config.Config) (*sqlx.DB, error) {
-	db, _ := sqlx.Open(driverName, cfg.ConnectDB)
+	log.Printf("CONNECT DSN: %v", cfg.Storage.ConnectDB)
+	db, _ := sqlx.Open(driverName, cfg.Storage.ConnectDB)
 	err := db.Ping()
 	if err != nil {
 		return nil, fmt.Errorf("unable to create connection pool: %v", err)
@@ -207,9 +210,6 @@ CREATE TABLE IF NOT EXISTS public.shorturl
 );
 `
 	db.MustExec(schema)
-	//if err != nil {
-	//	panic(err)
-	//}
 	return db, nil
 }
 

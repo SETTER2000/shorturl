@@ -41,7 +41,7 @@ type (
 		// передать строковое представление бесклассовой адресации (CIDR)
 		TrustedSubnet string `env:"TRUSTED_SUBNET"`
 		// BASE_URL - базовый адрес результирующего сокращённого URL
-		BaseURL string `json:"base_url" env:"BASE_URL" `
+		BaseURL string `env:"BASE_URL" json:"base_url" env-default:"http://localhost:8080"`
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
 		ServerAddress string `json:"server_address" env:"SERVER_ADDRESS"`
 		// SERVER_DOMAIN - доменное имя сервера
@@ -55,7 +55,7 @@ type (
 		// FILE_STORAGE_PATH путь до файла с сокращёнными URL (директории не создаёт)
 		FileStorage string `env:"FILE_STORAGE_PATH"`
 		// Строка с адресом подключения к БД, например для PostgreSQL (драйвер pgx): postgres://username:password@localhost:5432/database_name
-		ConnectDB string `env:"DATABASE_DSN"`
+		ConnectDB string `env:"DATABASE_DSN" env-default:"postgres://shorturl:DBshorten-2023@127.0.0.1:5432/shorturl?sslmode=disable"`
 	}
 
 	Cookie struct {

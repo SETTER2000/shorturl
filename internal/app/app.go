@@ -63,11 +63,11 @@ func Run() {
 		// DB
 		db, err := repo.New(cfg)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "%e\n", err)
+			fmt.Fprintf(os.Stderr, "db connection not created: %e\n", err)
 			//os.Exit(1)
 		}
 		l.Info("DB SQL - is work...")
-		shorturlUseCase = usecase.New(repo.NewInSQL(db))
+		shorturlUseCase = usecase.New(repo.NewInSQL(db, cfg))
 	}
 
 	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", versionString, dateString, commitString)
