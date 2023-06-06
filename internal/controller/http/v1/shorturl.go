@@ -458,10 +458,8 @@ func fanIn(inputChs ...chan entity.User) chan entity.User {
 
 	go func() {
 		wg := &sync.WaitGroup{}
-
 		for _, inputCh := range inputChs {
 			wg.Add(1)
-
 			go func(inputCh chan entity.User) {
 				defer wg.Done()
 				for item := range inputCh {
@@ -469,7 +467,6 @@ func fanIn(inputChs ...chan entity.User) chan entity.User {
 				}
 			}(inputCh)
 		}
-
 		wg.Wait()
 		close(outCh)
 	}()
