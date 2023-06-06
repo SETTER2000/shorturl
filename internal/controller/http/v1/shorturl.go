@@ -377,19 +377,6 @@ func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
 	for v := range fanIn(workerChs...) {
 		r.l.Info("%s\n", v.UserID)
 	}
-	//-- end fanOut fanIn
-
-	//-- not multithreading
-	//for i := 0; i < len(slugs); i++ {
-	//	fmt.Printf("SLUG#%d: %s\n", i, slugs[i])
-	//	err = r.s.UserDelLink(req.Context(), &u)
-	//}
-	//if err != nil {
-	//	r.l.Error(err, "http - v1 - delUrls")
-	//	http.Error(res, fmt.Sprintf("%v", err), http.StatusBadRequest)
-	//	return
-	//}
-	//-- end not multithreading
 
 	res.WriteHeader(http.StatusAccepted)
 	res.Header().Set("Content-Type", "application/json")
