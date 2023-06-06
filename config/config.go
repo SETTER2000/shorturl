@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/SETTER2000/shorturl/pkg/log/logger"
+	"github.com/caarlos0/env/v7"
 	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
@@ -39,7 +40,9 @@ type (
 		// помощью метода http.ListenAndServeTLS или tls.Listen.
 		EnableHTTPS bool `env:"ENABLE_HTTPS"`
 		// передать строковое представление бесклассовой адресации (CIDR)
-		TrustedSubnet string `env:"TRUSTED_SUBNET"`
+		TrustedSubnet string `json:"trusted_subnet" env:"TRUSTED_SUBNET"`
+		// разрешить IP с использованием заголовка
+		ResolveIPUsingHeader bool
 		// BASE_URL - базовый адрес результирующего сокращённого URL
 		BaseURL string `env:"BASE_URL" json:"base_url" env-default:"http://localhost:8080"`
 		// SERVER_ADDRESS - адрес запуска HTTP-сервера
@@ -93,12 +96,12 @@ func NewConfig() (*Config, error) {
 	flag.StringVar(&cfg.HTTP.ServerAddress, "a", cfg.HTTP.ServerAddress, "host to listen on")
 	flag.BoolVar(&cfg.HTTP.EnableHTTPS, "s", false, "start server with https protocol")
 	flag.StringVar(&cfg.HTTP.TrustedSubnet, "t", "", "you can pass Classless Addressing Representation (CIDR) strings")
+	flag.BoolVar(&cfg.HTTP.ResolveIPUsingHeader, "resolve_ip_using_header", false, "Разрешение на проверку заголовка X-Real-IP и X-Forwarded-For")
 	flag.StringVar(&cfg.HTTP.CertsDir, "cd", "certs", "certificate directory")
 	flag.StringVar(&cfg.HTTP.CertFile, "cc", "dev.crt", "name file certificate")
 	flag.StringVar(&cfg.HTTP.KeyFile, "ck", "dev_rsa.key", "name file key certificate")
 	flag.StringVar(&cfg.HTTP.ServerDomain, "dm", "rooder.ru", "server domain name")
 	flag.StringVar(&cfg.Cookie.SecretKey, "sk", "RtsynerpoGIYdab_s234r", "cookie secret key")
-
 	// Usage .
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Shorturl Version %s %v\nUsage : Project Shorturl - URL Shortener Server\n", os.Args[0], cfg.App.Version)
@@ -108,7 +111,11 @@ func NewConfig() (*Config, error) {
 	// Parse .
 	flag.Parse()
 	checkConfigFile(&cfg.App.ConfigFileName, cfg)
-
+	// environ
+	err := env.Parse(cfg) // caarlos0
+	if err != nil {
+		return nil, err
+	}
 	return cfg, nil
 }
 

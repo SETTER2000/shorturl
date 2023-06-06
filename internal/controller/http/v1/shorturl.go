@@ -7,8 +7,11 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -182,6 +185,21 @@ func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
 
 // GET /api/internal/stats
 func (r *shorturlRoutes) stats(w http.ResponseWriter, req *http.Request) {
+	ip, err := resolveIP(req, resolveIPOpts{
+		UseHeader:     r.cfg.ResolveIPUsingHeader,
+		TrustedSubnet: r.cfg.HTTP.TrustedSubnet,
+	})
+	if err != nil {
+		w.WriteHeader(400)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	ok := resolveSubNet(ip, r.cfg)
+	if !ok {
+		http.Error(w, fmt.Sprintf("%v", ErrForbidden), http.StatusForbidden)
+		return
+	}
+
 	Static := &entity.Static{}
 	urls, err := r.s.AllLink()
 	if err != nil {
@@ -490,3 +508,147 @@ func fanOut(inputCh chan entity.User, n int) []chan entity.User {
 
 	return chs
 }
+
+type resolveIPOpts struct {
+	UseHeader     bool
+	TrustedSubnet string
+}
+
+func resolveIP(r *http.Request, opts resolveIPOpts) (net.IP, error) {
+	network := "tcp"
+	address := "poaleell.com:80"
+	conn, err := net.Dial(network, address)
+	if err != nil {
+		log.Printf("DIAL err: %s\n", err)
+	}
+	defer conn.Close()
+	localAddr := conn.RemoteAddr().(*net.TCPAddr)
+	fmt.Printf("Address of Dial function Remote IP Addr %s: %v\n", address, localAddr.IP)
+	fmt.Printf("ENV TRUSTED_SUBNET: %s\n", os.Getenv("TRUSTED_SUBNET"))
+
+	if opts.TrustedSubnet == "" && os.Getenv("TRUSTED_SUBNET") == "" {
+		return nil, fmt.Errorf("err from resolveIP opts.TrustedSubnet is empty")
+	}
+
+	if !opts.UseHeader {
+		addr := r.RemoteAddr
+		// метод возвращает адрес в формате host:port
+		// нужна только подстрока host
+		ipStr, _, err := net.SplitHostPort(addr)
+		if err != nil {
+			return nil, err
+		}
+		// парсим ip
+		ip := net.ParseIP(ipStr)
+		if ip == nil {
+			panic("unexpected parse ip error")
+		}
+		return ip, nil
+	} else {
+		// смотрим заголовок запроса X-Real-IP
+		ipStr := r.Header.Get("X-Real-IP")
+		// парсим ip
+		ip := net.ParseIP(ipStr)
+		if ip == nil {
+			// если заголовок X-Real-IP пуст, пробуем X-Forwarded-For
+			// этот заголовок содержит адреса отправителя и промежуточных прокси
+			// в виде 203.0.113.195, 70.41.3.18, 150.172.238.178
+			ips := r.Header.Get("X-Forwarded-For")
+			// разделяем цепочку адресов
+			ipStrs := strings.Split(ips, ",")
+			// интересует только первый
+			ipStr = ipStrs[0]
+			// парсим
+			ip = net.ParseIP(ipStr)
+		}
+		if ip == nil {
+			return nil, fmt.Errorf("failed parse ip from http header")
+		}
+		return ip, nil
+	}
+}
+
+// resolveSubNet - проверить входит ли ip-адрес в доверенную подсеть
+func resolveSubNet(ip net.IP, cfg *config.Config) bool {
+	netMask, err := strconv.Atoi(strings.Split(cfg.HTTP.TrustedSubnet, "/")[1:][0])
+	if err != nil {
+		log.Printf("Ошибка %e", err)
+	}
+
+	ipv4Addr, ipv4Net, err := net.ParseCIDR(cfg.HTTP.TrustedSubnet)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// This mask corresponds to a /24 subnet for IPv4.
+	ipv4Mask := net.CIDRMask(netMask, 32)
+	fmt.Printf("ipv4Addr подсети: %v\n ", ipv4Addr.Mask(ipv4Mask))
+	fmt.Printf("IP %v входит в подсеть %v? : %v\n", ip, cfg.HTTP.TrustedSubnet, ipv4Net.Contains(ip))
+	return ipv4Net.Contains(ip)
+}
+
+// countHosts кол-во возможных хостов в подсети
+func countHosts(b int) (int, error) {
+	if b > 24 || b < 2 {
+		return 0, ErrBadRequest
+	}
+	size := 7
+
+	m := []int{254, 126, 62, 30, 14, 6, 2}
+	masks := make(map[int]int, size)
+	for i := 0; i < size; i++ {
+		u := 24 + i
+		masks[u] = m[i]
+	}
+
+	return masks[b], nil
+}
+
+//func resolveSubNetOld(ip net.IP, cfg *config.Config) bool {
+//	maska := [4]int{255, 255, 255}
+//	k := make(map[int]byte, 7)
+//	k[24] = 255 - 255
+//	k[25] = 255 - 127
+//	k[26] = 255 - 63
+//	k[27] = 255 - 31
+//	k[28] = 255 - 15
+//	k[29] = 255 - 7
+//	k[30] = 255 - 3
+//	log.Printf("Bytes:: %v", k[24])
+//
+//	num := int64(192)
+//	m := 255
+//	bitwiseIP := strings.Split(ip.String(), ".")
+//	addressSubNet := strings.Split(cfg.HTTP.TrustedSubnet, "/")[:1][0]
+//	log.Printf("Адрес подсети: %s\n", addressSubNet)
+//	netMask, err := strconv.Atoi(strings.Split(cfg.HTTP.TrustedSubnet, "/")[1:][0])
+//	if err != nil {
+//		log.Printf("Ошибка %e", err)
+//	}
+//
+//	cnt, err := countHosts(netMask)
+//	if err != nil {
+//		log.Printf("%e", err)
+//	}
+//
+//	log.Printf("Кол-во доступных хостов по этой маске: %d\n", cnt)
+//
+//	ipv4Addr := net.ParseIP(ip.String())
+//	// This mask corresponds to a /24 subnet for IPv4.
+//	ipv4Mask := net.CIDRMask(netMask, 32)
+//	fmt.Printf("ipv4Addr подсети: %v\n ", ipv4Addr.Mask(ipv4Mask))
+//
+//	maska[3] = int(k[netMask])
+//	mn := fmt.Sprintf("255.255.255.%v", k[netMask])
+//	log.Printf("Маска подсети:: %v - %v\n", mn, maska)
+//	log.Printf("Маска netMask:: %v\n", netMask)
+//
+//	xBin := strconv.FormatInt(num, 2)
+//	log.Printf("r.cfg.ResolveIPUsingHeader: %v\n", cfg.ResolveIPUsingHeader)
+//	log.Printf("IP в заголовке X-Real-IP: %v - %v\n", bitwiseIP, ip.String())
+//	log.Printf("Двоичное числа %d: %T, %v\n", num, xBin, xBin)
+//	log.Printf("cfg.HTTP.TrustedSubnet: %v", cfg.HTTP.TrustedSubnet)
+//	var b int = 192 & m
+//	log.Printf("&: поразрядная конъюнкция (операция И или поразрядное умножение): %d & %v = %v\n", num, m, b)
+//	return false
+//}

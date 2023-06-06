@@ -61,6 +61,12 @@ short_d:
 	go build -tags pro -ldflags $(BAKING) -o $(APP_DIR)/$(BIN_NAME) $(APP_DIR)/$(MAIN)
 	./$(APP_DIR)/$(BIN_NAME) -d $(DB)
 
+# Скомпилировать и запустить бинарник сервиса shorturl (shortener) с подключением к DB
+# и разрешением чтения заголовка X-Real-IP или X-Forwarded-For
+short_x:
+	go build -tags pro -ldflags $(BAKING) -o $(APP_DIR)/$(BIN_NAME) $(APP_DIR)/$(MAIN)
+	./$(APP_DIR)/$(BIN_NAME) -d $(DB) -resolve_ip_using_header true
+
 cover:
 	go test -v -count 1 -race -coverpkg=./... -coverprofile=$(COVER_OUT) ./...
 	go tool cover -func $(COVER_OUT)
