@@ -67,6 +67,11 @@ short_x:
 	go build -tags pro -ldflags $(BAKING) -o $(APP_DIR)/$(BIN_NAME) $(APP_DIR)/$(MAIN)
 	./$(APP_DIR)/$(BIN_NAME) -d $(DB) -resolve_ip_using_header true
 
+
+short_g:
+	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative internal/controller/grpc/proto/shorturl.proto
+
+
 cover:
 	go test -v -count 1 -race -coverpkg=./... -coverprofile=$(COVER_OUT) ./...
 	go tool cover -func $(COVER_OUT)

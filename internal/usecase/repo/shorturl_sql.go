@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/SETTER2000/shorturl/config"
+	"github.com/SETTER2000/shorturl/internal/app/er"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/scripts"
 	"github.com/jackc/pgerrcode"
@@ -56,10 +57,10 @@ func NewSQLProducer(db *sqlx.DB) *producerSQL {
 
 // Post - добавляет данные в DB
 func (i *InSQL) Post(ctx context.Context, sh *entity.Shorturl) error {
-	if len(strings.TrimSpace(sh.UserID)) < 1 {
-		return ErrBadRequest
+	fmt.Println("InSQL.Post method")
+	if len(strings.TrimSpace(string(sh.UserID))) < 1 {
+		return er.ErrBadRequest
 	}
-
 	stmt, err := i.w.db.Prepare("INSERT INTO public.shorturl (slug, url, user_id) VALUES ($1,$2,$3)")
 	if err != nil {
 		log.Fatal(err)
@@ -69,7 +70,7 @@ func (i *InSQL) Post(ctx context.Context, sh *entity.Shorturl) error {
 	_, err = stmt.Exec(sh.Slug, sh.URL, sh.UserID)
 	if err, ok := err.(*pgconn.PgError); ok {
 		if err.Code == pgerrcode.UniqueViolation {
-			return NewConflictError("old url", "http://testiki", ErrAlreadyExists)
+			return NewConflictError("old url", "http://testiki", er.ErrAlreadyExists)
 		}
 	}
 
@@ -90,7 +91,9 @@ func NewSQLConsumer(db *sqlx.DB) *consumerSQL {
 
 // Get -.
 func (i *InSQL) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
-	var slug, url, id string
+	var slug entity.Slug
+	var url entity.URL
+	var id entity.UserID
 	var del bool
 	rows, err := i.w.db.Query("SELECT slug, url, user_id, del FROM shorturl WHERE slug = $1 OR url = $2 ", sh.Slug, sh.URL)
 	if err != nil {
@@ -120,7 +123,9 @@ func (i *InSQL) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl,
 
 // GetAll - получить все данные.
 func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error) {
-	var slug, url, id string
+	var id string
+	var slug entity.Slug
+	var url entity.URL
 	q := `SELECT slug, url, user_id FROM shorturl WHERE user_id=$1 AND del=$2`
 	rows, err := i.r.db.Queryx(q, u.UserID, false)
 	if err != nil {
@@ -135,7 +140,8 @@ func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error
 			return nil, err
 		}
 		l.URL = url
-		l.Slug = scripts.GetHost(i.cfg.HTTP, slug)
+		//l.Slug = slug
+		l.ShortURL = scripts.GetHost(i.cfg.HTTP, slug)
 		u.Urls = append(u.Urls, l)
 	}
 	if err = rows.Err(); err != nil {

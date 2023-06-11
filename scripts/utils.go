@@ -3,6 +3,7 @@ package scripts
 
 import (
 	"fmt"
+	"github.com/SETTER2000/shorturl/internal/entity"
 	"math/rand"
 	"os"
 	"time"
@@ -36,13 +37,13 @@ func GenerateString(n int) string {
 
 // UniqueString возвращает уникальную строку.
 // Используется как ключ короткого url.
-func UniqueString() string {
-	return fmt.Sprintf("%v%s", time.Now().UnixNano(), GenerateString(3))
+func UniqueString() entity.Slug {
+	return entity.Slug(fmt.Sprintf("%v%s", time.Now().UnixNano(), GenerateString(3)))
 }
 
 // GetHost формирует короткий URL
-func GetHost(cfg config.HTTP, shorturl string) string {
-	return fmt.Sprintf("%s/%s", cfg.BaseURL, shorturl)
+func GetHost(cfg config.HTTP, slug entity.Slug) entity.URL {
+	return entity.URL(fmt.Sprintf("%s/%s", cfg.BaseURL, slug))
 }
 
 // CheckEnvironFlag проверка значения переменной окружения и одноименного флага

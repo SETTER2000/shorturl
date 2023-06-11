@@ -1,4 +1,4 @@
-package v1
+package er
 
 import "errors"
 
@@ -7,13 +7,16 @@ import "errors"
 // ErrBadRequest ошибка в случаи не корректного запроса
 // ErrAccessDenied ошибка в случаи отсутствия права доступа
 // ErrForbidden ошибка доступа к запрошенному ресурсу в случаи когда доступ запрещен
+// ErrUserIDRequired -.
+// ErrStatusConflict -.
 var (
-	ErrNotFound      = errors.New("not found")
-	ErrAlreadyExists = errors.New("already exists")
-	ErrBadRequest    = errors.New("bad request")
-	ErrAccessDenied  = errors.New(`access denied`)
-
-	ErrForbidden = errors.New(`forbidden`)
+	ErrNotFound       = errors.New("not found")
+	ErrAlreadyExists  = errors.New("already exists")
+	ErrBadRequest     = errors.New("bad request")
+	ErrAccessDenied   = errors.New(`access denied`)
+	ErrForbidden      = errors.New(`forbidden`)
+	ErrUserIDRequired = errors.New("user id required")
+	ErrStatusConflict = errors.New("status conflict")
 )
 
 type response struct {

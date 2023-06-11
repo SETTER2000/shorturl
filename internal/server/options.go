@@ -44,6 +44,26 @@ func ShutdownTimeout(timeout time.Duration) Option {
 	}
 }
 
+// PortGRPC -.
+func PortGRPC(port string) Option {
+	return func(s *Server) {
+		s.grpcPort = port
+	}
+}
+
+//
+//// EnableGRPC - включить поддержку gRPC.
+//func EnableGRPC(cfg *config.GRPC) Option {
+//
+//	grpcSrv := grpc.NewServer(grpc.Deps{
+//		EntityHandler:
+//	})
+//
+//	return func(s *Server) {
+//		s.grpcSrv = grpcSrv
+//	}
+//}
+
 // EnableHTTPS - опция подключает возможность использования SSL/TLS на сервере.
 func EnableHTTPS(cfg *config.HTTP) Option {
 	log.Printf("cfg.ServerDomain: %s\n", cfg.ServerDomain)

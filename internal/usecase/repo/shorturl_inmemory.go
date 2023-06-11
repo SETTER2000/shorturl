@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"github.com/SETTER2000/shorturl/internal/app/er"
 	"github.com/SETTER2000/shorturl/scripts"
 	"sync"
 
@@ -20,15 +21,15 @@ import (
 // помещайте мьютекс выше тех полей, доступ к которым, он будет защищать.
 type InMemory struct {
 	cfg  *config.Config
-	m    map[string]entity.Shorturls // <-- это поле под ним
-	lock sync.Mutex                  // <-- этот мьютекс защищает
+	m    map[entity.UserID]entity.Shorturls // <-- это поле под ним
+	lock sync.Mutex                         // <-- этот мьютекс защищает
 }
 
 // NewInMemory слой взаимодействия с хранилищем в памяти.
 func NewInMemory(cfg *config.Config) *InMemory {
 	return &InMemory{
 		cfg: cfg,
-		m:   make(map[string]entity.Shorturls),
+		m:   make(map[entity.UserID]entity.Shorturls),
 	}
 }
 
@@ -37,7 +38,7 @@ func NewInMemory(cfg *config.Config) *InMemory {
 func (s *InMemory) Get(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
 	u, err := s.searchBySlug(sh)
 	if err != nil {
-		return nil, ErrNotFound
+		return nil, er.ErrNotFound
 	}
 	return u, nil
 }
@@ -83,7 +84,8 @@ func (s *InMemory) GetAll(ctx context.Context, u *entity.User) (*entity.User, er
 	for _, i := range s.m[u.UserID] {
 
 		l.URL = i.URL
-		l.Slug = scripts.GetHost(s.cfg.HTTP, i.Slug)
+		//l.Slug = i.Slug
+		l.ShortURL = scripts.GetHost(s.cfg.HTTP, i.Slug)
 		u.Urls = append(u.Urls, l)
 	}
 	return u, nil

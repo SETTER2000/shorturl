@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/SETTER2000/shorturl/internal/app/er"
 	"io"
 	"log"
 	"net"
@@ -21,7 +22,6 @@ import (
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
 	"github.com/SETTER2000/shorturl/internal/usecase"
-	"github.com/SETTER2000/shorturl/internal/usecase/repo"
 	"github.com/SETTER2000/shorturl/pkg/log/logger"
 	"github.com/SETTER2000/shorturl/scripts"
 )
@@ -58,9 +58,11 @@ func newShorturlRoutes(handler chi.Router, s usecase.IShorturl, l logger.Interfa
 // @Router      /{key} [get]
 
 func (r *shorturlRoutes) shortLink(w http.ResponseWriter, req *http.Request) {
-	shorturl := chi.URLParam(req, "key")
-	data := entity.Shorturl{Config: r.cfg}
-	data.Slug = shorturl
+	data := entity.Shorturl{
+		Config: r.cfg,
+		Slug:   entity.Slug(chi.URLParam(req, "key")),
+	}
+
 	sh, err := r.s.ShortLink(req.Context(), &data)
 	if err != nil {
 		r.l.Error(err, "http - v1 - shortLink")
@@ -75,7 +77,7 @@ func (r *shorturlRoutes) shortLink(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Add("Content-Encoding", "gzip")
-	w.Header().Set("Location", sh.URL)
+	w.Header().Set("Location", string(sh.URL))
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
@@ -122,12 +124,12 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	data := entity.Shorturl{Config: r.cfg}
-	data.URL = string(body)
+	data.URL = entity.URL(body)
 	data.Slug = scripts.UniqueString()
-	data.UserID = ctx.Value("access_token").(string)
+	data.UserID = entity.UserID(req.Context().Value(r.cfg.AccessTokenName).(string))
 	shorturl, err := r.s.LongLink(ctx, &data)
 	if err != nil {
-		if errors.Is(err, repo.ErrAlreadyExists) {
+		if errors.Is(err, er.ErrAlreadyExists) {
 			data2 := entity.Shorturl{
 				Config: r.cfg,
 				URL:    data.URL,
@@ -156,11 +158,11 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 // GET
 func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
 	u := entity.User{}
-	userID := req.Context().Value("access_token")
-	if userID == nil {
-		res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", userID)))
+	u.UserID = entity.UserID(req.Context().Value(r.cfg.AccessTokenName).(string))
+	if u.UserID == "" {
+		res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", u.UserID)))
 	}
-	u.UserID = fmt.Sprintf("%s", userID)
+	//u.UserID = userID
 	user, err := r.s.UserAllLink(req.Context(), &u)
 	if err != nil {
 		r.l.Error(err, "http - v1 - urls")
@@ -174,12 +176,14 @@ func (r *shorturlRoutes) urls(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	log.Printf("%v", len(encoded))
-	res.Header().Set("Content-Type", "application/json")
+
 	if string(encoded) == "null" {
 		res.WriteHeader(http.StatusNoContent)
 	} else {
+		res.Header().Set("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
 	}
+
 	res.Write(encoded)
 }
 
@@ -196,7 +200,7 @@ func (r *shorturlRoutes) stats(w http.ResponseWriter, req *http.Request) {
 	}
 	ok := resolveSubNet(ip, r.cfg)
 	if !ok {
-		http.Error(w, fmt.Sprintf("%v", ErrForbidden), http.StatusForbidden)
+		http.Error(w, fmt.Sprintf("%v", er.ErrForbidden), http.StatusForbidden)
 		return
 	}
 
@@ -241,49 +245,27 @@ func (r *shorturlRoutes) stats(w http.ResponseWriter, req *http.Request) {
 // @Router      /shorten [post]
 func (r *shorturlRoutes) shorten(res http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
-	data := entity.Shorturl{Config: r.cfg}
-	resp := entity.ShorturlResponse{}
+	sh := entity.Shorturl{}
+	res.Header().Set("Content-Type", "application/json")
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	data.Slug = scripts.UniqueString()
-	if err := json.Unmarshal(body, &data); err != nil {
+	if err = json.Unmarshal(body, &sh); err != nil {
 		panic(err)
 	}
-	data.UserID = req.Context().Value(r.cfg.AccessTokenName).(string)
-	err = r.s.Post(ctx, &data)
-	resp.URL = scripts.GetHost(r.cfg.HTTP, data.Slug)
-	if err != nil {
-		if errors.Is(err, repo.ErrAlreadyExists) {
-			data2 := entity.Shorturl{
-				Config: r.cfg,
-				URL:    data.URL,
-				UserID: data.UserID}
+	sh.UserID = entity.UserID(req.Context().Value(r.cfg.AccessTokenName).(string))
+	resp, err := r.s.Post(ctx, &sh)
+	encoded, _ := json.Marshal(&resp)
 
-			sh, err := r.s.ShortLink(ctx, &data2)
-			if err != nil {
-				http.Error(res, err.Error(), http.StatusBadRequest)
-			}
-			// return shorturl
-			resp.URL = scripts.GetHost(r.cfg.HTTP, sh.Slug)
-
-			res.Header().Set("Content-Type", "application/json")
-			res.WriteHeader(http.StatusConflict)
-		} else {
-			http.Error(res, err.Error(), http.StatusBadRequest)
-			return
-		}
+	if err == er.ErrStatusConflict {
+		res.WriteHeader(http.StatusConflict)
+	} else {
+		res.Header().Set("Content-Type", "application/json")
+		res.WriteHeader(http.StatusCreated)
 	}
 
-	encoded, err := json.Marshal(resp)
-	if err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
-		return
-	}
-	res.Header().Set("Content-Type", "application/json")
-	res.WriteHeader(http.StatusCreated)
 	res.Write(encoded)
 }
 
@@ -302,14 +284,14 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 
 	var rs entity.Response
 	var sr entity.ShortenResponse
-	UserID := ctx.Value(r.cfg.AccessTokenName).(string)
+	UserID := entity.UserID(ctx.Value(r.cfg.AccessTokenName).(string))
 	for _, bt := range CorrelationOrigin {
 		data.URL = bt.URL
 		data.Slug = bt.Slug
 		data.UserID = UserID
-		err = r.s.Post(ctx, &data)
+		resp, err := r.s.Post(ctx, &data)
 		if err != nil {
-			if errors.Is(err, repo.ErrAlreadyExists) {
+			if errors.Is(err, er.ErrAlreadyExists) {
 				res.WriteHeader(http.StatusConflict)
 				return
 			}
@@ -317,7 +299,7 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 		sr.Slug = data.Slug
-		sr.URL = scripts.GetHost(r.cfg.HTTP, data.Slug)
+		sr.URL = resp.URL
 		rs = append(rs, sr)
 	}
 
@@ -338,7 +320,7 @@ func (r *shorturlRoutes) batch(res http.ResponseWriter, req *http.Request) {
 // Фактический результат удаления может происходить позже — каким-либо
 // образом оповещать пользователя об успешности или неуспешности не нужно.
 func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
-	var slugs []string
+	var slugs []entity.Slug
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
@@ -349,11 +331,13 @@ func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
 	}
 
 	u := entity.User{}
-	userID := req.Context().Value("access_token")
-	if userID == nil {
+	//userID := req.Context().Value("access_token")
+	userID := entity.UserID(req.Context().Value(r.cfg.AccessTokenName).(string))
+	if userID == "" {
 		res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", userID)))
 	}
-	u.UserID = fmt.Sprintf("%s", userID)
+	u.UserID = entity.UserID(userID)
+	//u.UserID = fmt.Sprintf("%s", userID)
 	u.DelLink = slugs
 
 	//-- fanOut fanIn - multithreading
@@ -384,7 +368,7 @@ func (r *shorturlRoutes) delUrls(res http.ResponseWriter, req *http.Request) {
 }
 
 func (r *shorturlRoutes) delUrls2(res http.ResponseWriter, req *http.Request) {
-	var slugs []string
+	var slugs []entity.Slug
 	const workersCount = 10
 	inputCh := make(chan entity.User)
 
@@ -398,11 +382,11 @@ func (r *shorturlRoutes) delUrls2(res http.ResponseWriter, req *http.Request) {
 			panic(err)
 		}
 		u := entity.User{}
-		userID := req.Context().Value("access_token")
-		if userID == nil {
-			res.Write([]byte(fmt.Sprintf("Not access_token and user_id: %s", userID)))
+		userID := entity.UserID(req.Context().Value(r.cfg.AccessTokenName).(string))
+		if userID == "" {
+			fmt.Fprintf(res, "Not access_token and user_id: %s", userID)
 		}
-		u.UserID = fmt.Sprintf("%s", userID)
+		u.UserID = userID
 		u.DelLink = slugs
 		inputCh <- u
 		close(inputCh)
@@ -494,8 +478,8 @@ func fanOut(inputCh chan entity.User, n int) []chan entity.User {
 }
 
 type resolveIPOpts struct {
-	UseHeader     bool
 	TrustedSubnet string
+	UseHeader     bool
 }
 
 func resolveIP(r *http.Request, opts resolveIPOpts) (net.IP, error) {
@@ -574,7 +558,7 @@ func resolveSubNet(ip net.IP, cfg *config.Config) bool {
 // countHosts кол-во возможных хостов в подсети
 func countHosts(b int) (int, error) {
 	if b > 24 || b < 2 {
-		return 0, ErrBadRequest
+		return 0, er.ErrBadRequest
 	}
 	size := 7
 
@@ -587,52 +571,3 @@ func countHosts(b int) (int, error) {
 
 	return masks[b], nil
 }
-
-//func resolveSubNetOld(ip net.IP, cfg *config.Config) bool {
-//	maska := [4]int{255, 255, 255}
-//	k := make(map[int]byte, 7)
-//	k[24] = 255 - 255
-//	k[25] = 255 - 127
-//	k[26] = 255 - 63
-//	k[27] = 255 - 31
-//	k[28] = 255 - 15
-//	k[29] = 255 - 7
-//	k[30] = 255 - 3
-//	log.Printf("Bytes:: %v", k[24])
-//
-//	num := int64(192)
-//	m := 255
-//	bitwiseIP := strings.Split(ip.String(), ".")
-//	addressSubNet := strings.Split(cfg.HTTP.TrustedSubnet, "/")[:1][0]
-//	log.Printf("Адрес подсети: %s\n", addressSubNet)
-//	netMask, err := strconv.Atoi(strings.Split(cfg.HTTP.TrustedSubnet, "/")[1:][0])
-//	if err != nil {
-//		log.Printf("Ошибка %e", err)
-//	}
-//
-//	cnt, err := countHosts(netMask)
-//	if err != nil {
-//		log.Printf("%e", err)
-//	}
-//
-//	log.Printf("Кол-во доступных хостов по этой маске: %d\n", cnt)
-//
-//	ipv4Addr := net.ParseIP(ip.String())
-//	// This mask corresponds to a /24 subnet for IPv4.
-//	ipv4Mask := net.CIDRMask(netMask, 32)
-//	fmt.Printf("ipv4Addr подсети: %v\n ", ipv4Addr.Mask(ipv4Mask))
-//
-//	maska[3] = int(k[netMask])
-//	mn := fmt.Sprintf("255.255.255.%v", k[netMask])
-//	log.Printf("Маска подсети:: %v - %v\n", mn, maska)
-//	log.Printf("Маска netMask:: %v\n", netMask)
-//
-//	xBin := strconv.FormatInt(num, 2)
-//	log.Printf("r.cfg.ResolveIPUsingHeader: %v\n", cfg.ResolveIPUsingHeader)
-//	log.Printf("IP в заголовке X-Real-IP: %v - %v\n", bitwiseIP, ip.String())
-//	log.Printf("Двоичное числа %d: %T, %v\n", num, xBin, xBin)
-//	log.Printf("cfg.HTTP.TrustedSubnet: %v", cfg.HTTP.TrustedSubnet)
-//	var b int = 192 & m
-//	log.Printf("&: поразрядная конъюнкция (операция И или поразрядное умножение): %d & %v = %v\n", num, m, b)
-//	return false
-//}

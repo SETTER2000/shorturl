@@ -4,6 +4,9 @@ package server
 import (
 	"context"
 	"github.com/SETTER2000/shorturl/config"
+	"github.com/SETTER2000/shorturl/internal/controller/grpc"
+	"github.com/SETTER2000/shorturl/internal/controller/grpc/handler"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
@@ -16,35 +19,45 @@ const (
 	_defaultHTTPS           = false
 	_defaultCertFile        = ""
 	_defaultKeyFile         = ""
+	_defaultGrpcPort        = ""
 )
 
 // Server -.
 type Server struct {
-	isHTTPS         bool
-	notify          chan error
 	certFile        string
+	notify          chan error
 	keyFile         string
+	grpcPort        string
+	isHTTPS         bool
 	server          *http.Server
-	cfg             *config.HTTP
+	srv             *grpc.Server
+	cfg             *config.Config
 	shutdownTimeout time.Duration
 }
 
 // New -.
-func New(handler http.Handler, opts ...Option) *Server {
+func New(handlerHTTP http.Handler, opts ...Option) *Server {
+	var logger = logrus.New()
 	httpServer := &http.Server{
-		Handler:      handler,
+		Handler:      handlerHTTP,
 		ReadTimeout:  _defaultReadTimeout,
 		WriteTimeout: _defaultWriteTimeout,
 		Addr:         _defaultAddr,
 	}
 
+	grpcServer := grpc.NewServer(grpc.Deps{
+		Logger:  logger,
+		Handler: &handler.IShorturlServer{},
+	})
 	s := &Server{
 		server:          httpServer,
+		srv:             grpcServer,
 		notify:          make(chan error, 1),
 		shutdownTimeout: _defaultShutdownTimeout,
 		isHTTPS:         _defaultHTTPS,
 		certFile:        _defaultCertFile,
 		keyFile:         _defaultKeyFile,
+		grpcPort:        _defaultGrpcPort,
 	}
 
 	// Custom options
@@ -70,6 +83,13 @@ func (s *Server) start() {
 			close(s.notify)
 		}()
 	}
+
+	go func() {
+		s.srv.Logger.Info("Starting gRPC Server, PORT :", s.grpcPort)
+		s.notify <- s.srv.ListenAndServer(s.grpcPort)
+		close(s.notify)
+	}()
+
 }
 
 // Notify -.

@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -9,11 +8,11 @@ import (
 
 // ErrNotFound ошибка в случаи отсутствия данных
 // ErrAlreadyExists ошибка в случаи если данные уже существуют
-var (
-	ErrNotFound      = errors.New("not found")
-	ErrAlreadyExists = errors.New("already exists")
-	ErrBadRequest    = errors.New("bad request")
-)
+//var (
+//	ErrNotFound      = errors.New("not found")
+//	ErrAlreadyExists = errors.New("already exists")
+//	ErrBadRequest    = errors.New("bad request")
+//)
 
 // TimeError предназначен для ошибок с фиксацией времени возникновения.
 type TimeError struct {

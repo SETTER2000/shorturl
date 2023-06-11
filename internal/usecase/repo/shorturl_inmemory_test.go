@@ -27,8 +27,8 @@ func TestInMemory_Put(t *testing.T) {
 		fields     fields
 		name       string
 		args       args
-		UID        string
-		url        string
+		UID        entity.UserID
+		url        entity.URL
 		countShort int
 		countUID   int
 		del        bool
@@ -91,7 +91,7 @@ func TestInMemory_Put(t *testing.T) {
 		},
 	}
 	s := &InMemory{
-		m: make(map[string]entity.Shorturls),
+		m: make(map[entity.UserID]entity.Shorturls),
 	}
 	for idx, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -124,10 +124,10 @@ func TestInMemory_Delete(t *testing.T) {
 		UserID: "1674872720465761244B_5",
 	}
 	lst := entity.List{
-		Slug: "1674872720465761244B_5",
-		URL:  "https://example.com/go/to/home.html",
+		ShortURL: "https://example.com/1674872720465761244B_5",
+		URL:      "https://example.com/go/to/home.html",
 	}
-	user.DelLink = []string{
+	user.DelLink = []entity.Slug{
 		"1674872720465761244B_5",
 	}
 	user.Urls = append(user.Urls, lst)
@@ -145,8 +145,8 @@ func TestInMemory_Delete(t *testing.T) {
 		fields     fields
 		name       string
 		args       args
-		UID        string
-		url        string
+		UID        entity.UserID
+		url        entity.URL
 		countShort int
 		countUID   int
 		del        bool
@@ -176,7 +176,7 @@ func TestInMemory_Delete(t *testing.T) {
 		},
 	}
 	s := &InMemory{
-		m: make(map[string]entity.Shorturls),
+		m: make(map[entity.UserID]entity.Shorturls),
 	}
 	for idx, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -197,7 +197,7 @@ func TestInMemory_Delete(t *testing.T) {
 func TestInMemory_Read(t *testing.T) {
 	type fields struct {
 		cfg  *config.Config
-		m    map[string]entity.Shorturls
+		m    map[entity.UserID]entity.Shorturls
 		lock *sync.Mutex
 	}
 	tests := []struct {
@@ -231,7 +231,7 @@ func TestInMemory_Get(t *testing.T) {
 	}
 	type fields struct {
 		lock *sync.Mutex
-		m    map[string]entity.Shorturls
+		m    map[entity.UserID]entity.Shorturls
 		cfg  *config.Config
 	}
 	type args struct {
@@ -240,9 +240,9 @@ func TestInMemory_Get(t *testing.T) {
 	}
 
 	fld := fields{
-		m: make(map[string]entity.Shorturls),
+		m: make(map[entity.UserID]entity.Shorturls),
 	}
-	fld.m[sh.Slug] = append(fld.m[sh.Slug], sh)
+	fld.m[sh.UserID] = append(fld.m[sh.UserID], sh)
 
 	tests := []struct {
 		want    *entity.Shorturl
@@ -296,7 +296,7 @@ func TestInMemory_Post(t *testing.T) {
 
 	type fields struct {
 		cfg  *config.Config
-		m    map[string]entity.Shorturls
+		m    map[entity.UserID]entity.Shorturls
 		lock *sync.Mutex
 	}
 	type args struct {
@@ -312,7 +312,7 @@ func TestInMemory_Post(t *testing.T) {
 		{
 			name: "positive test #1",
 			fields: fields{
-				m: make(map[string]entity.Shorturls),
+				m: make(map[entity.UserID]entity.Shorturls),
 			},
 			args: args{
 				ctx: context.Background(),
@@ -337,7 +337,7 @@ func TestInMemory_Post(t *testing.T) {
 func TestInMemory_Save(t *testing.T) {
 	type fields struct {
 		cfg  *config.Config
-		m    map[string]entity.Shorturls
+		m    map[entity.UserID]entity.Shorturls
 		lock *sync.Mutex
 	}
 	tests := []struct {
@@ -364,7 +364,7 @@ func TestInMemory_Save(t *testing.T) {
 
 func TestNewInMemory(t *testing.T) {
 	inMem := &InMemory{
-		m: make(map[string]entity.Shorturls),
+		m: make(map[entity.UserID]entity.Shorturls),
 	}
 	type args struct {
 		cfg *config.Config

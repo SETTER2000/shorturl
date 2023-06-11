@@ -8,7 +8,7 @@
     "base_url": "http://localhost:8080",
     "server_address": "localhost:8080",
     "server_domain": "rooder.ru",
-     "file_storage_path": "storage.txt",
+    "file_storage_path": "storage.txt",
     "database_dsn": "",
     "enable_https": true,
     "trusted_subnet": "192.168.1.0/24"
@@ -19,5 +19,9 @@
   },
   "logger": {
     "log_level": "debug"
+  },
+  "grpc": {
+    "port": "8088",
+    "host": "localhost"
   }
 }

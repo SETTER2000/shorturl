@@ -51,10 +51,10 @@ func Run() {
 	if !scripts.CheckEnvironFlag("DATABASE_DSN", cfg.Storage.ConnectDB) {
 		if cfg.FileStorage == "" {
 			l.Warn("In memory storage!!!")
-			shorturlUseCase = usecase.New(repo.NewInMemory(cfg))
+			shorturlUseCase = usecase.New(repo.NewInMemory(cfg), cfg)
 		} else {
 			l.Info("File storage - is work...")
-			shorturlUseCase = usecase.New(repo.NewInFiles(cfg))
+			shorturlUseCase = usecase.New(repo.NewInFiles(cfg), cfg)
 			if err := shorturlUseCase.ReadService(); err != nil {
 				l.Error(fmt.Errorf("app - Read - shorturlUseCase.ReadService: %w", err))
 			}
@@ -67,7 +67,7 @@ func Run() {
 			//os.Exit(1)
 		}
 		l.Info("DB SQL - is work...")
-		shorturlUseCase = usecase.New(repo.NewInSQL(db, cfg))
+		shorturlUseCase = usecase.New(repo.NewInSQL(db, cfg), cfg)
 	}
 
 	fmt.Printf("Build version: %s\nBuild date: %s\nBuild commit: %s\n", versionString, dateString, commitString)
@@ -79,6 +79,7 @@ func Run() {
 
 	httpServer := server.New(handler,
 		server.Host(cfg.HTTP.ServerAddress),
+		server.PortGRPC(cfg.GRPC.Port),
 		//// на чтение предел
 		//server.ReadTimeout(30*time.Second),
 		//// на запись предел
@@ -92,11 +93,11 @@ func Run() {
 
 	select {
 	case s := <-interrupt:
-		if err := shorturlUseCase.SaveService(); err != nil {
+		if err = shorturlUseCase.SaveService(); err != nil {
 			l.Error(fmt.Errorf("app - Save - shorturlUseCase.SaveService: %w", err))
 		}
 		l.Info("app - Run - signal: " + s.String())
-	case err := <-httpServer.Notify():
+	case err = <-httpServer.Notify():
 		l.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
 	}
 

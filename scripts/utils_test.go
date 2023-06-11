@@ -2,6 +2,7 @@ package scripts
 
 import (
 	"github.com/SETTER2000/shorturl/config"
+	"github.com/SETTER2000/shorturl/internal/entity"
 	"regexp"
 	"testing"
 )
@@ -64,47 +65,47 @@ func TestCheckEnvironFlag(t *testing.T) {
 
 func TestGetHost(t *testing.T) {
 	type args struct {
-		cfg      config.HTTP
-		shorturl string
+		cfg  config.HTTP
+		slug entity.Slug
 	}
 	tests := []struct {
 		name string
 		args args
-		want string
+		want entity.URL
 	}{
 		{
 			name: "positive test #1",
 			args: args{
-				cfg:      config.HTTP{BaseURL: "http://localhost:8080"},
-				shorturl: "wEuWothteri_t23",
+				cfg:  config.HTTP{BaseURL: "http://localhost:8080"},
+				slug: entity.Slug("wEuWothteri_t23"),
 			},
 			want: "http://localhost:8080/wEuWothteri_t23",
 		}, {
 			name: "negative test #1 extra closing slash",
 			args: args{
-				cfg:      config.HTTP{BaseURL: "http://localhost:8080/"},
-				shorturl: "wEuWothteri_t23",
+				cfg:  config.HTTP{BaseURL: "http://localhost:8080/"},
+				slug: entity.Slug("wEuWothteri_t23"),
 			},
 			want: "http://localhost:8080//wEuWothteri_t23",
 		}, {
 			name: "negative test #2 missing protocol",
 			args: args{
-				cfg:      config.HTTP{BaseURL: "localhost:8080"},
-				shorturl: "wEuWothteri_t23",
+				cfg:  config.HTTP{BaseURL: "localhost:8080"},
+				slug: entity.Slug("wEuWothteri_t23"),
 			},
 			want: "localhost:8080/wEuWothteri_t23",
 		}, {
 			name: "negative test #3 missing protocol and port",
 			args: args{
-				cfg:      config.HTTP{BaseURL: "localhost"},
-				shorturl: "wEuWothteri_t23",
+				cfg:  config.HTTP{BaseURL: "localhost"},
+				slug: entity.Slug("wEuWothteri_t23"),
 			},
 			want: "localhost/wEuWothteri_t23",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetHost(tt.args.cfg, tt.args.shorturl); got != tt.want {
+			if got := GetHost(tt.args.cfg, tt.args.slug); got != tt.want {
 				t.Errorf("GetHost() = %v, want %v", got, tt.want)
 			}
 		})

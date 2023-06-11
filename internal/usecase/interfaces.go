@@ -13,8 +13,8 @@ import (
 //
 //go:generate go run github.com/vektra/mockery/v2@v2.20.2 --name=IShorturl
 type IShorturl interface {
-	Post(context.Context, *entity.Shorturl) error
-	LongLink(context.Context, *entity.Shorturl) (string, error)
+	Post(context.Context, *entity.Shorturl) (*entity.ShorturlResponse, error)
+	LongLink(context.Context, *entity.Shorturl) (entity.Slug, error)
 	ShortLink(context.Context, *entity.Shorturl) (*entity.Shorturl, error)
 	UserAllLink(ctx context.Context, u *entity.User) (*entity.User, error)
 	AllLink() (entity.CountURLs, error)

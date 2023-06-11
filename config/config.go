@@ -24,6 +24,7 @@ type (
 		Storage `json:"storage"`
 		Cookie  `json:"cookie"`
 		Log     `json:"logger"`
+		GRPC    `json:"grpc"`
 	}
 
 	App struct {
@@ -75,6 +76,10 @@ type (
 		// LOG_LEVEL переменная окружения, содержит значение уровня логирования проекта
 		Level string `env-required:"true" yaml:"log_level"  json:"log_level"  env:"LOG_LEVEL"`
 	}
+	GRPC struct {
+		Port string `env-required:"true" json:"port" env:"GRPC_PORT" envDefault:"8088"`
+		Host string `env-required:"true" json:"host" env:"GRPC_HOST" envDefault:"localhost"`
+	}
 )
 
 // Config .
@@ -102,6 +107,8 @@ func NewConfig() (*Config, error) {
 	flag.StringVar(&cfg.HTTP.KeyFile, "ck", "dev_rsa.key", "name file key certificate")
 	flag.StringVar(&cfg.HTTP.ServerDomain, "dm", "rooder.ru", "server domain name")
 	flag.StringVar(&cfg.Cookie.SecretKey, "sk", "RtsynerpoGIYdab_s234r", "cookie secret key")
+	flag.StringVar(&cfg.GRPC.Port, "g", "", "server grpc port")
+	flag.StringVar(&cfg.GRPC.Host, "h", "", "server grpc host")
 	// Usage .
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Shorturl Version %s %v\nUsage : Project Shorturl - URL Shortener Server\n", os.Args[0], cfg.App.Version)

@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/SETTER2000/shorturl/scripts"
 	"io"
 	"os"
 
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/entity"
-	"github.com/SETTER2000/shorturl/scripts"
 )
 
 const (
@@ -33,7 +33,7 @@ type (
 
 	InFiles struct {
 		//lock sync.Mutex // <-- этот мьютекс защищает
-		m   map[string]entity.Shorturls
+		m   map[entity.UserID]entity.Shorturls
 		cfg *config.Config
 		r   *consumer
 		w   *producer
@@ -44,7 +44,7 @@ type (
 func NewInFiles(cfg *config.Config) *InFiles {
 	return &InFiles{
 		cfg: cfg,
-		m:   make(map[string]entity.Shorturls),
+		m:   make(map[entity.UserID]entity.Shorturls),
 		// создаём новый потребитель
 		r: NewConsumer(cfg),
 		// создаём новый производитель
@@ -157,7 +157,8 @@ func (i *InFiles) getAllUserID(u *entity.User) (*entity.User, error) {
 	for _, short := range shorts {
 		if short.UserID == u.UserID {
 			lst.URL = short.URL
-			lst.Slug = scripts.GetHost(i.cfg.HTTP, short.Slug)
+			//lst.Slug = short.Slug
+			lst.ShortURL = scripts.GetHost(i.cfg.HTTP, short.Slug)
 			u.Urls = append(u.Urls, lst)
 		}
 	}

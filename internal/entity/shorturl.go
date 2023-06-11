@@ -15,43 +15,52 @@ type (
 	// Shorturls -.
 	Shorturls []Shorturl
 
+	// Slug -.
+	Slug string
+
+	// UserID -.
+	UserID string
+
+	// URL -.
+	URL string
+
 	// Shorturl хранит параметры URL.
 	Shorturl struct {
-		Slug           string `json:"slug,omitempty" example:"1674872720465761244B_5"`             // Строковый идентификатор
-		URL            string `json:"url,omitempty" example:"https://example.com/go/to/home.html"` // URL для сокращения
+		Slug           `json:"slug,omitempty" example:"1674872720465761244B_5"`             // Строковый идентификатор
+		URL            `json:"url,omitempty" example:"https://example.com/go/to/home.html"` // URL для сокращения
 		*config.Config `json:"-"`
-		UserID         string `json:"user_id,omitempty"`
-		Del            bool   `json:"del"`
+		UserID         `json:"user_id,omitempty"`
+		Del            bool `json:"del"`
 	}
 
 	// List -.
 	List struct {
-		Slug string `json:"short_url" example:"1674872720465761244B_5"`                 // Строковый идентификатор
-		URL  string `json:"original_url" example:"https://example.com/go/to/home.html"` // URL для сокращения
+		ShortURL URL                                                                 `json:"short_url" example:"1674872720465761244B_5"` // Строковый идентификатор
+		URL      `json:"original_url" example:"https://example.com/go/to/home.html"` // URL для сокращения
 	}
 
 	// User -.
 	User struct {
-		UserID  string `json:"user_id" example:"1674872720465761244B_5"`
-		DelLink []string
+		UserID  `json:"user_id" example:"1674872720465761244B_5"`
+		DelLink []Slug
 		Urls    []List
 	}
 
 	// ShorturlResponse -.
 	ShorturlResponse struct {
-		URL string `json:"result"` // URL для сокращения
+		URL `json:"result"` // URL для сокращения
 	}
 
 	// Batch -.
 	Batch struct {
-		Slug string `json:"correlation_id" example:"1674872720465761244B_5"`            // Строковый идентификатор
-		URL  string `json:"original_url" example:"https://example.com/go/to/home.html"` // URL для сокращения
+		Slug `json:"correlation_id" example:"1674872720465761244B_5"`            // Строковый идентификатор
+		URL  `json:"original_url" example:"https://example.com/go/to/home.html"` // URL для сокращения
 	}
 
 	// ShortenResponse -.
 	ShortenResponse struct {
-		Slug string `json:"correlation_id" example:"1674872720465761244B_5"`        // Строковый идентификатор
-		URL  string `json:"short_url" example:"https://example.com/correlation_id"` // URL для сокращения
+		Slug `json:"correlation_id" example:"1674872720465761244B_5"`        // Строковый идентификатор
+		URL  `json:"short_url" example:"https://example.com/correlation_id"` // URL для сокращения
 	}
 
 	// Short -.

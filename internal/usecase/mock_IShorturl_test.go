@@ -125,18 +125,18 @@ func (_c *MockIShorturl_AllUsers_Call) RunAndReturn(run func() (entity.CountUser
 }
 
 // LongLink provides a mock function with given fields: _a0, _a1
-func (_m *MockIShorturl) LongLink(_a0 context.Context, _a1 *entity.Shorturl) (string, error) {
+func (_m *MockIShorturl) LongLink(_a0 context.Context, _a1 *entity.Shorturl) (entity.Slug, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 string
+	var r0 entity.Slug
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *entity.Shorturl) (string, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *entity.Shorturl) (entity.Slug, error)); ok {
 		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *entity.Shorturl) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *entity.Shorturl) entity.Slug); ok {
 		r0 = rf(_a0, _a1)
 	} else {
-		r0 = ret.Get(0).(string)
+		r0 = ret.Get(0).(entity.Slug)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *entity.Shorturl) error); ok {
@@ -167,28 +167,40 @@ func (_c *MockIShorturl_LongLink_Call) Run(run func(_a0 context.Context, _a1 *en
 	return _c
 }
 
-func (_c *MockIShorturl_LongLink_Call) Return(_a0 string, _a1 error) *MockIShorturl_LongLink_Call {
+func (_c *MockIShorturl_LongLink_Call) Return(_a0 entity.Slug, _a1 error) *MockIShorturl_LongLink_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockIShorturl_LongLink_Call) RunAndReturn(run func(context.Context, *entity.Shorturl) (string, error)) *MockIShorturl_LongLink_Call {
+func (_c *MockIShorturl_LongLink_Call) RunAndReturn(run func(context.Context, *entity.Shorturl) (entity.Slug, error)) *MockIShorturl_LongLink_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Post provides a mock function with given fields: _a0, _a1
-func (_m *MockIShorturl) Post(_a0 context.Context, _a1 *entity.Shorturl) error {
+func (_m *MockIShorturl) Post(_a0 context.Context, _a1 *entity.Shorturl) (*entity.ShorturlResponse, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *entity.Shorturl) error); ok {
+	var r0 *entity.ShorturlResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *entity.Shorturl) (*entity.ShorturlResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *entity.Shorturl) *entity.ShorturlResponse); ok {
 		r0 = rf(_a0, _a1)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entity.ShorturlResponse)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, *entity.Shorturl) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // MockIShorturl_Post_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Post'
@@ -210,12 +222,12 @@ func (_c *MockIShorturl_Post_Call) Run(run func(_a0 context.Context, _a1 *entity
 	return _c
 }
 
-func (_c *MockIShorturl_Post_Call) Return(_a0 error) *MockIShorturl_Post_Call {
-	_c.Call.Return(_a0)
+func (_c *MockIShorturl_Post_Call) Return(_a0 *entity.ShorturlResponse, _a1 error) *MockIShorturl_Post_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockIShorturl_Post_Call) RunAndReturn(run func(context.Context, *entity.Shorturl) error) *MockIShorturl_Post_Call {
+func (_c *MockIShorturl_Post_Call) RunAndReturn(run func(context.Context, *entity.Shorturl) (*entity.ShorturlResponse, error)) *MockIShorturl_Post_Call {
 	_c.Call.Return(run)
 	return _c
 }
