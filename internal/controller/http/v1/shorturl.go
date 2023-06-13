@@ -59,7 +59,6 @@ func newShorturlRoutes(handler chi.Router, s usecase.IShorturl, l logger.Interfa
 
 func (r *shorturlRoutes) shortLink(w http.ResponseWriter, req *http.Request) {
 	data := entity.Shorturl{
-		//Config: r.cfg,
 		Slug: entity.Slug(chi.URLParam(req, "key")),
 	}
 

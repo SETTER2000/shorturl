@@ -67,10 +67,10 @@ func (uc *ShorturlUseCase) LongLink(ctx context.Context, sh *entity.Shorturl) (e
 func (uc *ShorturlUseCase) ShortLink(ctx context.Context, sh *entity.Shorturl) (*entity.Shorturl, error) {
 	sh.Config = uc.cfg
 	sh, err := uc.repo.Get(ctx, sh)
-	if err == nil {
-		return sh, nil
+	if err != nil {
+		return nil, er.ErrBadRequest
 	}
-	return nil, er.ErrBadRequest
+	return sh, nil
 }
 
 // UserAllLink принимает короткий URL и возвращает длинный (GET /user/urls)
