@@ -3,6 +3,9 @@ package server
 import (
 	"fmt"
 	"github.com/SETTER2000/shorturl/config"
+	"github.com/SETTER2000/shorturl/internal/controller/grpc"
+	"github.com/SETTER2000/shorturl/internal/controller/grpc/handler"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/acme/autocert"
 	"log"
 	"net"
@@ -51,18 +54,19 @@ func PortGRPC(port string) Option {
 	}
 }
 
-//
-//// EnableGRPC - включить поддержку gRPC.
-//func EnableGRPC(cfg *config.GRPC) Option {
-//
-//	grpcSrv := grpc.NewServer(grpc.Deps{
-//		EntityHandler:
-//	})
-//
-//	return func(s *Server) {
-//		s.grpcSrv = grpcSrv
-//	}
-//}
+// EnableGRPC - включить поддержку gRPC.
+func EnableGRPC(h *handler.IShorturlServer) Option {
+	var logger = logrus.New()
+
+	grpcSrv := grpc.NewServer(grpc.Deps{
+		Logger:  logger,
+		Handler: h,
+	})
+
+	return func(s *Server) {
+		s.srv = grpcSrv
+	}
+}
 
 // EnableHTTPS - опция подключает возможность использования SSL/TLS на сервере.
 func EnableHTTPS(cfg *config.HTTP) Option {

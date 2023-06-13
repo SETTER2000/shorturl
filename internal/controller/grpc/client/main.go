@@ -44,8 +44,8 @@ func TestShorturls(c pb.IShorturlClient) {
 	defer cancel()
 	// набор тестовых данных
 	shorturls := []*pb.Shorturl{
-		{Slug: "12", Url: "https://lphp.ru/artpage/46.html", UserId: "168636114238440868834_", Del: false},
-		{Slug: "13", Url: "https://lphp.ru/artpage/38.html", UserId: "168636114238440868834_", Del: false},
+		{Slug: "", Url: "https://lphp.ru/artpage/49.html", UserId: "", Del: false},
+		{Slug: "", Url: "https://lphp.ru/artpage/39.html", UserId: "", Del: false},
 	}
 	for _, shorturl := range shorturls {
 		// добавляем URL
@@ -61,17 +61,17 @@ func TestShorturls(c pb.IShorturlClient) {
 
 		fmt.Printf("RESPOnse:: %v", resp)
 	}
-
+	u := pb.User{}
 	// удаляем один URL
-	//resp, err := c.DelUser(context.Background(), &pb.DelUserRequest{
-	//	Email: "serge@example.com",
-	//})
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//if resp.Error != "" {
-	//	fmt.Println(resp.Error)
-	//}
+	resp, err := c.UserDelLink(ctx, &pb.UserDelLinkRequest{
+		User: &u,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	if resp.Error != "" {
+		fmt.Println(resp.Error)
+	}
 	//// если запрос будет выполняться дольше 200 миллисекунд, то вернётся ошибка
 	//// с кодом codes.DeadlineExceeded и сообщением context deadline exceeded
 	//ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)

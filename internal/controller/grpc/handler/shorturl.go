@@ -44,12 +44,12 @@ func (s *IShorturlServer) LongLink(ctx context.Context, in *pb.LongLinkRequest) 
 	var response pb.LongLinkResponse
 	logrus.Infof("IN входящие данные: %+v\n", in)
 	sh := entity.Shorturl{
-		URL:    entity.URL(in.Shorturl.Url),
-		Slug:   entity.Slug(in.Shorturl.Slug),
-		UserID: entity.UserID(in.Shorturl.UserId),
-		Del:    false,
+		URL:  entity.URL(in.Shorturl.Url),
+		Slug: entity.Slug(in.Shorturl.Slug),
+		//UserID: entity.UserID(entity.UserID(ctx.Value(s.cfg.AccessTokenName).(string))),
+		Del: false,
 	}
-	err := s.service.Put(context.Background(), &sh)
+	err := s.service.Put(ctx, &sh)
 	if err != nil {
 		response.Error = fmt.Sprintf("ERRRRRRR::: %s ", err)
 	}

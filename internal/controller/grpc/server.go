@@ -3,7 +3,6 @@ package grpc
 import (
 	"fmt"
 	pb "github.com/SETTER2000/shorturl-service-api/api"
-	"github.com/SETTER2000/shorturl/internal/controller/grpc/handler"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -16,7 +15,7 @@ import (
 type Deps struct {
 	Logger *logrus.Logger
 
-	Handler *handler.IShorturlServer
+	Handler pb.IShorturlServer
 }
 
 // Server -.

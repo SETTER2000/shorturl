@@ -5,8 +5,6 @@ import (
 	"context"
 	"github.com/SETTER2000/shorturl/config"
 	"github.com/SETTER2000/shorturl/internal/controller/grpc"
-	"github.com/SETTER2000/shorturl/internal/controller/grpc/handler"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
@@ -20,6 +18,7 @@ const (
 	_defaultCertFile        = ""
 	_defaultKeyFile         = ""
 	_defaultGrpcPort        = ""
+	//_defaultGrpcServer             = ""
 )
 
 // Server -.
@@ -37,7 +36,7 @@ type Server struct {
 
 // New -.
 func New(handlerHTTP http.Handler, opts ...Option) *Server {
-	var logger = logrus.New()
+	//var logger = logrus.New()
 	httpServer := &http.Server{
 		Handler:      handlerHTTP,
 		ReadTimeout:  _defaultReadTimeout,
@@ -45,14 +44,10 @@ func New(handlerHTTP http.Handler, opts ...Option) *Server {
 		Addr:         _defaultAddr,
 	}
 
-	grpcServer := grpc.NewServer(grpc.Deps{
-		Logger:  logger,
-		Handler: &handler.IShorturlServer{},
-	})
 	s := &Server{
-		server:          httpServer,
-		srv:             grpcServer,
-		notify:          make(chan error, 1),
+		server: httpServer,
+		notify: make(chan error, 1),
+		//srv:             _defaultGrpcServer,
 		shutdownTimeout: _defaultShutdownTimeout,
 		isHTTPS:         _defaultHTTPS,
 		certFile:        _defaultCertFile,

@@ -57,7 +57,6 @@ func NewSQLProducer(db *sqlx.DB) *producerSQL {
 
 // Post - добавляет данные в DB
 func (i *InSQL) Post(ctx context.Context, sh *entity.Shorturl) error {
-	fmt.Println("InSQL.Post method")
 	if len(strings.TrimSpace(string(sh.UserID))) < 1 {
 		return er.ErrBadRequest
 	}
