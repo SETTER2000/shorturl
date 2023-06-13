@@ -64,13 +64,14 @@ func (r *shorturlRoutes) shortLink(w http.ResponseWriter, req *http.Request) {
 
 	sh, err := r.s.ShortLink(req.Context(), &data)
 	if err != nil {
+		if errors.Is(err, er.ErrStatusGone) {
+			// При запросе удалённого URL с помощью хендлера GET /{id}
+			// нужно вернуть статус 410 Gone, если Del=true
+			w.WriteHeader(http.StatusGone)
+			return
+		}
 		r.l.Error(err, "http - v1 - shortLink")
 		http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
-		return
-	}
-	// При запросе удалённого URL с помощью хендлера GET /{id} нужно вернуть статус 410 Gone
-	if sh.Del {
-		w.WriteHeader(http.StatusGone)
 		return
 	}
 

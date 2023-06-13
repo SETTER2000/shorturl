@@ -70,6 +70,11 @@ func (uc *ShorturlUseCase) ShortLink(ctx context.Context, sh *entity.Shorturl) (
 	if err != nil {
 		return nil, er.ErrBadRequest
 	}
+
+	//При запросе удалённого URL с помощью хендлера GET /{id} нужно вернуть статус 410 Gone
+	if sh.Del {
+		return nil, er.ErrStatusGone
+	}
 	return sh, nil
 }
 

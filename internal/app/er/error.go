@@ -17,6 +17,7 @@ var (
 	ErrForbidden      = errors.New(`forbidden`)
 	ErrUserIDRequired = errors.New("user id required")
 	ErrStatusConflict = errors.New("status conflict")
+	ErrStatusGone     = errors.New("status gone")
 )
 
 type response struct {
