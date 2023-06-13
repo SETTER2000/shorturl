@@ -65,7 +65,25 @@ func (s *IShorturlServer) LongLink(ctx context.Context, in *pb.LongLinkRequest) 
 
 // ShortLink -.
 func (s *IShorturlServer) ShortLink(ctx context.Context, in *pb.ShortLinkRequest) (*pb.ShortLinkResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ShortLink not implemented")
+	var response pb.ShortLinkResponse
+	sh := &entity.Shorturl{
+		Slug: entity.Slug(in.Shorturl.Slug),
+	}
+	if short, err := s.service.ShortLink(ctx, sh); err != nil {
+		//if errors.Is(err, er.ErrStatusGone) {
+		//	// При запросе удалённого URL с помощью хендлера GET /{id}
+		//	// нужно вернуть статус 410 Gone, если Del=true
+		//	w.WriteHeader(http.StatusGone)
+		//	return
+		//}
+		//response.Error = fmt.Sprintf("%v", err)
+		return nil, status.Errorf(codes.NotFound, `%s. Не удалось найти URL по ключу: %s.`, err, in.Shorturl.Slug)
+	} else {
+		response.Shorturl = string(short.URL)
+	}
+
+	logrus.Infof("Ошибок нет. Ответ ShortLinkResponse: %+v\n", &response)
+	return &response, nil
 }
 
 // UserAllLink -.

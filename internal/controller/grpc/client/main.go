@@ -98,7 +98,7 @@ func TestShorturls(c pb.IShorturlClient) {
 		fmt.Printf("Client.LongLink response: %v\n", resp)
 	}
 
-	// удаляем один URL
+	// UserDelLink
 	for _, shorturl := range shorturls {
 		u := pb.User{
 			UserId:  shorturl.UserId,
@@ -117,6 +117,27 @@ func TestShorturls(c pb.IShorturlClient) {
 
 		fmt.Printf("Client.UserDelLink response: %v\n", true)
 	}
+
+	// ShortLink
+	//resp, err = c.ShortLink(ctx, &pb.ShortLinkRequest{
+	//	Shorturl: &pb.Shorturl{
+	//		Slug:   "10",
+	//	},
+	//})
+	//if err != nil {
+	//	if e, ok := status.FromError(err); ok {
+	//		if e.Code() == codes.NotFound {
+	//			// выведет, что пользователь не найден
+	//			fmt.Println(`NOT FOUND ShortLink:`, e.Message())
+	//		} else {
+	//			// в остальных случаях выводим код ошибки в виде строки и сообщение
+	//			fmt.Println(e.Code(), e.Message())
+	//		}
+	//	} else {
+	//		fmt.Printf("Не получилось распарсить ошибку %v", err)
+	//	}
+	//}
+	//fmt.Printf("Client.Post response: %v\n", resp)
 
 	//// если запрос будет выполняться дольше 200 миллисекунд, то вернётся ошибка
 	//// с кодом codes.DeadlineExceeded и сообщением context deadline exceeded
