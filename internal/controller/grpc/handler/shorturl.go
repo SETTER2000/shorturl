@@ -42,7 +42,7 @@ func (s *IShorturlServer) Post(ctx context.Context, in *pb.PostRequest) (*pb.Pos
 // LongLink -.
 func (s *IShorturlServer) LongLink(ctx context.Context, in *pb.LongLinkRequest) (*pb.LongLinkResponse, error) {
 	var response pb.LongLinkResponse
-	logrus.Infof("IN входящие данные: %+v\n", in)
+	//logrus.Infof("IN входящие данные: %+v\n", in)
 	//token := ctx.Value("access_token").(string)
 	//fmt.Printf("TOKEN :: %v\n", token)
 	//if token == "" {
@@ -57,7 +57,7 @@ func (s *IShorturlServer) LongLink(ctx context.Context, in *pb.LongLinkRequest) 
 	err := s.service.Put(ctx, &sh)
 	if err != nil {
 		//return nil, status.Errorf(codes., `Пользователь с email %s не найден`, in.Email)
-		response.Error = fmt.Sprintf("ERRRRRRR::: %s ", err)
+		response.Error = fmt.Sprintf("error: %s", err)
 	}
 	response.Shorturl = string(sh.URL)
 	logrus.Infof("Ошибок нет. Ответ: %+v\n", &response)
@@ -96,7 +96,7 @@ func (s *IShorturlServer) UserDelLink(ctx context.Context, in *pb.UserDelLinkReq
 	}
 	err := s.service.Delete(ctx, &u)
 	if err != nil {
-		response.Error = fmt.Sprintf("Ошибка удаления URL: %s\n", err)
+		response.Error = fmt.Sprintf("error: %s", err)
 	}
 
 	logrus.Infof("Ошибок нет. Ответ: %+v\n", &response)
