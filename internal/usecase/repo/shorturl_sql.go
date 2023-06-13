@@ -139,7 +139,6 @@ func (i *InSQL) GetAll(ctx context.Context, u *entity.User) (*entity.User, error
 			return nil, err
 		}
 		l.URL = url
-		//l.Slug = slug
 		l.ShortURL = scripts.GetHost(i.cfg.HTTP, slug)
 		u.Urls = append(u.Urls, l)
 	}

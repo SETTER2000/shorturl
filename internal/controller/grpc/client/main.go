@@ -44,8 +44,8 @@ func TestShorturls(c pb.IShorturlClient) {
 	defer cancel()
 	// набор тестовых данных
 	shorturls := []*pb.Shorturl{
-		{Slug: "", Url: "https://lphp.ru/artpage/49.html", UserId: "", Del: false},
-		{Slug: "", Url: "https://lphp.ru/artpage/39.html", UserId: "", Del: false},
+		{Slug: "1042", Url: "https://lphp.ru/artpage/44.html", UserId: "168636114238440868834_", Del: false},
+		{Slug: "1340", Url: "https://lphp.ru/artpage/34.html", UserId: "168636114238440868834_", Del: false},
 	}
 	for _, shorturl := range shorturls {
 		// добавляем URL
@@ -59,19 +59,29 @@ func TestShorturls(c pb.IShorturlClient) {
 			fmt.Println(resp.Error)
 		}
 
-		fmt.Printf("RESPOnse:: %v", resp)
+		fmt.Printf("Client.LongLink response: %v\n", resp)
 	}
-	u := pb.User{}
+
 	// удаляем один URL
-	resp, err := c.UserDelLink(ctx, &pb.UserDelLinkRequest{
-		User: &u,
-	})
-	if err != nil {
-		log.Fatal(err)
+	for _, shorturl := range shorturls {
+		u := pb.User{
+			UserId:  shorturl.UserId,
+			DelLink: []string{"1042", "1340"},
+		}
+		// добавляем URL
+		resp, err := c.UserDelLink(ctx, &pb.UserDelLinkRequest{
+			User: &u,
+		})
+		if err != nil {
+			log.Fatalf("could not sh: %v", err)
+		}
+		if resp.Error != "" {
+			fmt.Println(resp.Error)
+		}
+
+		fmt.Printf("Client.UserDelLink response: %v\n", resp)
 	}
-	if resp.Error != "" {
-		fmt.Println(resp.Error)
-	}
+
 	//// если запрос будет выполняться дольше 200 миллисекунд, то вернётся ошибка
 	//// с кодом codes.DeadlineExceeded и сообщением context deadline exceeded
 	//ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)

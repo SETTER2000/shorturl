@@ -53,6 +53,9 @@ func (uc *ShorturlUseCase) Post(ctx context.Context, sh *entity.Shorturl) (*enti
 
 // LongLink принимает длинный URL и возвращает короткий (PUT /api)
 func (uc *ShorturlUseCase) LongLink(ctx context.Context, sh *entity.Shorturl) (entity.Slug, error) {
+	//sh.Config = uc.cfg
+	//sh.Slug = scripts.UniqueString()
+	//sh.UserID = entity.UserID(ctx.Value(uc.cfg.AccessTokenName).(string))
 	err := uc.repo.Put(ctx, sh)
 	if err != nil {
 		return "", err

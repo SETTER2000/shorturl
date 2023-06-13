@@ -123,6 +123,7 @@ func (r *shorturlRoutes) longLink(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	//data := entity.Shorturl{}
 	data := entity.Shorturl{Config: r.cfg}
 	data.URL = entity.URL(body)
 	data.Slug = scripts.UniqueString()
