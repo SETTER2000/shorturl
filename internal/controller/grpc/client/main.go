@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"time"
 
 	// ...
@@ -47,16 +49,50 @@ func TestShorturls(c pb.IShorturlClient) {
 		{Slug: "1042", Url: "https://lphp.ru/artpage/44.html", UserId: "168636114238440868834_", Del: false},
 		{Slug: "1340", Url: "https://lphp.ru/artpage/34.html", UserId: "168636114238440868834_", Del: false},
 	}
+
+	// Post
+	resp, err := c.Post(ctx, &pb.PostRequest{
+		Shorturl: &pb.Shorturl{
+			Slug:   "10",
+			Url:    "https://lphp.ru/artpage/10.html",
+			UserId: "168636114238440868834_",
+			Del:    false,
+		},
+	})
+	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			if e.Code() == codes.NotFound {
+				// выведет, что пользователь не найден
+				fmt.Println(`NOT FOUND Post:`, e.Message())
+			} else {
+				// в остальных случаях выводим код ошибки в виде строки и сообщение
+				fmt.Println(e.Code(), e.Message())
+			}
+		} else {
+			fmt.Printf("Не получилось распарсить ошибку %v", err)
+		}
+	}
+	fmt.Printf("Client.Post response: %v\n", resp)
+
+	// LongLink
 	for _, shorturl := range shorturls {
 		// добавляем URL
 		resp, err := c.LongLink(ctx, &pb.LongLinkRequest{
 			Shorturl: shorturl,
 		})
 		if err != nil {
-			log.Fatalf("could not sh: %v", err)
-		}
-		if resp.Error != "" {
-			fmt.Println(resp.Error)
+			if e, ok := status.FromError(err); ok {
+				if e.Code() == codes.NotFound {
+					// выведет, что пользователь не найден
+					fmt.Println(`NOT FOUND`, e.Message())
+					//return nil, status.Errorf(codes.AlreadyExists, `Короткий URL для %s не создан, такой адрес уже существует.`, in.Shorturl.Url)
+				} else {
+					// в остальных случаях выводим код ошибки в виде строки и сообщение
+					fmt.Println(e.Code(), e.Message())
+				}
+			} else {
+				fmt.Printf("Не получилось распарсить ошибку %v", err)
+			}
 		}
 
 		fmt.Printf("Client.LongLink response: %v\n", resp)
@@ -79,7 +115,7 @@ func TestShorturls(c pb.IShorturlClient) {
 			fmt.Println(resp.Error)
 		}
 
-		fmt.Printf("Client.UserDelLink response: %v\n", resp)
+		fmt.Printf("Client.UserDelLink response: %v\n", true)
 	}
 
 	//// если запрос будет выполняться дольше 200 миллисекунд, то вернётся ошибка

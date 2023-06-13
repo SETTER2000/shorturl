@@ -3,7 +3,7 @@ module github.com/SETTER2000/shorturl
 go 1.19
 
 require (
-	github.com/SETTER2000/shorturl-service-api v0.0.0-20230609174413-2ae061362a2b
+	github.com/SETTER2000/shorturl-service-api v0.0.0-20230613130709-ce8959c88d14
 	github.com/caarlos0/env/v7 v7.0.0
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/render v1.0.2
@@ -20,7 +20,6 @@ require (
 	github.com/xlab/closer v1.1.0
 	golang.org/x/crypto v0.6.0
 	google.golang.org/grpc v1.55.0
-	google.golang.org/protobuf v1.30.0
 )
 
 require (
@@ -37,7 +36,6 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.1 // indirect
 	github.com/lib/pq v1.10.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
@@ -53,6 +51,7 @@ require (
 	golang.org/x/text v0.8.0 // indirect
 	golang.org/x/tools v0.7.0 // indirect
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect
+	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
 )

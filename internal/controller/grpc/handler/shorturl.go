@@ -14,54 +14,52 @@ import (
 // IShorturlServer -.
 type IShorturlServer struct {
 	pb.UnimplementedIShorturlServer
-	service usecase.IShorturlRepo
+	service usecase.IShorturl
 }
 
 // NewIShorturlHandler -.
-func NewIShorturlHandler(h usecase.IShorturlRepo) *IShorturlServer {
+func NewIShorturlHandler(h usecase.IShorturl) *IShorturlServer {
 	return &IShorturlServer{service: h}
 }
 
 // Post -.
 func (s *IShorturlServer) Post(ctx context.Context, in *pb.PostRequest) (*pb.PostResponse, error) {
 	var response pb.PostResponse
-	logrus.Infof("IN входящие данные: %+v\n", in)
-	sh := entity.Shorturl{
-		URL: entity.URL(in.Shorturl.Url),
-	}
-	err := s.service.Post(ctx, &sh)
-	if err != nil {
-		response.Error = fmt.Sprintf("Пользователь со Slug %s уже существует, ну типа того", in.Shorturl.Slug)
-	}
-
-	//logrus.Infof("Ошибок нет. Ответ: %+v\n", res)
-
-	return &response, nil
-}
-
-// LongLink -.
-func (s *IShorturlServer) LongLink(ctx context.Context, in *pb.LongLinkRequest) (*pb.LongLinkResponse, error) {
-	var response pb.LongLinkResponse
-	//logrus.Infof("IN входящие данные: %+v\n", in)
-	//token := ctx.Value("access_token").(string)
-	//fmt.Printf("TOKEN :: %v\n", token)
-	//if token == "" {
-	//	return nil, status.Errorf(codes.Unauthenticated, `Не найден токен %v`, token)
-	//}
+	var shr pb.ShorturlResponse
 	sh := entity.Shorturl{
 		URL:    entity.URL(in.Shorturl.Url),
 		Slug:   entity.Slug(in.Shorturl.Slug),
 		UserID: entity.UserID(in.Shorturl.UserId),
 		Del:    false,
 	}
-	err := s.service.Put(ctx, &sh)
-	if err != nil {
-		//return nil, status.Errorf(codes., `Пользователь с email %s не найден`, in.Email)
-		response.Error = fmt.Sprintf("error: %s", err)
-	}
-	response.Shorturl = string(sh.URL)
-	logrus.Infof("Ошибок нет. Ответ: %+v\n", &response)
 
+	if short, err := s.service.Post(ctx, &sh); err != nil {
+		return nil, status.Errorf(codes.NotFound, `%s. Не удалось создать короткий URL из %s.`, err, in.Shorturl.Url)
+	} else {
+		shr.Result = string(short.URL)
+		response.Result = &shr
+	}
+
+	logrus.Infof("Ошибок нет. Ответ: %+v\n", &response)
+	return &response, nil
+}
+
+// LongLink -.
+func (s *IShorturlServer) LongLink(ctx context.Context, in *pb.LongLinkRequest) (*pb.LongLinkResponse, error) {
+	var response pb.LongLinkResponse
+	sh := entity.Shorturl{
+		URL:    entity.URL(in.Shorturl.Url),
+		Slug:   entity.Slug(in.Shorturl.Slug),
+		UserID: entity.UserID(in.Shorturl.UserId),
+		Del:    false,
+	}
+	if short, err := s.service.LongLink(ctx, &sh); err != nil {
+		return nil, status.Errorf(codes.AlreadyExists, `%s. Не удалось создать короткий URL из %s.`, err, in.Shorturl.Url)
+	} else {
+		response.Shorturl = string(short)
+	}
+
+	logrus.Infof("Ошибок нет. Ответ: %+v\n", &response)
 	return &response, nil
 }
 
@@ -94,14 +92,12 @@ func (s *IShorturlServer) UserDelLink(ctx context.Context, in *pb.UserDelLinkReq
 	for _, dLink := range in.User.DelLink {
 		u.DelLink = append(u.DelLink, entity.Slug(dLink))
 	}
-	err := s.service.Delete(ctx, &u)
+	err := s.service.UserDelLink(ctx, &u)
 	if err != nil {
 		response.Error = fmt.Sprintf("error: %s", err)
 	}
 
 	logrus.Infof("Ошибок нет. Ответ: %+v\n", &response)
-
-	//response.Shorturl = string(sh.URL)
 	return &response, nil
 }
 
