@@ -77,7 +77,7 @@ type (
 		Level string `env-required:"true" yaml:"log_level"  json:"log_level"  env:"LOG_LEVEL"`
 	}
 	GRPC struct {
-		Port string `env-required:"true" json:"port" env:"GRPC_PORT" envDefault:"8088"`
+		Port string `env-required:"true" json:"port" env:"GRPC_PORT" envDefault:"8085"`
 		Host string `env-required:"true" json:"host" env:"GRPC_HOST" envDefault:"localhost"`
 	}
 )

@@ -7,8 +7,6 @@ github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
-github.com/SETTER2000/shorturl-service-api v0.0.0-20230609174413-2ae061362a2b h1:ylN08zu8YQ7PoiRbArSu8dIaEr2i5BBqAPnq9R7/yLI=
-github.com/SETTER2000/shorturl-service-api v0.0.0-20230609174413-2ae061362a2b/go.mod h1:ANQE6EVyKc9AMbBrTtIU4zpNdDZEz+nYoOKFxHkRuDU=
 github.com/SETTER2000/shorturl-service-api v0.0.0-20230613130709-ce8959c88d14 h1:Ia0gu07HMLxSiPh1ya3bSdMfS/Lu6mP6k7UbgVVY20g=
 github.com/SETTER2000/shorturl-service-api v0.0.0-20230613130709-ce8959c88d14/go.mod h1:YZ9eBbgAwH3la3/DrNsDR4atynD+6uW7nQWAYv4luOg=
 github.com/agiledragon/gomonkey/v2 v2.3.1/go.mod h1:ap1AmDzcVOAz1YpeJ3TCzIgstoaWLA6jbbgxfB4w2iY=

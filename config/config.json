@@ -21,7 +21,7 @@
     "log_level": "debug"
   },
   "grpc": {
-    "port": "8088",
+    "port": "8085",
     "host": "localhost"
   }
 }

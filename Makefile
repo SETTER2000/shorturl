@@ -71,6 +71,13 @@ short_x:
 short_g:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative internal/controller/grpc/proto/shorturl.proto
 
+# Сбилдить клиента
+cb:
+	go build -o cmd/client/client cmd/client/main.go
+
+# Запустить клиента
+cr:
+	./cmd/client/client
 
 cover:
 	go test -v -count 1 -race -coverpkg=./... -coverprofile=$(COVER_OUT) ./...
